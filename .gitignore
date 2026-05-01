@@ -1,7 +1,12 @@
 __pycache__/
 *.pyc
 venv/
-.env/
+.env*
 *.log
 opt/
 etc/
+tmp_*/
+backups/
+SnowOS-Visuals-Pack.zip
+*.swp
+.DS_Store
