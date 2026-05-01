@@ -1,0 +1,30 @@
+{
+  "window_placements": {
+    "Gnome-terminal": {
+      "x": 50,
+      "y": 82,
+      "w": 814,
+      "h": 577
+    },
+    "Firefox": {
+      "x": 100,
+      "y": 100,
+      "w": 800,
+      "h": 600
+    },
+    "Terminal": {
+      "x": 50,
+      "y": 50,
+      "w": 600,
+      "h": 400
+    },
+    "VSCode": {
+      "x": 200,
+      "y": 200,
+      "w": 1024,
+      "h": 768
+    }
+  },
+  "dock_layout": [],
+  "preferred_modes": {}
+}

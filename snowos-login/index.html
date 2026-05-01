@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowOS - Intelligent. Adaptive. Yours.</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="top-left">
+            <span class="logo-text">SnowOS</span>
+            <nav class="system-nav">
+                <a href="#">Input</a>
+                <a href="#">Devices</a>
+                <a href="#">Help</a>
+            </nav>
+        </div>
+        <div class="top-center">
+            <span id="clock">Apr 24 14:03</span>
+        </div>
+        <div class="top-right">
+            <div class="system-icons">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Center Branding -->
+        <div class="center-branding">
+            <div class="snowflake-logo">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="snow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#b3d4ff" />
+                            <stop offset="100%" style="stop-color:#ffffff" />
+                        </linearGradient>
+                    </defs>
+                    <g stroke="url(#snow-grad)" stroke-width="3" stroke-linecap="round">
+                        <line x1="50" y1="10" x2="50" y2="90" />
+                        <line x1="10" y1="50" x2="90" y2="50" />
+                        <line x1="21.7" y1="21.7" x2="78.3" y2="78.3" />
+                        <line x1="78.3" y1="21.7" x2="21.7" y2="78.3" />
+                        <path d="M40 25 L50 15 L60 25" />
+                        <path d="M40 75 L50 85 L60 75" />
+                        <path d="M25 40 L15 50 L25 60" />
+                        <path d="M75 40 L85 50 L75 60" />
+                        <circle cx="50" cy="50" r="4" fill="url(#snow-grad)" />
+                    </g>
+                </svg>
+            </div>
+            <h1 class="brand-name">SnowOS</h1>
+            <p class="tagline">Intelligent. Adaptive. Yours.</p>
+        </div>
+
+        <!-- Login Card -->
+        <section class="login-card">
+            <div class="user-avatar">
+                <div class="avatar-circle">
+                    <svg viewBox="0 0 100 100" fill="none" stroke="white" stroke-width="3">
+                        <line x1="50" y1="20" x2="50" y2="80" />
+                        <line x1="20" y1="50" x2="80" y2="50" />
+                        <line x1="28.8" y1="28.8" x2="71.2" y2="71.2" />
+                        <line x1="71.2" y1="28.8" x2="28.8" y2="71.2" />
+                    </svg>
+                </div>
+            </div>
+            <div class="user-info">
+                <h2 class="username">develop</h2>
+                <p class="welcome-text">Welcome back</p>
+            </div>
+            <div class="password-field">
+                <input type="password" placeholder="Enter your password" id="password-input">
+                <button class="submit-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+            <div class="card-footer">
+                <label class="remember-me">
+                    <input type="checkbox" checked>
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="not-listed">Not listed?</a>
+            </div>
+        </section>
+
+        <!-- Action Bar -->
+        <section class="action-bar">
+            <div class="action-item">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <span>Sleep</span>
+            </div>
+            <div class="action-item">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                <span>Restart</span>
+            </div>
+            <div class="action-item">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                <span>Shut Down</span>
+            </div>
+            <div class="action-item">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span>System Info</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bottom-bar">
+        <div class="status-left">
+            <div class="status-indicator-container">
+                <div class="status-indicator online"></div>
+                <span>Nyx is online</span>
+            </div>
+            <p class="status-sub">All systems are optimal.</p>
+        </div>
+        <div class="features-center">
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/></svg>
+                <span>AI-Powered</span>
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 14 4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path></svg>
+                <span>Self-Healing</span>
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>Privacy First</span>
+            </div>
+            <div class="feature">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                <span>Blazing Fast</span>
+            </div>
+        </div>
+        <div class="version-right">
+            <p>SnowOS 1.0</p>
+            <p class="built-by">Built with <svg class="inline-snowflake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"></path></svg> by you</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

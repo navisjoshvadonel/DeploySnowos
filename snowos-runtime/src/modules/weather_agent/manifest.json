@@ -1,0 +1,9 @@
+{
+  "name": "weather_agent",
+  "version": "1.0",
+  "permissions": {
+    "network.api": ["connect"],
+    "display.widget": ["draw"]
+  },
+  "entry_point": "main.py"
+}

@@ -1,0 +1,9 @@
+{
+  "local-node": {
+    "id": "local-node",
+    "host": "127.0.0.1",
+    "port": 8080,
+    "token": "03bd675c",
+    "status": "active"
+  }
+}

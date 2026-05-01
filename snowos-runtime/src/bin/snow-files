@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+case "$1" in
+list)
+ls -lh
+;;
+find)
+find . -name "$2"
+;;
+*)
+echo "Usage: snow files [list|find <name>]"
+;;
+esac

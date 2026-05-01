@@ -1,0 +1,24 @@
+{
+    "palette": {
+        "ambient_dark": "#0a0a0c",
+        "crystal_light": "#f0f0f5",
+        "nyx_violet": "#8a2be2",
+        "ice_blue": "#a5d8ff",
+        "frost_white": "rgba(255, 255, 255, 0.05)"
+    },
+    "states": {
+        "focus": {
+            "background_opacity": 0.0,
+            "blur_radius": 0
+        },
+        "explore": {
+            "background_opacity": 0.05,
+            "blur_radius": 40
+        },
+        "night": {
+            "background_opacity": 0.1,
+            "blur_radius": 60,
+            "tint": "#1a1a2e"
+        }
+    }
+}

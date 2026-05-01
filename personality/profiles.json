@@ -1,0 +1,30 @@
+{
+  "calm": {
+    "suggestion_level": "low",
+    "auto_action": false,
+    "ui_movement": "minimal",
+    "confidence_threshold": 0.95,
+    "description": "Minimal interruptions, UI remains stable."
+  },
+  "assistive": {
+    "suggestion_level": "medium",
+    "auto_action": false,
+    "ui_movement": "moderate",
+    "confidence_threshold": 0.85,
+    "description": "Helpful suggestions, user must confirm all actions."
+  },
+  "autonomous": {
+    "suggestion_level": "high",
+    "auto_action": true,
+    "ui_movement": "dynamic",
+    "confidence_threshold": 0.80,
+    "description": "Full proactive support, OS automates repetitive tasks."
+  },
+  "developer": {
+    "suggestion_level": "low",
+    "auto_action": false,
+    "ui_movement": "none",
+    "confidence_threshold": 0.99,
+    "description": "Standard shell behavior, no autonomous UI reorganization."
+  }
+}

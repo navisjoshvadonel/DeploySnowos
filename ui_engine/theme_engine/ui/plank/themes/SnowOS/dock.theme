@@ -1,0 +1,32 @@
+[PlankTheme]
+# SnowOS Frozen Minimal UI - Dock Theme
+# Identity: Ice Blue / Frost White / Midnight Shadow
+
+# The roundness of the dock's corners.
+TopRoundness=14
+BottomRoundness=14
+
+# The thickness of the dock's border.
+LineWidth=1
+
+# The color of the dock's border (RGBA).
+LineColor=255,255,255,180
+
+# The color of the dock's background (RGBA).
+# 224,247,250 is a light ice blue. 110 is ~43% opacity.
+FillColor=224,247,250,110
+
+# The size of the dock's shadow.
+ShadowSize=10
+
+# The color of the dock's shadow (RGBA).
+ShadowColor=0,31,63,60
+
+# The amount of padding around each item.
+ItemPadding=6
+
+# The size of the indicator for running applications.
+IndicatorSize=5
+
+# The distance between the items and the dock's edge.
+OuterPadding=4

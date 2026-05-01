@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowControl - Central Intelligence</title>
+    <link rel="stylesheet" href="cyber-glacier.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Top Dashboard -->
+        <header class="system-dashboard">
+            <div class="logo">❄️ SnowControl</div>
+            <div class="metrics" id="metrics-container">
+                <div class="metric"><span>CPU</span> <strong id="cpu-val">--</strong></div>
+                <div class="metric"><span>RAM</span> <strong id="ram-val">--</strong></div>
+                <div class="metric"><span>Agents</span> <strong id="agents-val">--</strong></div>
+                <div class="metric trust-score"><span>Trust Score</span> <strong id="trust-val">--</strong></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Panel: AI Interaction -->
+            <aside class="ai-interaction glass-panel">
+                <h2>Nyx Core</h2>
+                <div class="chat-window">
+                    <div class="chat-message ai">Hello. I am monitoring the system. How can I assist?</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" placeholder="Query system state or overrides..." />
+                </div>
+            </aside>
+
+            <!-- Center Panel: Visualizer -->
+            <section class="permission-visualizer glass-panel">
+                <h2>Live Network Topology</h2>
+                <div class="visualizer-canvas">
+                    <div class="node active">app.mock_app</div>
+                    <div class="link"></div>
+                    <div class="node system">Permission Broker</div>
+                </div>
+                <div class="intent-approval hidden" id="intent-modal">
+                    <h3>⚠️ Intent Approval</h3>
+                    <p><strong>AI Sentinel</strong> wants to modify system config.</p>
+                    <div class="actions">
+                        <button class="btn-allow-once">Allow Once</button>
+                        <button class="btn-allow">Always Allow</button>
+                        <button class="btn-deny">Deny</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Live Event Stream -->
+            <aside class="event-stream glass-panel">
+                <h2>Live Event Stream</h2>
+                <div class="feed" id="event-feed">
+                    <!-- Events injected by JS -->
+                </div>
+            </aside>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

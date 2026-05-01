@@ -1,0 +1,48 @@
+[
+  {
+    "type": "optimization",
+    "message": "You repeatedly fail to start the server. Suggest checking package.json.",
+    "confidence": 0.95,
+    "id": "ins_0f1720",
+    "timestamp": "2026-04-18T23:29:52.894175",
+    "status": "new"
+  },
+  {
+    "id": "ins_test",
+    "message": "Create a greeting script",
+    "type": "optimization",
+    "status": "new"
+  },
+  {
+    "type": "optimization",
+    "message": "Repeated attempts to run 'npm run dev' are consistently failing and causing execution plan failures. Resolving the underlying issue with this command will significantly optimize future operations.",
+    "confidence": 0.95,
+    "id": "ins_8ee10b",
+    "timestamp": "2026-04-19T20:58:27.982799",
+    "status": "new"
+  },
+  {
+    "type": "optimization",
+    "message": "You repeatedly attempt to run 'npm run dev' which consistently fails. Suggest creating a predefined troubleshooting command or workflow to address the underlying issues, rather than retrying blindly.",
+    "confidence": 0.9,
+    "id": "ins_3fb137",
+    "timestamp": "2026-04-19T21:08:36.653289",
+    "status": "new"
+  },
+  {
+    "type": "optimization",
+    "message": "You are repeatedly attempting to execute 'npm run dev', which is consistently resulting in a failure event. This indicates a persistent underlying issue that needs investigation.",
+    "confidence": 0.95,
+    "id": "ins_1f704f",
+    "timestamp": "2026-04-19T21:18:42.144152",
+    "status": "new"
+  },
+  {
+    "type": "optimization",
+    "message": "You are repeatedly attempting to run 'npm run dev' which consistently results in a failure. Consider investigating the root cause of this failure or implementing a different strategy rather than continuous retries.",
+    "confidence": 0.95,
+    "id": "ins_40d851",
+    "timestamp": "2026-04-19T21:28:46.929655",
+    "status": "new"
+  }
+]

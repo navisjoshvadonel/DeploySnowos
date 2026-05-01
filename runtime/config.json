@@ -1,0 +1,9 @@
+{
+  "performance_threshold_cpu": 80,
+  "performance_threshold_mem": 90,
+  "sync_interval_active": 5,
+  "sync_interval_idle": 15,
+  "autonomy_level": "assistive",
+  "log_level": "INFO",
+  "event_bus_logging": false
+}

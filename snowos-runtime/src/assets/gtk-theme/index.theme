@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=SnowOS
+Comment=Premium Frozen UI Theme for SnowOS
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=SnowOS
+MetacityTheme=SnowOS
+IconTheme=SnowOS
+CursorTheme=SnowOS
+ButtonLayout=close,minimize,maximize:menu

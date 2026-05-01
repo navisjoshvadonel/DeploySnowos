@@ -1,0 +1,11 @@
+{
+  "projects": {},
+  "tags": {},
+  "ghost_files": {
+    "/home/develop/snowos/scripts/test_security.py": {
+      "cloud_provider": "snow-cloud",
+      "remote_path": "snow://test_security.py",
+      "last_sync": "2026-05-01T08:26:47.157701"
+    }
+  }
+}

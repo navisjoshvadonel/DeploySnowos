@@ -1,0 +1,107 @@
+/* 
+ * SnowOS GDM Theme - Cyber-Glacier Edition
+ * High-fidelity replication of the custom web design.
+ */
+
+#lockDialogGroup {
+    background-color: #050a10;
+    background-image: url('resource:///org/gnome/shell/theme/snowos-wallpaper.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Glassmorphism Login Card */
+.login-dialog {
+    background-color: rgba(15, 25, 45, 0.4);
+    backdrop-filter: blur(40px) brightness(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    padding: 48px;
+    color: #ffffff;
+    width: 480px;
+}
+
+/* User Selection & Avatar */
+.login-dialog-user-list {
+    spacing: 12px;
+    padding: 20px;
+}
+
+.login-dialog-user-selection-box {
+    padding: 16px;
+    border-radius: 24px;
+    transition: all 200ms ease;
+}
+
+.login-dialog-user-selection-box:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Password Entry */
+.login-dialog-prompt-entry {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    color: #ffffff;
+    padding: 14px 20px;
+    font-size: 16px;
+    caret-color: #00f2ff;
+}
+
+.login-dialog-prompt-entry:focus {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(0, 242, 255, 0.4);
+}
+
+/* Buttons */
+.modal-dialog-button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 12px 24px;
+    font-weight: 600;
+}
+
+.modal-dialog-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Branding - Custom Logo */
+.login-dialog-logo {
+    background-image: url('resource:///org/gnome/shell/theme/snowflake.png');
+    background-size: contain;
+    height: 120px;
+    width: 120px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(179, 212, 255, 0.4));
+}
+
+/* Hide original vendor branding */
+#vendor-logo { display: none; }
+
+/* Custom SnowOS Title */
+.login-dialog-logo-bin::after {
+    content: "SnowOS";
+    display: block;
+    font-size: 48px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: -1px;
+}
+
+/* Tagline */
+.login-dialog-logo-bin::before {
+    content: "Intelligent. Adaptive. Yours.";
+    display: block;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    letter-spacing: 1.5px;
+    order: 3;
+}

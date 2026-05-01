@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=plank
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Plank
+Comment=SnowOS Frozen Minimal Dock
+Icon=plank
+Categories=Utility;
+X-GNOME-Autostart-Delay=2

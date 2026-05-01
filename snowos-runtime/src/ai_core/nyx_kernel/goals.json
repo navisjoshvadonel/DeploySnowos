@@ -1,0 +1,16 @@
+{
+  "g_625b006b": {
+    "id": "g_625b006b",
+    "description": "create python project",
+    "status": "in_progress",
+    "tasks": [
+      "61b0ce42"
+    ],
+    "completed_tasks": [],
+    "failed_tasks": [],
+    "progress": 0.0,
+    "created_at": "2026-04-18T22:48:17.836251",
+    "updated_at": "2026-04-18T22:48:17.836277",
+    "retries": {}
+  }
+}

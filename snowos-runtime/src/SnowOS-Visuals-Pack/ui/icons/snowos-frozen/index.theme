@@ -1,0 +1,13 @@
+[Icon Theme]
+Name=SnowOS-Frozen
+Comment=Futuristic Frozen UI Icons for SnowOS
+Inherits=Adwaita,hicolor
+
+Directories=apps/scalable
+
+[apps/scalable]
+Size=256
+Context=Applications
+Type=Scalable
+MinSize=16
+MaxSize=512

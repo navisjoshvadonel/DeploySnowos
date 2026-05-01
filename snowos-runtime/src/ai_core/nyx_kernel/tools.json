@@ -1,0 +1,21 @@
+{
+  "files": {
+    "^find file (.+)$": "snow files find '{0}'",
+    "^(?:list|show) files?$": "snow files list"
+  },
+  "dev": {
+    "^create python project$": "snow dev python",
+    "^setup python environment$": "snow dev python",
+    "^init git$": "snow dev git",
+    "^create venv$": "python3 -m venv venv"
+  },
+  "system": {
+    "^(?:system|show) status$": "snow status",
+    "^show uptime$": "uptime",
+    "^who am i$": "whoami"
+  },
+  "git": {
+    "^git status$": "git status",
+    "^git log$": "git log --oneline -10"
+  }
+}

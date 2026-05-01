@@ -1,0 +1,308 @@
+:root {
+    --bg-dark: #050a15;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-blue: #00d2ff;
+    --accent-blue-glow: rgba(0, 210, 255, 0.4);
+    --text-primary: #e0e5ec;
+    --text-secondary: #8b9bb4;
+    --success: #00ffcc;
+    --warning: #ffb703;
+    --danger: #ff0055;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at center, #0a1128 0%, var(--bg-dark) 100%);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Header */
+header.system-dashboard {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(5, 10, 21, 0.8);
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--accent-blue);
+    text-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+.metrics {
+    display: flex;
+    gap: 30px;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.metric span {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.metric strong {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.trust-score strong {
+    color: var(--success);
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+/* Main Layout */
+.main-content {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px;
+    gap: 20px;
+    padding: 20px;
+    flex: 1;
+    height: calc(100vh - 60px);
+}
+
+h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--accent-blue);
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 10px;
+}
+
+/* AI Interaction */
+.ai-interaction {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chat-message.ai {
+    background: rgba(0, 210, 255, 0.1);
+    border-left: 3px solid var(--accent-blue);
+}
+
+.chat-input-area {
+    margin-top: 15px;
+}
+
+.chat-input-area input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 12px;
+    border-radius: 6px;
+    color: white;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.chat-input-area input:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px var(--accent-blue-glow);
+}
+
+/* Visualizer */
+.permission-visualizer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.visualizer-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.node {
+    padding: 15px 25px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.node.active {
+    border-color: var(--warning);
+    box-shadow: 0 0 15px rgba(255, 183, 3, 0.3);
+}
+
+.node.system {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 15px var(--accent-blue-glow);
+}
+
+.link {
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--warning), var(--accent-blue));
+    position: relative;
+    overflow: hidden;
+}
+
+.link::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: white;
+    box-shadow: 0 0 10px white;
+    animation: pulse 2s infinite linear;
+}
+
+@keyframes pulse {
+    100% { left: 100%; }
+}
+
+/* Intent Approval Modal */
+.intent-approval {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(10, 17, 40, 0.95);
+    border: 1px solid var(--danger);
+    box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    z-index: 100;
+}
+
+.intent-approval.hidden {
+    display: none;
+}
+
+.intent-approval h3 {
+    color: var(--danger);
+    margin-bottom: 15px;
+}
+
+.intent-approval p {
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-allow-once {
+    background: var(--glass-bg);
+    color: white;
+    border: 1px solid var(--glass-border);
+}
+
+.btn-allow {
+    background: var(--success);
+    color: #000;
+}
+
+.btn-deny {
+    background: var(--danger);
+    color: white;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.2);
+}
+
+/* Event Stream */
+.event-stream {
+    display: flex;
+    flex-direction: column;
+}
+
+.feed {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 3px solid var(--glass-border);
+    font-size: 0.85rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+.event .time {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+}
+
+.event.granted { border-left-color: var(--success); }
+.event.denied { border-left-color: var(--warning); background: rgba(255, 183, 3, 0.05); }
+.event.critical { border-left-color: var(--danger); background: rgba(255, 0, 85, 0.1); }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}

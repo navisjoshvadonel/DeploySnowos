@@ -1,0 +1,238 @@
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --frost-blue: #a5f3fc;
+    --crystal-white: #f8fafc;
+    --accent-glow: rgba(165, 243, 252, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: radial-gradient(circle at top right, #0f172a, #020617);
+    color: var(--crystal-white);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.glass-container {
+    width: 90%;
+    height: 85%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.snowflake {
+    font-size: 24px;
+    color: var(--frost-blue);
+    text-shadow: 0 0 10px var(--frost-blue);
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.version {
+    font-size: 14px;
+    opacity: 0.5;
+    font-weight: 300;
+}
+
+.status-pills {
+    display: flex;
+    gap: 12px;
+}
+
+.pill {
+    padding: 6px 16px;
+    background: var(--glass-border);
+    border-radius: 100px;
+    font-size: 13px;
+    border: 1px solid var(--glass-border);
+}
+
+main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 32px;
+    min-height: 0;
+}
+
+.visual-core {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.knowledge-graph {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.core-pulse {
+    width: 120px;
+    height: 120px;
+    background: var(--frost-blue);
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.3;
+    animation: pulse 4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.2; }
+    50% { transform: scale(1.5); opacity: 0.4; }
+}
+
+.system-metrics {
+    margin-top: 24px;
+    display: flex;
+    gap: 40px;
+}
+
+.metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #a5f3fc);
+    box-shadow: 0 0 10px var(--frost-blue);
+}
+
+.activity-pulse {
+    width: 12px;
+    height: 12px;
+    background: #4ade80;
+    border-radius: 50%;
+    position: relative;
+}
+
+.activity-pulse.active::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: inherit;
+    animation: ripple 2s infinite;
+}
+
+@keyframes ripple {
+    to { transform: scale(3); opacity: 0; }
+}
+
+.intelligence-log {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+h3 {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.log-entries {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.nyx {
+    color: var(--frost-blue);
+    font-weight: 600;
+}
+
+.glacier-dock {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+.dock-item {
+    padding: 10px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.dock-item.active {
+    background: var(--glass-border);
+    color: var(--frost-blue);
+}
+
+.dock-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}

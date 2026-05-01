@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+case "$1" in
+files)
+snow-files "${@:2}"
+;;
+dev)
+snow-dev "${@:2}"
+;;
+status)
+snow-status
+;;
+*)
+echo "❄️ SnowOS Command Layer"
+echo "Usage: snow [files|dev|status]"
+;;
+esac

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowOS | Crystal Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <div class="logo">
+                <span class="snowflake">❄</span>
+                <h1>SnowOS <span class="version">v4.1</span></h1>
+            </div>
+            <div class="status-pills">
+                <div class="pill" id="mood-pill">Mood: Efficient</div>
+                <div class="pill" id="intent-pill">Intent: Coding</div>
+            </div>
+        </header>
+
+        <main>
+            <section class="visual-core">
+                <div class="knowledge-graph" id="graph">
+                    <!-- Graph nodes will be injected here -->
+                    <div class="graph-placeholder">
+                        <div class="core-pulse"></div>
+                        <p>Knowledge Graph Active</p>
+                    </div>
+                </div>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <label>System Stress</label>
+                        <div class="progress-bar"><div class="fill" id="stress-fill" style="width: 45%;"></div></div>
+                    </div>
+                    <div class="metric">
+                        <label>AI Activity</label>
+                        <div class="activity-pulse active"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="intelligence-log">
+                <h3>Sentient Log</h3>
+                <div class="log-entries" id="log">
+                    <div class="entry">[12:45] <span class="nyx">Nyx:</span> Optimization detected in semantic_fs.py.</div>
+                    <div class="entry">[12:46] <span class="nyx">Nyx:</span> Applied 'Protective' persona due to build load.</div>
+                    <div class="entry">[12:48] <span class="nyx">Nyx:</span> 5 new files indexed in 'CrystalFS'.</div>
+                </div>
+            </section>
+        </main>
+
+        <nav class="glacier-dock">
+            <div class="dock-item active">Dashboard</div>
+            <div class="dock-item">Files</div>
+            <div class="dock-item">Swarm</div>
+            <div class="dock-item">Settings</div>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
