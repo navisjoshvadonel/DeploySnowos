@@ -69,20 +69,16 @@ mkdir -p "$ASSETS_DIR/icons/apps/scalable/"
 
 # Define mappings for modern GNOME App IDs
 # Firefox (Snap fix)
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_firefox_icon_1776831255127.png "$ASSETS_DIR/icons/apps/scalable/firefox.png"
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_firefox_icon_1776831255127.png "$ASSETS_DIR/icons/apps/scalable/org.mozilla.firefox.png"
+cp "$ASSETS_DIR/icons/apps/scalable/firefox.png" "$ASSETS_DIR/icons/apps/scalable/org.mozilla.firefox.png"
 
 # Terminal
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_terminal_icon_1776831345267.png "$ASSETS_DIR/icons/apps/scalable/org.gnome.Terminal.png"
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_terminal_icon_1776831345267.png "$ASSETS_DIR/icons/apps/scalable/utilities-terminal.png"
+cp "$ASSETS_DIR/icons/apps/scalable/org.gnome.Terminal.png" "$ASSETS_DIR/icons/apps/scalable/utilities-terminal.png"
 
 # Files / Nautilus
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_folder_icon_1776831279465.png "$ASSETS_DIR/icons/apps/scalable/system-file-manager.png"
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_folder_icon_1776831279465.png "$ASSETS_DIR/icons/apps/scalable/org.gnome.Nautilus.png"
+cp "$ASSETS_DIR/icons/apps/scalable/org.gnome.Nautilus.png" "$ASSETS_DIR/icons/apps/scalable/system-file-manager.png"
 
 # Settings
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_settings_icon_1776831374981.png "$ASSETS_DIR/icons/apps/scalable/preferences-system.png"
-cp /home/develop/.gemini/antigravity/brain/4840db05-8aca-4d8b-9a13-e95ae12a8e6b/snowos_settings_icon_1776831374981.png "$ASSETS_DIR/icons/apps/scalable/org.gnome.Settings.png"
+cp "$ASSETS_DIR/icons/apps/scalable/org.gnome.Settings.png" "$ASSETS_DIR/icons/apps/scalable/preferences-system.png"
 
 echo "Installing icon and cursor packs..."
 mkdir -p /usr/share/icons/SnowOS

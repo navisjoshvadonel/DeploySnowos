@@ -3,7 +3,9 @@
 # This script compiles the Cyber-Glacier GDM theme and applies it to the system.
 
 # Correct paths
-THEME_DIR="/home/develop/snowos/gdm-theme-build-v2/theme"
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")") # Back to snowos root
+THEME_DIR="$PROJECT_ROOT/gdm-theme-build-v2/theme"
 XML_FILE="snowos.gresource.xml"
 RESOURCE_FILE="snowos.gresource"
 SYSTEM_RESOURCE="/usr/share/gnome-shell/theme/snowos.gresource"

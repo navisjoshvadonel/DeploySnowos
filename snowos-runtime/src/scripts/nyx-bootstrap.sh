@@ -3,9 +3,10 @@
 # SnowOS Nyx Bootstrap
 # Launches the Autonomous Kernel and Intelligence Layers
 
-PROJECT_ROOT="/home/develop/snowos"
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")
 LOG_DIR="$PROJECT_ROOT/logs"
-UI_STATE="$PROJECT_ROOT/nyx/ui_state.json"
+UI_STATE="$PROJECT_ROOT/snowos-runtime/src/ai_core/nyx_kernel/ui_state.json"
 
 mkdir -p "$LOG_DIR"
 
