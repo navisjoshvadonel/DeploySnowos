@@ -1,0 +1,16 @@
+[Unit]
+Description=SnowOS SnowControl Interface
+Documentation=https://github.com/snowos/core
+After=snowos-broker.service snowos-sentinel.service
+Requires=snowos-broker.service
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+ExecStart=/usr/bin/python3 /opt/snowos/app_layer/snow_control/backend/server.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

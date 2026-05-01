@@ -1,0 +1,7 @@
+{
+  "name": "SnowOS Motion",
+  "description": "Unified motion and behavior system for SnowOS",
+  "uuid": "snowos-motion@snowos.org",
+  "shell-version": ["45", "46"],
+  "url": "https://snowos.org"
+}

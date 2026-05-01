@@ -1,0 +1,29 @@
+[PlankTheme]
+# The roundness of the dock's corners.
+TopRoundness=12
+BottomRoundness=12
+
+# The thickness of the dock's border.
+LineWidth=1
+# The color of the dock's border (white with low alpha for frosty look).
+LineColor=255;255;255;40
+
+# The color of the dock's background (frosted glass).
+FillColor=200;220;255;60
+
+# The amount of shadow to draw behind the dock.
+ShadowSize=10
+# The color of the shadow.
+ShadowColor=0;0;0;100
+
+# The padding between the dock's edge and the icons.
+HorizPadding=10
+VertPadding=5
+
+# The spacing between icons.
+IconSpacing=15
+
+# The color of the indicator for running applications.
+IndicatorColor=100;200;255;200
+# The size of the indicator.
+IndicatorSize=4

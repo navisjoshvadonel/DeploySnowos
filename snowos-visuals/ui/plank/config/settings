@@ -1,0 +1,22 @@
+# SnowOS Plank Configuration Settings
+# This file is used by install-ui.sh to apply dconf settings
+
+[net/launchpad/plank/docks/dock1]
+alignment='center'
+appearance-anim-duration=0.5
+auto-hide=true
+hide-delay=200
+hide-mode='window-dodge'
+icon-size=56
+items-alignment='center'
+lock-items=false
+monitor=''
+offset=0
+panel-mode=false
+position='bottom'
+pressure-reveal=false
+show-dock-item=false
+theme='snowos-frozen'
+unhide-delay=100
+zoom-enabled=true
+zoom-percent=120

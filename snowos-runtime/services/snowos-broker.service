@@ -1,0 +1,21 @@
+[Unit]
+Description=SnowOS Permission Broker Daemon
+Documentation=https://github.com/snowos/core
+After=network.target
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+ExecStart=/usr/bin/python3 /opt/snowos/system_services/permission_broker/broker_daemon.py
+Restart=always
+RestartSec=3
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

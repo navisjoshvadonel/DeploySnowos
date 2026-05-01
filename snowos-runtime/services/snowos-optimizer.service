@@ -1,0 +1,15 @@
+[Unit]
+Description=SnowOS Predictive Optimizer Kernel Layer
+Documentation=https://github.com/snowos/core
+After=snowos-broker.service
+
+[Service]
+Type=simple
+# Must run as root to issue renice and cgroup modifications
+User=root
+ExecStart=/usr/bin/python3 /opt/snowos/kernel_layer/predictive_optimizer/optimizer_daemon.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

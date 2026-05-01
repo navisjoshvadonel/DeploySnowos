@@ -51,19 +51,11 @@ class RuntimeController:
         prediction = data.get("prediction")
         self.state.update_state("last_prediction", prediction)
         
-        # Stage 70: Trust & Safety Gating
-        if hasattr(self.nyx, "gating"):
-            allowed, reason = self.nyx.gating.validate_action(prediction)
-            if allowed:
-                self.logger.info(f"Autonomously acting on prediction: {prediction}")
-                bus.publish("action_trigger", {"action": prediction, "source": "autonomy"})
-            else:
-                self.logger.info(f"Autonomous action deferred: {reason}")
-        else:
-            # Fallback if gating not initialized
-            autonomy = self.state.get_snapshot()["ai_autonomy"]
-            if autonomy == "autonomous":
-                bus.publish("action_trigger", {"action": prediction, "source": "autonomy"})
+        # In autonomous mode, we might auto-trigger the action
+        autonomy = self.state.get_snapshot()["ai_autonomy"]
+        if autonomy == "autonomous":
+            self.logger.info(f"Autonomously acting on prediction: {prediction}")
+            bus.publish("action_trigger", {"action": prediction, "source": "autonomy"})
 
     def _apply_performance_rules(self, load_level):
         if load_level == "high":

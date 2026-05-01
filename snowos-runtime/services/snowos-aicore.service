@@ -1,0 +1,19 @@
+[Unit]
+Description=SnowOS AI Core Layer
+Documentation=https://github.com/snowos/core
+After=network.target
+
+[Service]
+Type=simple
+User=snowos-ai
+Group=snowos-ai
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/test_ai_core.py
+Restart=on-failure
+RestartSec=5
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target
