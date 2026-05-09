@@ -1,0 +1,107 @@
+/* SnowOS Frozen - GTK 3.0/4.0 Master Theme */
+/* A premium, dark, frosted glass aesthetic for SnowOS */
+
+@define-color accent_color #00d4ff;
+@define-color accent_bg_color #00d4ff;
+@define-color window_bg_color #0a0f14;
+@define-color window_fg_color #e0e0e0;
+@define-color headerbar_bg_color rgba(10, 15, 20, 0.85);
+@define-color card_bg_color rgba(255, 255, 255, 0.05);
+@define-color dialog_bg_color #0a0f14;
+@define-color popover_bg_color #0a0f14;
+@define-color view_bg_color #0a0f14;
+
+/* Main Window */
+window.background {
+    background-color: @window_bg_color;
+    color: @window_fg_color;
+}
+
+/* Glassmorphism Headerbar */
+headerbar {
+    background-color: @headerbar_bg_color;
+    background-image: none;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.05);
+    padding: 6px;
+    border-radius: 12px 12px 0 0;
+}
+
+/* Buttons */
+button {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: rgba(0, 212, 255, 0.15);
+    border-color: @accent_color;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+button.suggested-action {
+    background-color: @accent_color;
+    color: #000;
+    font-weight: bold;
+}
+
+/* Sidebar & Lists */
+.sidebar, list, stack {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+selection {
+    background-color: rgba(0, 212, 255, 0.3);
+    color: white;
+}
+
+/* Inputs */
+entry {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+entry:focus {
+    border-color: @accent_color;
+    box-shadow: 0 0 5px rgba(0, 212, 255, 0.3);
+}
+
+/* Tooltips */
+tooltip {
+    background-color: rgba(10, 15, 20, 0.9);
+    border: 1px solid @accent_color;
+    border-radius: 8px;
+    color: white;
+}
+
+/* Window Corners */
+window.background.csd {
+    border-radius: 12px;
+}
+
+/* GNOME Shell Top Bar - Frosted Glass Override */
+#panel {
+    background-color: rgba(10, 15, 20, 0.4);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    color: @accent_color;
+}
+
+#panel .panel-button:hover {
+    background-color: rgba(0, 212, 255, 0.2);
+}
+
+/* Scrollbars - Minimalist */
+scrollbar slider {
+    background-color: rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+    min-width: 6px;
+}
+
+scrollbar slider:hover {
+    background-color: @accent_color;
+}

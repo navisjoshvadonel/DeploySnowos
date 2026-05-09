@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+echo "SnowOS Status"
+echo "User: $(whoami)"
+echo "Shell: $SHELL"
+uptime

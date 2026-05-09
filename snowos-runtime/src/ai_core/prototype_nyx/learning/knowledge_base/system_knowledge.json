@@ -1,0 +1,28 @@
+{
+  "modules": {
+    "NyxAI": "Core reasoning engine, handles planning and execution.",
+    "FrostShell": "Sentient terminal interface with predictive insights.",
+    "CrystalFS": "Semantic file indexing layer.",
+    "MemoryEngine": "Persistent behavioral logging and pattern detection.",
+    "RuntimeController": "Central event-driven brain coordinating OS layers.",
+    "SpatialUI": "Autonomous UI reorganization system.",
+    "TrustEngine": "Explainability and action gating system."
+  },
+  "workflows": [
+    {
+      "name": "Development",
+      "steps": ["code", "terminal", "test", "commit"],
+      "apps": ["vscode", "terminal"]
+    },
+    {
+      "name": "System Health",
+      "steps": ["cpu_check", "mem_check", "performance_mode"],
+      "apps": ["htop", "dashboard"]
+    }
+  ],
+  "command_context": {
+    "nyx goal": "Used for high-level autonomous tasks.",
+    "nyx mode": "Switches the system persona (calm, assistive, autonomous, developer).",
+    "nyx explain": "Explains the logic behind the last system decision."
+  }
+}

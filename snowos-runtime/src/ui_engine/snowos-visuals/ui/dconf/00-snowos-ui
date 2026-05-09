@@ -1,0 +1,33 @@
+# SnowOS System UI Overrides
+# Path: /usr/share/glib-2.0/schemas/00_snowos_ui.gschema.override or apply via dconf load
+
+[org/gnome/shell]
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'snowos-motion@snowos.org']
+# Explicitly disable Ubuntu Dock
+disabled-extensions=['ubuntu-dock@ubuntu.com']
+
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita-dark'
+icon-theme='SnowOS-Frozen'
+cursor-theme='Adwaita'
+font-name='Inter 11'
+document-font-name='Inter 11'
+monospace-font-name='JetBrains Mono 10'
+enable-animations=true
+
+[org/gnome/desktop/wm/preferences]
+button-layout='appmenu:minimize,maximize,close'
+titlebar-font='Inter Semi-Bold 11'
+
+[org/gnome/mutter]
+center-new-windows=true
+
+[org/gnome/settings-daemon/plugins/color]
+night-light-enabled=true
+night-light-temperature=5000
+
+[org/gnome/desktop/wm/keybindings]
+# Smooth window switching
+switch-applications=['<Super>Tab']
+switch-windows=['<Alt>Tab']

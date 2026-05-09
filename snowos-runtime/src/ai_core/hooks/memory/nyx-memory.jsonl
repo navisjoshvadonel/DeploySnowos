@@ -1,0 +1,7 @@
+{"timestamp":"2026-04-21T18:04:07.415Z","event_type":"app_launch","app":"development","session":"coding","workspace":0}
+{"timestamp":"2026-04-21T18:04:09.416Z","event_type":"workspace_change","app":"development","session":"coding","workspace":2}
+{"timestamp":"2026-04-21T18:06:11.507Z","event_type":"app_launch","app":"browsing","session":"research","workspace":2}
+{"timestamp":"2026-04-21T18:06:16.245Z","event_type":"app_launch","app":"Plank","session":"general","workspace":2}
+{"timestamp":"2026-04-21T18:06:17.265Z","event_type":"app_launch","app":"Plank","session":"general","workspace":2}
+{"timestamp":"2026-04-21T18:15:27.832Z","event_type":"app_launch","app":"Plank","session":"general","workspace":2}
+{"timestamp":"2026-04-21T18:17:46.033Z","event_type":"app_launch","app":"Plank","session":"general","workspace":2}

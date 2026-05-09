@@ -1,0 +1,105 @@
+{
+  "schema": "snowos.boot.manifest.v1",
+  "brand_name": "SnowOS",
+  "default_profile": "balanced",
+  "boot_phases": [
+    {
+      "id": "prepare-runtime",
+      "required": true,
+      "description": "Create and verify SnowOS runtime, state, and log directories."
+    },
+    {
+      "id": "integrity-check",
+      "required": true,
+      "description": "Verify critical SnowOS configuration and platform trust state."
+    },
+    {
+      "id": "snapshot",
+      "required": false,
+      "description": "Capture a recoverable SnowOS baseline before higher-level services start."
+    },
+    {
+      "id": "feature-flags",
+      "required": true,
+      "description": "Resolve AI feature flags from the active SnowOS boot profile."
+    },
+    {
+      "id": "publish-status",
+      "required": true,
+      "description": "Write boot status to the SnowOS runtime directory for SnowControl and services."
+    }
+  ],
+  "managed_services": [
+    "snowos-broker.service",
+    "snowos-sentinel.service",
+    "snowos-control.service",
+    "snowos-aicore.service"
+  ],
+  "profiles": {
+    "secure": {
+      "description": "Maximum trust and minimum surface area.",
+      "feature_flags": [
+        "adaptive_boot_profile",
+        "integrity_pulse",
+        "policy_guard",
+        "threat_mirror",
+        "secure_resume",
+        "persona_guard",
+        "forensic_recap"
+      ]
+    },
+    "balanced": {
+      "description": "Daily-driver profile with secure defaults and responsive UX.",
+      "feature_flags": [
+        "adaptive_boot_profile",
+        "integrity_pulse",
+        "service_preflight",
+        "workspace_resume",
+        "context_resume",
+        "resource_forecast",
+        "snowcontrol_insights",
+        "persona_seed",
+        "memory_compass",
+        "focus_orchestrator",
+        "intent_storyline"
+      ]
+    },
+    "developer": {
+      "description": "Faster iteration with rich diagnostics and AI assistance.",
+      "feature_flags": [
+        "adaptive_boot_profile",
+        "integrity_pulse",
+        "service_preflight",
+        "workspace_resume",
+        "context_resume",
+        "resource_forecast",
+        "snowcontrol_insights",
+        "persona_seed",
+        "error_whisperer",
+        "build_coach",
+        "plugin_scout",
+        "memory_compass",
+        "focus_orchestrator",
+        "intent_storyline",
+        "offline_reasoning_cache",
+        "forensic_recap"
+      ]
+    },
+    "immersive": {
+      "description": "Visual-first profile with strong AI presence and branded polish.",
+      "feature_flags": [
+        "adaptive_boot_profile",
+        "workspace_resume",
+        "context_resume",
+        "persona_seed",
+        "snowcontrol_insights",
+        "mood_surface",
+        "ambient_scene",
+        "ritual_boot_sequence",
+        "memory_compass",
+        "focus_orchestrator",
+        "intent_storyline"
+      ]
+    }
+  }
+}

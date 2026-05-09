@@ -1,0 +1,34 @@
+[Unit]
+Description=SnowOS AI Core Layer
+Documentation=https://github.com/snowos/core
+After=network.target snowos-boot.service
+Requires=snowos-boot.service
+
+[Service]
+Type=simple
+User=snowos-ai
+Group=snowos-ai
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/var/lib/snowos/ai
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/nyx.py
+Restart=on-failure
+RestartSec=5
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/snowos /var/log/snowos
+
+[Install]
+WantedBy=multi-user.target

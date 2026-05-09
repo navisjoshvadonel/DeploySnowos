@@ -1,0 +1,143 @@
+{
+  "schema": "snowos.ai.features.v1",
+  "features": [
+    {
+      "id": "adaptive_boot_profile",
+      "name": "Adaptive Boot Profile",
+      "category": "boot",
+      "summary": "Chooses the best SnowOS startup posture for the active profile."
+    },
+    {
+      "id": "integrity_pulse",
+      "name": "Integrity Pulse",
+      "category": "security",
+      "summary": "Publishes trust and integrity state at boot for operator visibility."
+    },
+    {
+      "id": "service_preflight",
+      "name": "Service Preflight",
+      "category": "platform",
+      "summary": "Runs startup checks and surfaces likely failures before they cascade."
+    },
+    {
+      "id": "secure_resume",
+      "name": "Secure Resume",
+      "category": "security",
+      "summary": "Restores SnowOS state only when integrity and policy checks pass."
+    },
+    {
+      "id": "policy_guard",
+      "name": "Policy Guard",
+      "category": "security",
+      "summary": "Keeps critical policy assets under continuous trust monitoring."
+    },
+    {
+      "id": "threat_mirror",
+      "name": "Threat Mirror",
+      "category": "security",
+      "summary": "Projects current threat posture into SnowControl at boot and runtime."
+    },
+    {
+      "id": "workspace_resume",
+      "name": "Workspace Resume",
+      "category": "productivity",
+      "summary": "Restores the last known desktop mood, layout, and task context."
+    },
+    {
+      "id": "context_resume",
+      "name": "Context Resume",
+      "category": "productivity",
+      "summary": "Seeds Nyx with recent state so it wakes up context-aware instead of cold."
+    },
+    {
+      "id": "resource_forecast",
+      "name": "Resource Forecast",
+      "category": "performance",
+      "summary": "Predicts startup load and tunes service timing for smoother boot behavior."
+    },
+    {
+      "id": "snowcontrol_insights",
+      "name": "SnowControl Insights",
+      "category": "control-plane",
+      "summary": "Exposes boot profile, feature flags, and platform posture in SnowControl."
+    },
+    {
+      "id": "persona_seed",
+      "name": "Persona Seed",
+      "category": "ai-core",
+      "summary": "Chooses a startup personality seed for Nyx based on the selected profile."
+    },
+    {
+      "id": "persona_guard",
+      "name": "Persona Guard",
+      "category": "security",
+      "summary": "Prevents high-risk personas from activating when the trust posture is degraded."
+    },
+    {
+      "id": "error_whisperer",
+      "name": "Error Whisperer",
+      "category": "developer",
+      "summary": "Offers fast local explanations when commands or services fail early."
+    },
+    {
+      "id": "build_coach",
+      "name": "Build Coach",
+      "category": "developer",
+      "summary": "Summarizes likely next fixes after failed builds or unhealthy startup states."
+    },
+    {
+      "id": "plugin_scout",
+      "name": "Plugin Scout",
+      "category": "developer",
+      "summary": "Surfaces installable extensions or plugins that fit the active workflow."
+    },
+    {
+      "id": "memory_compass",
+      "name": "Memory Compass",
+      "category": "productivity",
+      "summary": "Highlights recently used workspace state so SnowOS can resume with intention."
+    },
+    {
+      "id": "focus_orchestrator",
+      "name": "Focus Orchestrator",
+      "category": "performance",
+      "summary": "Shapes the startup mood and service posture around the user's likely next task."
+    },
+    {
+      "id": "intent_storyline",
+      "name": "Intent Storyline",
+      "category": "control-plane",
+      "summary": "Explains why SnowOS selected a profile, persona, and boot posture in plain language."
+    },
+    {
+      "id": "offline_reasoning_cache",
+      "name": "Offline Reasoning Cache",
+      "category": "ai-core",
+      "summary": "Keeps local AI summaries ready even when the wider network path is unavailable."
+    },
+    {
+      "id": "forensic_recap",
+      "name": "Forensic Recap",
+      "category": "security",
+      "summary": "Summarizes degraded boots or policy drift so recovery starts with context."
+    },
+    {
+      "id": "mood_surface",
+      "name": "Mood Surface",
+      "category": "visual",
+      "summary": "Lets the shell presentation shift with platform mood and profile."
+    },
+    {
+      "id": "ambient_scene",
+      "name": "Ambient Scene",
+      "category": "visual",
+      "summary": "Drives branded login and desktop ambience from SnowOS state."
+    },
+    {
+      "id": "ritual_boot_sequence",
+      "name": "Ritual Boot Sequence",
+      "category": "visual",
+      "summary": "Creates a distinct SnowOS startup identity instead of a generic Linux feel."
+    }
+  ]
+}

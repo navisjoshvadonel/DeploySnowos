@@ -1,0 +1,12 @@
+{
+  "imp_5f02e1": {
+    "id": "imp_5f02e1",
+    "source_insight": "ins_test",
+    "proposal": "Create a greeting script",
+    "plan": [
+      "echo hello > /tmp/greeting.txt",
+      "cat /tmp/greeting.txt"
+    ],
+    "status": "applied"
+  }
+}

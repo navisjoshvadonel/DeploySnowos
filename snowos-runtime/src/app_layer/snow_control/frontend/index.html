@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowControl // NYX</title>
+    <link rel="stylesheet" href="cyber-glacier.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header class="system-dashboard">
+            <div class="logo-block">
+                <div class="logo">SnowControl // NYX</div>
+                <div class="logo-sub" id="brand-tagline">Central intelligence for the SnowOS boot plane</div>
+            </div>
+            <div class="metrics" id="metrics-container">
+                <div class="metric"><span>CPU</span> <strong id="cpu-val">--</strong></div>
+                <div class="metric"><span>RAM</span> <strong id="ram-val">--</strong></div>
+                <div class="metric"><span>Agents</span> <strong id="agents-val">--</strong></div>
+                <div class="metric"><span>Profile</span> <strong id="profile-val">--</strong></div>
+                <div class="metric trust-score"><span>Trust Score</span> <strong id="trust-val">--</strong></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="ai-interaction glass-panel">
+                <h2>Nyx Core</h2>
+                <div class="boot-card">
+                    <div class="boot-row"><span>Boot Profile</span><strong id="boot-profile">--</strong></div>
+                    <div class="boot-row"><span>Boot State</span><strong id="boot-state">--</strong></div>
+                    <div class="boot-row"><span>Persona</span><strong id="persona-val">--</strong></div>
+                    <div class="boot-row"><span>Mood</span><strong id="mood-val">--</strong></div>
+                    <div class="boot-row"><span>Boot Time</span><strong id="boot-duration-val">--</strong></div>
+                </div>
+                <div class="chat-window">
+                    <div class="chat-message ai">SnowOS intelligence plane online. Boot posture and AI directives will appear here.</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" placeholder="Query SnowOS posture, profile, or AI directives..." />
+                </div>
+            </aside>
+
+            <section class="permission-visualizer glass-panel">
+                <h2>Boot Constellation</h2>
+                <div class="visualizer-canvas">
+                    <div class="node active" id="boot-node">snowos.boot</div>
+                    <div class="link"></div>
+                    <div class="node system">permission broker</div>
+                    <div class="link"></div>
+                    <div class="node" id="persona-node">nyx persona</div>
+                </div>
+                <div class="feature-flags">
+                    <div class="feature-flags-header">
+                        <h3>Enabled AI Features</h3>
+                        <span id="feature-count-val">0 active</span>
+                    </div>
+                    <div class="feature-grid" id="feature-flags"></div>
+                </div>
+                <div class="intent-approval hidden" id="intent-modal">
+                    <h3>Intent Approval</h3>
+                    <p><strong>AI Sentinel</strong> wants to modify system config.</p>
+                    <div class="actions">
+                        <button class="btn-allow-once">Allow Once</button>
+                        <button class="btn-allow">Always Allow</button>
+                        <button class="btn-deny">Deny</button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="event-stream glass-panel">
+                <h2>Live Event Stream</h2>
+                <div class="event-summary">
+                    <div><span>Scene</span><strong id="scene-val">--</strong></div>
+                    <div><span>Status</span><strong id="status-val">--</strong></div>
+                </div>
+                <div class="feed" id="event-feed"></div>
+            </aside>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

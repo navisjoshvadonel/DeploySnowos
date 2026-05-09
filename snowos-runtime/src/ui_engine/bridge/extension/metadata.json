@@ -1,0 +1,7 @@
+{
+  "uuid": "snowos-ui-engine@snowos.org",
+  "name": "SnowOS UI Engine",
+  "description": "Ambient, AI-native UI layer for SnowOS.",
+  "shell-version": ["46"],
+  "url": "https://snowos.org"
+}

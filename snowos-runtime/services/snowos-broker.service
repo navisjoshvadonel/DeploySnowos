@@ -1,0 +1,36 @@
+[Unit]
+Description=SnowOS Permission Broker Daemon
+Documentation=https://github.com/snowos/core
+After=network.target snowos-boot.service
+Requires=snowos-boot.service
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0750
+ExecStart=/usr/bin/python3 /opt/snowos/system_services/permission_broker/broker_daemon.py
+Restart=always
+RestartSec=3
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/run/snowos
+
+[Install]
+WantedBy=multi-user.target

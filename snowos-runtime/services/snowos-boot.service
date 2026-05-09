@@ -1,0 +1,34 @@
+[Unit]
+Description=SnowOS Boot Orchestrator
+Documentation=https://github.com/snowos/core
+After=local-fs.target systemd-tmpfiles-setup.service
+Before=snowos-broker.service snowos-sentinel.service snowos-control.service snowos-aicore.service snowos-optimizer.service
+ConditionPathExists=/opt/snowos/system_services/boot/boot_orchestrator.py
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
+ExecStart=/usr/bin/python3 /opt/snowos/system_services/boot/boot_orchestrator.py
+RemainAfterExit=yes
+TimeoutStartSec=30
+UMask=0027
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/run/snowos /var/lib/snowos /var/log/snowos
+
+[Install]
+WantedBy=multi-user.target

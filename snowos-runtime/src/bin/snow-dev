@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+case "$1" in
+python)
+python3 -m venv venv
+echo "Python environment created"
+;;
+git)
+git init
+echo "Git repository initialized"
+;;
+*)
+echo "Usage: snow dev [python|git]"
+;;
+esac

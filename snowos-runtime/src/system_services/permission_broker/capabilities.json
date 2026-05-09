@@ -1,0 +1,14 @@
+{
+    "app.browser": {
+        "network.wan": ["connect", "bind"],
+        "filesystem.downloads": ["read", "write"]
+    },
+    "app.mock_app": {
+        "network.lan": ["connect"],
+        "display.surface": ["draw"]
+    },
+    "system.ai_core": {
+        "filesystem.root": ["read"],
+        "network.wan": ["connect"]
+    }
+}

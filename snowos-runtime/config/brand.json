@@ -1,0 +1,14 @@
+{
+  "brand_name": "SnowOS",
+  "brand_channel": "NYX",
+  "platform_tagline": "Your branded secure Ubuntu experience",
+  "control_plane_name": "SnowControl",
+  "runtime_name": "SnowOS Core",
+  "visual_system_name": "Frozen Glass",
+  "palette": {
+    "primary": "#7cc7f2",
+    "secondary": "#b8e3ff",
+    "surface": "#0f1720",
+    "accent": "#d8f3ff"
+  }
+}

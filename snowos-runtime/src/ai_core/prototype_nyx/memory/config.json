@@ -1,0 +1,7 @@
+{
+  "prediction_threshold": 0.5,
+  "max_history": 100,
+  "ai_learning_enabled": true,
+  "visual_core_integration": true,
+  "ghost_suggestions_enabled": true
+}

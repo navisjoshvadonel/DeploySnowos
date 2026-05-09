@@ -1,0 +1,1588 @@
+{
+  "nodes": {
+    "1fd5d7fc-c7f": {
+      "id": "1fd5d7fc-c7f",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T22:31:03.665518",
+      "metadata": {
+        "execution_id": "ee46a2e8",
+        "user_input": "",
+        "cwd": "/home/develop/snowos/tmp_emg",
+        "steps": 1,
+        "verified": true
+      }
+    },
+    "e6d463a1-fd5": {
+      "id": "e6d463a1-fd5",
+      "type": "command",
+      "timestamp": "2026-04-18T22:31:03.665683",
+      "metadata": {
+        "cmd": "snow dev python",
+        "cwd": "/home/develop/snowos/tmp_emg"
+      }
+    },
+    "ea00a88f-c13": {
+      "id": "ea00a88f-c13",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665776",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/pyvenv.cfg"
+      }
+    },
+    "640fcf78-6a8": {
+      "id": "640fcf78-6a8",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665818",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin"
+      }
+    },
+    "62bf307c-8ee": {
+      "id": "62bf307c-8ee",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665852",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/python"
+      }
+    },
+    "6a85b46d-f62": {
+      "id": "6a85b46d-f62",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665883",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/Activate.ps1"
+      }
+    },
+    "cf3185c5-831": {
+      "id": "cf3185c5-831",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665917",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/activate.fish"
+      }
+    },
+    "04fee2cf-ce2": {
+      "id": "04fee2cf-ce2",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665949",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/pip3.12"
+      }
+    },
+    "25521948-10e": {
+      "id": "25521948-10e",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.665979",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv"
+      }
+    },
+    "29e9289d-45d": {
+      "id": "29e9289d-45d",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666009",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/activate"
+      }
+    },
+    "58f7e1e1-470": {
+      "id": "58f7e1e1-470",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666038",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/python3"
+      }
+    },
+    "03853d7e-bc1": {
+      "id": "03853d7e-bc1",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666069",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/pip3"
+      }
+    },
+    "85c79b10-41c": {
+      "id": "85c79b10-41c",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666098",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/lib"
+      }
+    },
+    "71f47881-edc": {
+      "id": "71f47881-edc",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666128",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/lib/python3.12"
+      }
+    },
+    "839b1472-f6c": {
+      "id": "839b1472-f6c",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666157",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/python3.12"
+      }
+    },
+    "74ee5c84-a01": {
+      "id": "74ee5c84-a01",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666185",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/include/python3.12"
+      }
+    },
+    "f5637961-26b": {
+      "id": "f5637961-26b",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666218",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/pip"
+      }
+    },
+    "425b23eb-f93": {
+      "id": "425b23eb-f93",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666244",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/lib64"
+      }
+    },
+    "fa131fa3-826": {
+      "id": "fa131fa3-826",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666269",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/bin/activate.csh"
+      }
+    },
+    "c656473d-a33": {
+      "id": "c656473d-a33",
+      "type": "file_created",
+      "timestamp": "2026-04-18T22:31:03.666295",
+      "metadata": {
+        "path": "/home/develop/snowos/tmp_emg/venv/include"
+      }
+    },
+    "b1cb5198-c85": {
+      "id": "b1cb5198-c85",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T22:38:03.940514",
+      "metadata": {
+        "execution_id": "b1547a24",
+        "user_input": "",
+        "cwd": "/home/develop/snowos/tmp_eoc",
+        "steps": 1,
+        "verified": true
+      }
+    },
+    "b1dc2f07-f19": {
+      "id": "b1dc2f07-f19",
+      "type": "command",
+      "timestamp": "2026-04-18T22:38:03.940563",
+      "metadata": {
+        "cmd": "snow files list",
+        "cwd": "/home/develop/snowos/tmp_eoc"
+      }
+    },
+    "e54bd7f9-828": {
+      "id": "e54bd7f9-828",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T22:59:33.301923",
+      "metadata": {
+        "execution_id": "77b4a35a",
+        "user_input": "",
+        "cwd": "/home/develop/snowos",
+        "steps": 1,
+        "verified": true
+      }
+    },
+    "51857d06-762": {
+      "id": "51857d06-762",
+      "type": "command",
+      "timestamp": "2026-04-18T22:59:33.301937",
+      "metadata": {
+        "cmd": "snow files list",
+        "cwd": "/home/develop/snowos"
+      }
+    },
+    "99fa74ac-365": {
+      "id": "99fa74ac-365",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:00:24.383848",
+      "metadata": {
+        "execution_id": "fe7f2d0f",
+        "user_input": "",
+        "cwd": "/home/develop/snowos",
+        "steps": 1,
+        "verified": true
+      }
+    },
+    "00935afc-716": {
+      "id": "00935afc-716",
+      "type": "command",
+      "timestamp": "2026-04-18T23:00:24.383884",
+      "metadata": {
+        "cmd": "snow dev python",
+        "cwd": "/home/develop/snowos"
+      }
+    },
+    "f9b8b85a-f53": {
+      "id": "f9b8b85a-f53",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.383951",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/activate"
+      }
+    },
+    "09a6d71a-084": {
+      "id": "09a6d71a-084",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.383966",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/include/python3.12"
+      }
+    },
+    "4c285277-e2a": {
+      "id": "4c285277-e2a",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.383977",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/include"
+      }
+    },
+    "385823a9-01d": {
+      "id": "385823a9-01d",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384004",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv"
+      }
+    },
+    "e5f4f922-93d": {
+      "id": "e5f4f922-93d",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384015",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/lib/python3.12"
+      }
+    },
+    "c141ff2e-1a2": {
+      "id": "c141ff2e-1a2",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384027",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/python3"
+      }
+    },
+    "c512e916-2e0": {
+      "id": "c512e916-2e0",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384037",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/python3.12"
+      }
+    },
+    "17dc9f6a-7dc": {
+      "id": "17dc9f6a-7dc",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384048",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/pip3"
+      }
+    },
+    "ac1a91a7-c9c": {
+      "id": "ac1a91a7-c9c",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384058",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/Activate.ps1"
+      }
+    },
+    "9b122c74-ff9": {
+      "id": "9b122c74-ff9",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384069",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin"
+      }
+    },
+    "646c0ac1-cb8": {
+      "id": "646c0ac1-cb8",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384079",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/pip"
+      }
+    },
+    "60b29145-ff3": {
+      "id": "60b29145-ff3",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384090",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/pip3.12"
+      }
+    },
+    "feb405e8-5bb": {
+      "id": "feb405e8-5bb",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384100",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/lib64"
+      }
+    },
+    "11715e8e-ebb": {
+      "id": "11715e8e-ebb",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384110",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/activate.csh"
+      }
+    },
+    "29960c62-50f": {
+      "id": "29960c62-50f",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384126",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/pyvenv.cfg"
+      }
+    },
+    "6a10484d-004": {
+      "id": "6a10484d-004",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384137",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/python"
+      }
+    },
+    "a3e323c0-eab": {
+      "id": "a3e323c0-eab",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384148",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/bin/activate.fish"
+      }
+    },
+    "ef2cdc4b-f7d": {
+      "id": "ef2cdc4b-f7d",
+      "type": "file_created",
+      "timestamp": "2026-04-18T23:00:24.384159",
+      "metadata": {
+        "path": "/tmp/snowos_sandboxes/fe7f2d0f/workspace/venv/lib"
+      }
+    },
+    "76e4a4b9-a5e": {
+      "id": "76e4a4b9-a5e",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:24:17.502659",
+      "metadata": {
+        "execution_id": "fake_0",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "aa73b7e2-443": {
+      "id": "aa73b7e2-443",
+      "type": "command",
+      "timestamp": "2026-04-18T23:24:17.502686",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "65dcbfaf-4e3": {
+      "id": "65dcbfaf-4e3",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:24:17.502700",
+      "metadata": {
+        "execution_id": "fake_0",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "4a6be6cb-327": {
+      "id": "4a6be6cb-327",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:24:17.504861",
+      "metadata": {
+        "execution_id": "fake_1",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "ca490bd2-8d0": {
+      "id": "ca490bd2-8d0",
+      "type": "command",
+      "timestamp": "2026-04-18T23:24:17.504881",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "ef4ebd9f-3b4": {
+      "id": "ef4ebd9f-3b4",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:24:17.504893",
+      "metadata": {
+        "execution_id": "fake_1",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "5d355f18-bb9": {
+      "id": "5d355f18-bb9",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:24:17.505792",
+      "metadata": {
+        "execution_id": "fake_2",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "ef2a6e14-2f7": {
+      "id": "ef2a6e14-2f7",
+      "type": "command",
+      "timestamp": "2026-04-18T23:24:17.505802",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "008f1d50-793": {
+      "id": "008f1d50-793",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:24:17.505812",
+      "metadata": {
+        "execution_id": "fake_2",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "874cd6f1-c9c": {
+      "id": "874cd6f1-c9c",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:24:17.507492",
+      "metadata": {
+        "execution_id": "fake_3",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "52782802-177": {
+      "id": "52782802-177",
+      "type": "command",
+      "timestamp": "2026-04-18T23:24:17.507545",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "ad4b07fd-d10": {
+      "id": "ad4b07fd-d10",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:24:17.507586",
+      "metadata": {
+        "execution_id": "fake_3",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "9e98bb2e-6c2": {
+      "id": "9e98bb2e-6c2",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:24:17.508100",
+      "metadata": {
+        "execution_id": "fake_4",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "59f919a3-9da": {
+      "id": "59f919a3-9da",
+      "type": "command",
+      "timestamp": "2026-04-18T23:24:17.508110",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "16c1a52d-fea": {
+      "id": "16c1a52d-fea",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:24:17.508118",
+      "metadata": {
+        "execution_id": "fake_4",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "4b85d3d6-a26": {
+      "id": "4b85d3d6-a26",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:25:27.053920",
+      "metadata": {
+        "execution_id": "fake_0",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "8245571c-ee6": {
+      "id": "8245571c-ee6",
+      "type": "command",
+      "timestamp": "2026-04-18T23:25:27.053943",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "1778922d-9c9": {
+      "id": "1778922d-9c9",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:25:27.053955",
+      "metadata": {
+        "execution_id": "fake_0",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "ca0652a5-acb": {
+      "id": "ca0652a5-acb",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:25:27.054617",
+      "metadata": {
+        "execution_id": "fake_1",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "624dcc0f-aa9": {
+      "id": "624dcc0f-aa9",
+      "type": "command",
+      "timestamp": "2026-04-18T23:25:27.054633",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "803b4434-066": {
+      "id": "803b4434-066",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:25:27.054788",
+      "metadata": {
+        "execution_id": "fake_1",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "a846f4be-9c7": {
+      "id": "a846f4be-9c7",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:25:27.055558",
+      "metadata": {
+        "execution_id": "fake_2",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "e2ed5de7-c95": {
+      "id": "e2ed5de7-c95",
+      "type": "command",
+      "timestamp": "2026-04-18T23:25:27.055604",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "8cd3fdb5-34c": {
+      "id": "8cd3fdb5-34c",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:25:27.055612",
+      "metadata": {
+        "execution_id": "fake_2",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "a0ca6135-ddb": {
+      "id": "a0ca6135-ddb",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:25:27.056332",
+      "metadata": {
+        "execution_id": "fake_3",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "7957cf3d-f0c": {
+      "id": "7957cf3d-f0c",
+      "type": "command",
+      "timestamp": "2026-04-18T23:25:27.056345",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "cab92187-1d0": {
+      "id": "cab92187-1d0",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:25:27.056351",
+      "metadata": {
+        "execution_id": "fake_3",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "3e3dd4a8-276": {
+      "id": "3e3dd4a8-276",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:25:27.057241",
+      "metadata": {
+        "execution_id": "fake_4",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "6fe70b71-c0f": {
+      "id": "6fe70b71-c0f",
+      "type": "command",
+      "timestamp": "2026-04-18T23:25:27.057254",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "f9c22861-6a2": {
+      "id": "f9c22861-6a2",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:25:27.057260",
+      "metadata": {
+        "execution_id": "fake_4",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "54985e05-edb": {
+      "id": "54985e05-edb",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:26:48.574852",
+      "metadata": {
+        "execution_id": "fake_0",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "9ec71cb8-e74": {
+      "id": "9ec71cb8-e74",
+      "type": "command",
+      "timestamp": "2026-04-18T23:26:48.574878",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "c2021d60-046": {
+      "id": "c2021d60-046",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:26:48.574890",
+      "metadata": {
+        "execution_id": "fake_0",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "661079c0-6c9": {
+      "id": "661079c0-6c9",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:26:48.576053",
+      "metadata": {
+        "execution_id": "fake_1",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "2c3db9cc-b4c": {
+      "id": "2c3db9cc-b4c",
+      "type": "command",
+      "timestamp": "2026-04-18T23:26:48.576189",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "25d5d152-de3": {
+      "id": "25d5d152-de3",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:26:48.576204",
+      "metadata": {
+        "execution_id": "fake_1",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "10c49214-966": {
+      "id": "10c49214-966",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:26:48.577001",
+      "metadata": {
+        "execution_id": "fake_2",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "195556ee-961": {
+      "id": "195556ee-961",
+      "type": "command",
+      "timestamp": "2026-04-18T23:26:48.577013",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "2770cab9-69a": {
+      "id": "2770cab9-69a",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:26:48.577044",
+      "metadata": {
+        "execution_id": "fake_2",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "fadb6723-9c4": {
+      "id": "fadb6723-9c4",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:26:48.578696",
+      "metadata": {
+        "execution_id": "fake_3",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "437ee576-abc": {
+      "id": "437ee576-abc",
+      "type": "command",
+      "timestamp": "2026-04-18T23:26:48.578708",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "c6e0e1e0-a78": {
+      "id": "c6e0e1e0-a78",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:26:48.578718",
+      "metadata": {
+        "execution_id": "fake_3",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "b12b3f3d-36a": {
+      "id": "b12b3f3d-36a",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:26:48.580204",
+      "metadata": {
+        "execution_id": "fake_4",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "d92ff931-5f9": {
+      "id": "d92ff931-5f9",
+      "type": "command",
+      "timestamp": "2026-04-18T23:26:48.580217",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "fe368a14-a92": {
+      "id": "fe368a14-a92",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:26:48.580275",
+      "metadata": {
+        "execution_id": "fake_4",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "da6a93cf-d13": {
+      "id": "da6a93cf-d13",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:29:52.886794",
+      "metadata": {
+        "execution_id": "fake_0",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "6bab8b71-ab2": {
+      "id": "6bab8b71-ab2",
+      "type": "command",
+      "timestamp": "2026-04-18T23:29:52.886818",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "b26b63b0-7cb": {
+      "id": "b26b63b0-7cb",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:29:52.886828",
+      "metadata": {
+        "execution_id": "fake_0",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "d40961eb-43a": {
+      "id": "d40961eb-43a",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:29:52.887790",
+      "metadata": {
+        "execution_id": "fake_1",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "6134d05d-58b": {
+      "id": "6134d05d-58b",
+      "type": "command",
+      "timestamp": "2026-04-18T23:29:52.887807",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "0ca83a58-0c7": {
+      "id": "0ca83a58-0c7",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:29:52.887819",
+      "metadata": {
+        "execution_id": "fake_1",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "ecd013aa-7c6": {
+      "id": "ecd013aa-7c6",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:29:52.888692",
+      "metadata": {
+        "execution_id": "fake_2",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "87cd24bd-52f": {
+      "id": "87cd24bd-52f",
+      "type": "command",
+      "timestamp": "2026-04-18T23:29:52.888706",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "a6769538-793": {
+      "id": "a6769538-793",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:29:52.888717",
+      "metadata": {
+        "execution_id": "fake_2",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "dbf82192-fa2": {
+      "id": "dbf82192-fa2",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:29:52.890851",
+      "metadata": {
+        "execution_id": "fake_3",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "c7bdacbc-78b": {
+      "id": "c7bdacbc-78b",
+      "type": "command",
+      "timestamp": "2026-04-18T23:29:52.890892",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "f0da9b32-7df": {
+      "id": "f0da9b32-7df",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:29:52.890899",
+      "metadata": {
+        "execution_id": "fake_3",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "1a03bafb-9d7": {
+      "id": "1a03bafb-9d7",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:29:52.892044",
+      "metadata": {
+        "execution_id": "fake_4",
+        "user_input": "start server",
+        "cwd": "/tmp",
+        "steps": 1,
+        "verified": false
+      }
+    },
+    "d330dae8-437": {
+      "id": "d330dae8-437",
+      "type": "command",
+      "timestamp": "2026-04-18T23:29:52.892058",
+      "metadata": {
+        "cmd": "npm run dev",
+        "cwd": "/tmp"
+      }
+    },
+    "e176b91c-d7e": {
+      "id": "e176b91c-d7e",
+      "type": "failure_event",
+      "timestamp": "2026-04-18T23:29:52.892068",
+      "metadata": {
+        "execution_id": "fake_4",
+        "plan": [
+          "npm run dev"
+        ]
+      }
+    },
+    "08e372ce-07f": {
+      "id": "08e372ce-07f",
+      "type": "execution_plan",
+      "timestamp": "2026-04-18T23:34:48.877162",
+      "metadata": {
+        "execution_id": "7ce89a75",
+        "user_input": "Apply Improvement imp_5f02e1",
+        "cwd": "/home/develop/snowos/nyx",
+        "steps": 2,
+        "verified": true
+      }
+    },
+    "c2c913c7-bc8": {
+      "id": "c2c913c7-bc8",
+      "type": "command",
+      "timestamp": "2026-04-18T23:34:48.877176",
+      "metadata": {
+        "cmd": "echo hello > /tmp/greeting.txt",
+        "cwd": "/home/develop/snowos/nyx"
+      }
+    },
+    "9f72c1b4-663": {
+      "id": "9f72c1b4-663",
+      "type": "command",
+      "timestamp": "2026-04-18T23:34:48.877185",
+      "metadata": {
+        "cmd": "cat /tmp/greeting.txt",
+        "cwd": "/home/develop/snowos/nyx"
+      }
+    }
+  },
+  "edges": [
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CAUSED_BY",
+      "dst": "e6d463a1-fd5"
+    },
+    {
+      "src": "e6d463a1-fd5",
+      "rel": "PART_OF",
+      "dst": "1fd5d7fc-c7f"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "ea00a88f-c13"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "640fcf78-6a8"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "62bf307c-8ee"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "6a85b46d-f62"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "cf3185c5-831"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "04fee2cf-ce2"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "25521948-10e"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "29e9289d-45d"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "58f7e1e1-470"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "03853d7e-bc1"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "85c79b10-41c"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "71f47881-edc"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "839b1472-f6c"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "74ee5c84-a01"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "f5637961-26b"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "425b23eb-f93"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "fa131fa3-826"
+    },
+    {
+      "src": "1fd5d7fc-c7f",
+      "rel": "CREATED",
+      "dst": "c656473d-a33"
+    },
+    {
+      "src": "b1cb5198-c85",
+      "rel": "CAUSED_BY",
+      "dst": "b1dc2f07-f19"
+    },
+    {
+      "src": "b1dc2f07-f19",
+      "rel": "PART_OF",
+      "dst": "b1cb5198-c85"
+    },
+    {
+      "src": "e54bd7f9-828",
+      "rel": "CAUSED_BY",
+      "dst": "51857d06-762"
+    },
+    {
+      "src": "51857d06-762",
+      "rel": "PART_OF",
+      "dst": "e54bd7f9-828"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CAUSED_BY",
+      "dst": "00935afc-716"
+    },
+    {
+      "src": "00935afc-716",
+      "rel": "PART_OF",
+      "dst": "99fa74ac-365"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "f9b8b85a-f53"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "09a6d71a-084"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "4c285277-e2a"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "385823a9-01d"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "e5f4f922-93d"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "c141ff2e-1a2"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "c512e916-2e0"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "17dc9f6a-7dc"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "ac1a91a7-c9c"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "9b122c74-ff9"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "646c0ac1-cb8"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "60b29145-ff3"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "feb405e8-5bb"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "11715e8e-ebb"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "29960c62-50f"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "6a10484d-004"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "a3e323c0-eab"
+    },
+    {
+      "src": "99fa74ac-365",
+      "rel": "CREATED",
+      "dst": "ef2cdc4b-f7d"
+    },
+    {
+      "src": "76e4a4b9-a5e",
+      "rel": "CAUSED_BY",
+      "dst": "aa73b7e2-443"
+    },
+    {
+      "src": "aa73b7e2-443",
+      "rel": "PART_OF",
+      "dst": "76e4a4b9-a5e"
+    },
+    {
+      "src": "76e4a4b9-a5e",
+      "rel": "FAILED_DUE_TO",
+      "dst": "65dcbfaf-4e3"
+    },
+    {
+      "src": "4a6be6cb-327",
+      "rel": "CAUSED_BY",
+      "dst": "ca490bd2-8d0"
+    },
+    {
+      "src": "ca490bd2-8d0",
+      "rel": "PART_OF",
+      "dst": "4a6be6cb-327"
+    },
+    {
+      "src": "4a6be6cb-327",
+      "rel": "FAILED_DUE_TO",
+      "dst": "ef4ebd9f-3b4"
+    },
+    {
+      "src": "5d355f18-bb9",
+      "rel": "CAUSED_BY",
+      "dst": "ef2a6e14-2f7"
+    },
+    {
+      "src": "ef2a6e14-2f7",
+      "rel": "PART_OF",
+      "dst": "5d355f18-bb9"
+    },
+    {
+      "src": "5d355f18-bb9",
+      "rel": "FAILED_DUE_TO",
+      "dst": "008f1d50-793"
+    },
+    {
+      "src": "874cd6f1-c9c",
+      "rel": "CAUSED_BY",
+      "dst": "52782802-177"
+    },
+    {
+      "src": "52782802-177",
+      "rel": "PART_OF",
+      "dst": "874cd6f1-c9c"
+    },
+    {
+      "src": "874cd6f1-c9c",
+      "rel": "FAILED_DUE_TO",
+      "dst": "ad4b07fd-d10"
+    },
+    {
+      "src": "9e98bb2e-6c2",
+      "rel": "CAUSED_BY",
+      "dst": "59f919a3-9da"
+    },
+    {
+      "src": "59f919a3-9da",
+      "rel": "PART_OF",
+      "dst": "9e98bb2e-6c2"
+    },
+    {
+      "src": "9e98bb2e-6c2",
+      "rel": "FAILED_DUE_TO",
+      "dst": "16c1a52d-fea"
+    },
+    {
+      "src": "4b85d3d6-a26",
+      "rel": "CAUSED_BY",
+      "dst": "8245571c-ee6"
+    },
+    {
+      "src": "8245571c-ee6",
+      "rel": "PART_OF",
+      "dst": "4b85d3d6-a26"
+    },
+    {
+      "src": "4b85d3d6-a26",
+      "rel": "FAILED_DUE_TO",
+      "dst": "1778922d-9c9"
+    },
+    {
+      "src": "ca0652a5-acb",
+      "rel": "CAUSED_BY",
+      "dst": "624dcc0f-aa9"
+    },
+    {
+      "src": "624dcc0f-aa9",
+      "rel": "PART_OF",
+      "dst": "ca0652a5-acb"
+    },
+    {
+      "src": "ca0652a5-acb",
+      "rel": "FAILED_DUE_TO",
+      "dst": "803b4434-066"
+    },
+    {
+      "src": "a846f4be-9c7",
+      "rel": "CAUSED_BY",
+      "dst": "e2ed5de7-c95"
+    },
+    {
+      "src": "e2ed5de7-c95",
+      "rel": "PART_OF",
+      "dst": "a846f4be-9c7"
+    },
+    {
+      "src": "a846f4be-9c7",
+      "rel": "FAILED_DUE_TO",
+      "dst": "8cd3fdb5-34c"
+    },
+    {
+      "src": "a0ca6135-ddb",
+      "rel": "CAUSED_BY",
+      "dst": "7957cf3d-f0c"
+    },
+    {
+      "src": "7957cf3d-f0c",
+      "rel": "PART_OF",
+      "dst": "a0ca6135-ddb"
+    },
+    {
+      "src": "a0ca6135-ddb",
+      "rel": "FAILED_DUE_TO",
+      "dst": "cab92187-1d0"
+    },
+    {
+      "src": "3e3dd4a8-276",
+      "rel": "CAUSED_BY",
+      "dst": "6fe70b71-c0f"
+    },
+    {
+      "src": "6fe70b71-c0f",
+      "rel": "PART_OF",
+      "dst": "3e3dd4a8-276"
+    },
+    {
+      "src": "3e3dd4a8-276",
+      "rel": "FAILED_DUE_TO",
+      "dst": "f9c22861-6a2"
+    },
+    {
+      "src": "54985e05-edb",
+      "rel": "CAUSED_BY",
+      "dst": "9ec71cb8-e74"
+    },
+    {
+      "src": "9ec71cb8-e74",
+      "rel": "PART_OF",
+      "dst": "54985e05-edb"
+    },
+    {
+      "src": "54985e05-edb",
+      "rel": "FAILED_DUE_TO",
+      "dst": "c2021d60-046"
+    },
+    {
+      "src": "661079c0-6c9",
+      "rel": "CAUSED_BY",
+      "dst": "2c3db9cc-b4c"
+    },
+    {
+      "src": "2c3db9cc-b4c",
+      "rel": "PART_OF",
+      "dst": "661079c0-6c9"
+    },
+    {
+      "src": "661079c0-6c9",
+      "rel": "FAILED_DUE_TO",
+      "dst": "25d5d152-de3"
+    },
+    {
+      "src": "10c49214-966",
+      "rel": "CAUSED_BY",
+      "dst": "195556ee-961"
+    },
+    {
+      "src": "195556ee-961",
+      "rel": "PART_OF",
+      "dst": "10c49214-966"
+    },
+    {
+      "src": "10c49214-966",
+      "rel": "FAILED_DUE_TO",
+      "dst": "2770cab9-69a"
+    },
+    {
+      "src": "fadb6723-9c4",
+      "rel": "CAUSED_BY",
+      "dst": "437ee576-abc"
+    },
+    {
+      "src": "437ee576-abc",
+      "rel": "PART_OF",
+      "dst": "fadb6723-9c4"
+    },
+    {
+      "src": "fadb6723-9c4",
+      "rel": "FAILED_DUE_TO",
+      "dst": "c6e0e1e0-a78"
+    },
+    {
+      "src": "b12b3f3d-36a",
+      "rel": "CAUSED_BY",
+      "dst": "d92ff931-5f9"
+    },
+    {
+      "src": "d92ff931-5f9",
+      "rel": "PART_OF",
+      "dst": "b12b3f3d-36a"
+    },
+    {
+      "src": "b12b3f3d-36a",
+      "rel": "FAILED_DUE_TO",
+      "dst": "fe368a14-a92"
+    },
+    {
+      "src": "da6a93cf-d13",
+      "rel": "CAUSED_BY",
+      "dst": "6bab8b71-ab2"
+    },
+    {
+      "src": "6bab8b71-ab2",
+      "rel": "PART_OF",
+      "dst": "da6a93cf-d13"
+    },
+    {
+      "src": "da6a93cf-d13",
+      "rel": "FAILED_DUE_TO",
+      "dst": "b26b63b0-7cb"
+    },
+    {
+      "src": "d40961eb-43a",
+      "rel": "CAUSED_BY",
+      "dst": "6134d05d-58b"
+    },
+    {
+      "src": "6134d05d-58b",
+      "rel": "PART_OF",
+      "dst": "d40961eb-43a"
+    },
+    {
+      "src": "d40961eb-43a",
+      "rel": "FAILED_DUE_TO",
+      "dst": "0ca83a58-0c7"
+    },
+    {
+      "src": "ecd013aa-7c6",
+      "rel": "CAUSED_BY",
+      "dst": "87cd24bd-52f"
+    },
+    {
+      "src": "87cd24bd-52f",
+      "rel": "PART_OF",
+      "dst": "ecd013aa-7c6"
+    },
+    {
+      "src": "ecd013aa-7c6",
+      "rel": "FAILED_DUE_TO",
+      "dst": "a6769538-793"
+    },
+    {
+      "src": "dbf82192-fa2",
+      "rel": "CAUSED_BY",
+      "dst": "c7bdacbc-78b"
+    },
+    {
+      "src": "c7bdacbc-78b",
+      "rel": "PART_OF",
+      "dst": "dbf82192-fa2"
+    },
+    {
+      "src": "dbf82192-fa2",
+      "rel": "FAILED_DUE_TO",
+      "dst": "f0da9b32-7df"
+    },
+    {
+      "src": "1a03bafb-9d7",
+      "rel": "CAUSED_BY",
+      "dst": "d330dae8-437"
+    },
+    {
+      "src": "d330dae8-437",
+      "rel": "PART_OF",
+      "dst": "1a03bafb-9d7"
+    },
+    {
+      "src": "1a03bafb-9d7",
+      "rel": "FAILED_DUE_TO",
+      "dst": "e176b91c-d7e"
+    },
+    {
+      "src": "08e372ce-07f",
+      "rel": "CAUSED_BY",
+      "dst": "c2c913c7-bc8"
+    },
+    {
+      "src": "c2c913c7-bc8",
+      "rel": "PART_OF",
+      "dst": "08e372ce-07f"
+    },
+    {
+      "src": "08e372ce-07f",
+      "rel": "CAUSED_BY",
+      "dst": "9f72c1b4-663"
+    },
+    {
+      "src": "9f72c1b4-663",
+      "rel": "PART_OF",
+      "dst": "08e372ce-07f"
+    }
+  ]
+}

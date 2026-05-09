@@ -1,0 +1,9 @@
+{
+  "name": "Test Plugin",
+  "version": "1.0.0",
+  "intents": {
+    "hello": {
+      "^say hello platform$": "echo 'Hello from the SnowOS Platform!'"
+    }
+  }
+}
