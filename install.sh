@@ -92,6 +92,13 @@ chown -R snowos-sys:snowos-sys /var/lib/snowos/system /run/snowos
 chmod 0755 /var/lib/snowos /var/log/snowos
 chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system /run/snowos
 
+# Secure secrets directory — only root can read/write
+# The broker generates its HMAC key here on first boot.
+echo "[+] Setting up SnowOS secrets directory..."
+mkdir -p /etc/snowos/secrets
+chown root:root /etc/snowos/secrets
+chmod 0700 /etc/snowos/secrets
+
 echo "[+] Deploying SnowOS runtime to /opt/snowos..."
 cp -R "$SCRIPT_DIR/snowos-runtime/src/." /opt/snowos/
 chown -R root:root /opt/snowos

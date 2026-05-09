@@ -61,6 +61,13 @@ from ai_core.nyx_kernel.frost_shell import FrostShell
 from ai_core.nyx_kernel.deterministic.semantic_fs import SemanticFS
 from ai_core.nyx_kernel.memory.engine import NyxMemoryEngine
 from runtime.event_bus import bus
+from runtime.config_manager import ConfigManager
+from runtime.plugin_manager import PluginManager
+from runtime.tool_registry import ToolRegistry
+from runtime.memory_graph import MemoryGraph
+from runtime.task_scheduler import TaskScheduler
+from runtime.autonomy_engine import AutonomyEngine
+from runtime.node_client import NodeManager, SwarmClient
 from runtime.state_manager import StateManager
 from runtime.controller import RuntimeController
 from runtime.scheduler import RuntimeScheduler
@@ -109,259 +116,27 @@ class SystemState:
 # ─────────────────────────────────────────
 #  STAGE 25 — CONFIG MANAGER
 # ─────────────────────────────────────────
-class ConfigManager:
-    DEFAULT_CONFIG = {
-        "max_workers": 3,
-        "sandbox_enabled": True,
-        "auto_improve": False,
-        "api_enabled": False,
-        "api_port": 8080,
-        "api_key": None # Will be generated if missing
-    }
-
-    def __init__(self, config_dir: str):
-        self.config_dir = config_dir
-        self.config_path = os.path.join(config_dir, "config.json")
-        os.makedirs(self.config_dir, exist_ok=True)
-        self.config = self._load()
-        
-        if not self.config.get("api_key"):
-            self.config["api_key"] = secrets.token_urlsafe(24)
-            self._save()
-
-        if not self.config.get("node_id"):
-            self.config["node_id"] = str(uuid.uuid4())
-            self._save()
-
-    def _load(self) -> dict:
-        if os.path.exists(self.config_path):
-            try:
-                with open(self.config_path) as f:
-                    data = json.load(f)
-                    return {**self.DEFAULT_CONFIG, **data}
-            except Exception:
-                pass
-        
-        conf = dict(self.DEFAULT_CONFIG)
-        return conf
-
-    def _save(self):
-        with open(self.config_path, "w") as f:
-            json.dump(self.config, f, indent=2)
-
-    def get(self, key, default=None):
-        return self.config.get(key, default)
-
-    def set(self, key, value):
-        self.config[key] = value
-        self._save()
+# ConfigManager — extracted to runtime/config_manager.py
+# from runtime.config_manager import ConfigManager  (imported above)
 
 # ─────────────────────────────────────────
 #  STAGE 25 — PLUGIN MANAGER
 # ─────────────────────────────────────────
-class PluginManager:
-    def __init__(self, plugins_dir: str, registry: 'ToolRegistry', nyx_agent):
-        self.plugins_dir = plugins_dir
-        self.registry = registry
-        self.nyx = nyx_agent
-        self.loaded_plugins = []
-        os.makedirs(self.plugins_dir, exist_ok=True)
-
-    def load_all(self):
-        for name in os.listdir(self.plugins_dir):
-            plugin_path = os.path.join(self.plugins_dir, name)
-            if os.path.isdir(plugin_path):
-                self._load_plugin(plugin_path, name)
-
-    def _load_plugin(self, path: str, name: str):
-        config_path = os.path.join(path, "plugin.json")
-        main_path = os.path.join(path, "main.py")
-        
-        if not os.path.exists(config_path):
-            return
-
-        try:
-            with open(config_path) as f:
-                meta = json.load(f)
-            
-            intents = meta.get("intents", {})
-            for module, mapping in intents.items():
-                for pattern, cmd in mapping.items():
-                    self.registry.register(f"plugin:{name}:{module}", pattern, cmd)
-            
-            self.loaded_plugins.append(meta)
-            
-            # Load dynamic logic
-            if os.path.exists(main_path):
-                spec = importlib.util.spec_from_file_location(f"nyx.plugins.{name}", main_path)
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[f"nyx.plugins.{name}"] = module
-                spec.loader.exec_module(module)
-                if hasattr(module, "init"):
-                    module.init(self.nyx)
-                    
-        except Exception as e:
-            console.print(f"[red]❌ Failed to load plugin {name}: {e}[/red]")
+# PluginManager — extracted to runtime/plugin_manager.py
+# from runtime.plugin_manager import PluginManager  (imported above)
 
 # ─────────────────────────────────────────
 # ─────────────────────────────────────────
 #  STAGE 28/40 — NODE MANAGER & SWARM CLIENT (DITL)
 # ─────────────────────────────────────────
-class NodeManager:
-    def __init__(self, db_path: str):
-        self.store = NodeStore(db_path)
-        self.trust = TrustManager(self.store)
-
-    def add_node(self, node_id: str, url: str, public_key: str):
-        self.store.add_node(node_id, url, public_key)
-
-    def get_nodes(self):
-        return self.store.list_nodes()
-
-class SwarmClient:
-    def __init__(self, nyx_agent):
-        self.nyx = nyx_agent
-
-    def call_node(self, node_id: str, endpoint: str, data: dict = None) -> dict:
-        node = self.nyx.node_manager.store.get_node(node_id)
-        if not node:
-            return {"error": f"Node {node_id} not found"}
-        
-        if node["trust_status"] != "trusted":
-            return {"error": f"Node {node_id} is not trusted. Trust it first via 'nyx node trust'."}
-        
-        url = node["url"].rstrip("/") + endpoint
-        
-        # Identity Propagation: Sign a fresh capability token for this remote call
-        # In a real swarm, this would be a specific RemoteExecution token.
-        from security.tokens import CapabilityToken
-        from security.capabilities import CapabilitySet
-        
-        # For simplicity, we propagate the current user's role and some basic capabilities
-        # Or if we have an active task token, we use that.
-        # Here we generate a "cross-node" token.
-        
-        token = CapabilityToken(
-            task_id=str(uuid.uuid4()),
-            plan_id="cross-node-execution",
-            user_id=self.nyx.current_user["user_id"],
-            role=self.nyx.current_user["role"],
-            capabilities=CapabilitySet(["read", "execute"]), # Minimal remote caps
-            node_origin=self.nyx.node_id,
-            private_key=self.nyx.node_priv_key
-        )
-        
-        headers = {
-            "Authorization": f"Bearer {json.dumps(token.to_dict())}",
-            "X-Nyx-Node-ID": self.nyx.node_id,
-            "Content-Type": "application/json"
-        }
-        
-        # Distributed Tracing Propagation
-        current_span = self.nyx.telemetry.tracer.get_current_span()
-        if current_span:
-            headers["X-Nyx-Trace-ID"] = current_span["trace_id"]
-            headers["X-Nyx-Parent-Span-ID"] = current_span["span_id"]
-        
-        # Start a span for this remote call
-        trace_id = current_span["trace_id"] if current_span else uuid.uuid4().hex
-        parent_id = current_span["span_id"] if current_span else None
-        span_id = self.nyx.telemetry.start_span(
-            name=f"remote_call:{endpoint}", 
-            type="network", 
-            trace_id=trace_id, 
-            parent_id=parent_id,
-            exec_node_id=node_id
-        )
-        start_time = time.time()
-        
-        try:
-            if data:
-                res = requests.post(url, json=data, headers=headers, timeout=10)
-            else:
-                res = requests.get(url, headers=headers, timeout=10)
-            
-            latency = time.time() - start_time
-            status = "SUCCESS" if res.status_code == 200 else "ERROR"
-            self.nyx.telemetry.end_span(span_id, status, metadata={"latency": latency, "endpoint": endpoint, "status_code": res.status_code})
-            
-            if res.status_code == 200:
-                return res.json()
-            return {"error": f"Node returned {res.status_code}: {res.text}"}
-        except Exception as e:
-            self.nyx.telemetry.end_span(span_id, "ERROR", metadata={"error": str(e)})
-            return {"error": f"Connection failed: {e}"}
+# NodeManager & SwarmClient — extracted to runtime/node_client.py
+# from runtime.node_client import NodeManager, SwarmClient  (imported above)
 
 # ─────────────────────────────────────────
 #  STAGE 29 — AUTONOMY ENGINE
 # ─────────────────────────────────────────
-class AutonomyEngine:
-    def __init__(self, nyx_agent):
-        self.nyx = nyx_agent
-        self.enabled = self.nyx.config.get("autonomy_enabled", False)
-        self.log_file = os.path.join(self.nyx.log_dir, "autonomy.log")
-        self.last_run = 0
-        self.task_count_hour = 0
-        self.last_hour_reset = time.time()
-        self._thread = None
-        self._stop_event = threading.Event()
-        self.failed_goals = {} # Goal -> count of persistent failures
-
-    def start(self):
-        if not self._thread or not self._thread.is_alive():
-            self._stop_event.clear()
-            self._thread = threading.Thread(target=self._loop, daemon=True)
-            self._thread.start()
-
-    def stop(self):
-        self._stop_event.set()
-
-    def _log(self, rationale: str, goal: str, status: str):
-        with open(self.log_file, "a") as f:
-            ts = datetime.datetime.now().isoformat()
-            f.write(f"[{ts}] [Goal: {goal}] [Why: {rationale}] -> {status}\n")
-
-    def _loop(self):
-        while not self._stop_event.is_set():
-            if self.enabled and len(self.nyx.scheduler_engine.active_workers) == 0:
-                self._think()
-            self._stop_event.wait(10) # Faster frequency for "always occurring" AI interaction
-
-    def _think(self):
-        # Rate limiting
-        if time.time() - self.last_hour_reset > 3600:
-            self.task_count_hour = 0
-            self.last_hour_reset = time.time()
-        
-        # INCREASED LIMIT for "always occurring" request
-        if self.task_count_hour >= self.nyx.config.get("max_auto_tasks_per_hour", 50):
-            return
-
-        # 1. Look for failed patterns in EMG
-        failures = [n for n in self.nyx.emg.graph["nodes"] if isinstance(n, dict) and n.get("type") == "failure"]
-        
-        # 2. Look for reflection insights
-        insights = self.nyx.reflection.insights
-        
-        prompt = (
-            "You are the Autonomy Executive of SnowOS.\n"
-            "System state: Idle.\n"
-            f"Recent Failures: {failures[-3:] if failures else 'None'}\n"
-            f"Insights: {insights[:3] if insights else 'None'}\n\n"
-            "Should we take any proactive action? If so, return JSON: {\"rationale\": \"...\", \"goal\": \"...\", \"priority\": \"LOW|MEDIUM\"}\n"
-            "If no action is needed, return 'NONE'."
-        )
-        
-        response = self.nyx._llm(prompt)
-        if response and "{" in response:
-            try:
-                data = json.loads(re.search(r'\{.*\}', response, re.DOTALL).group(0))
-                self.task_count_hour += 1
-                self._log(data["rationale"], data["goal"], "proposed")
-                console.print(f"[bold magenta]🧠 Autonomy:[/bold magenta] {data['rationale']}")
-                self.nyx.process(f"nyx goal \"{data['goal']}\"")
-            except Exception as e:
-                self._log("JSON error", response, f"failed: {e}")
+# AutonomyEngine — extracted to runtime/autonomy_engine.py
+# from runtime.autonomy_engine import AutonomyEngine  (imported above)
 
 # ─────────────────────────────────────────
 #  STAGE 27 — SECURITY MANAGER
@@ -405,43 +180,8 @@ class SecurityManager:
 # ─────────────────────────────────────────
 #  STAGE 18 — TOOL REGISTRY
 # ─────────────────────────────────────────
-class ToolRegistry:
-    DEFAULT_TOOLS = {
-        "files": {
-            r"^(?:list|show) files?$": "snow files list",
-            r"^find file (.+)$": "snow files find '{0}'",
-        },
-        "dev": {
-            r"^create python project$": "snow dev python",
-            r"^setup python environment$": "snow dev python",
-            r"^init git$": "snow dev git",
-        },
-        "system": {
-            r"^(?:system|show) status$": "snow status",
-        },
-    }
-
-    def __init__(self, tools_file: str):
-        self.tools = {k: dict(v) for k, v in self.DEFAULT_TOOLS.items()}
-        if os.path.exists(tools_file):
-            try:
-                with open(tools_file) as f:
-                    extra = json.load(f)
-                for module, intents in extra.items():
-                    self.tools.setdefault(module, {}).update(intents)
-            except Exception:
-                pass
-
-    def register(self, module: str, pattern: str, command: str):
-        self.tools.setdefault(module, {})[pattern] = command
-
-    def match(self, text: str) -> str | None:
-        for _, intents in self.tools.items():
-            for pattern, template in intents.items():
-                m = re.match(pattern, text)
-                if m:
-                    return template.format(*m.groups()) if m.groups() else template
-        return None
+# ToolRegistry — extracted to runtime/tool_registry.py
+# from runtime.tool_registry import ToolRegistry  (imported above)
 
 # ─────────────────────────────────────────
 #  STAGE 14 — PROCESS MANAGER
