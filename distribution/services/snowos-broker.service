@@ -1,0 +1,23 @@
+[Unit]
+Description=SnowOS IPC and Permission Broker
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/opt/snowos/core/bin/snowos-broker
+Restart=always
+RestartSec=3
+User=snowos
+Group=snowos
+# Hardening
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# Allow writing to specific runtime dir
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+NAME="SnowOS"
+VERSION="1.0 (Aurora)"
+ID=snowos
+ID_LIKE=ubuntu
+PRETTY_NAME="SnowOS Aurora"
+VERSION_ID="1.0"
+HOME_URL="https://snowos.org/"
+SUPPORT_URL="https://help.snowos.org/"
+BUG_REPORT_URL="https://bugs.snowos.org/"
+PRIVACY_POLICY_URL="https://snowos.org/privacy/"
+VERSION_CODENAME=aurora
+UBUNTU_CODENAME=jammy

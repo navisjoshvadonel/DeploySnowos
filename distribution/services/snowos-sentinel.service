@@ -1,0 +1,14 @@
+[Unit]
+Description=SnowOS Sentinel Watchdog
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/opt/snowos/core/bin/snowos-sentinel
+Restart=always
+RestartSec=2
+User=root
+# Root required to restart failed critical services (like compositor or broker)
+
+[Install]
+WantedBy=multi-user.target

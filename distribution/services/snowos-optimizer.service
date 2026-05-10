@@ -1,0 +1,13 @@
+[Unit]
+Description=SnowOS Autonomous System Optimizer
+After=snowos-broker.service
+
+[Service]
+Type=simple
+ExecStart=/opt/snowos/core/bin/snowos-optimizer
+Restart=on-failure
+User=root
+# Needs root to adjust CPU governors, niceness, and zram
+
+[Install]
+WantedBy=multi-user.target

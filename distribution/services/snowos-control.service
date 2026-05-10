@@ -1,0 +1,15 @@
+[Unit]
+Description=SnowOS Control Backend
+After=snowos-broker.service dbus.service
+Requires=snowos-broker.service
+
+[Service]
+Type=dbus
+BusName=org.snowos.Control
+ExecStart=/opt/snowos/core/bin/snowos-control
+Restart=on-failure
+User=root
+# Needs root to adjust network/system settings
+
+[Install]
+WantedBy=multi-user.target

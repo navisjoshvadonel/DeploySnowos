@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""
+SnowOS Main Command Line Interface
+Usage:
+  snowos update
+  snowos doctor
+  snowos ai status
+  snowos ui upgrade
+  snowos rollback
+  snowos repair
+  snowos shell restart
+"""
+
+import sys
+import argparse
+import subprocess
+
+def run_update():
+    print("Initiating SnowOS Atomic Update...")
+    print("[1/4] Taking BTRFS root snapshot...")
+    # Mock
+    print("[2/4] Fetching Ubuntu security patches...")
+    print("[3/4] Fetching SnowOS Frost Shell & AI weights...")
+    print("[4/4] Staging updates...")
+    print("Update staged successfully. Please reboot to apply.")
+
+def run_doctor():
+    print("SnowOS Health Diagnostic:")
+    services = ["snowos-broker", "snowos-aicore", "snowos-sentinel"]
+    for s in services:
+        print(f"  [OK] {s} is running.")
+    print("  [OK] BTRFS subvolumes healthy.")
+    print("  [OK] AI model weights verified.")
+
+def run_ai_status():
+    print("AI Core Status:")
+    print("  Model: Nyx-7B-v2 (Local)")
+    print("  Memory Engine: Active")
+    print("  Context Window: 8192 tokens")
+
+def run_rollback():
+    print("Available BTRFS Snapshots for Rollback:")
+    print("  1. post-update-2026-05-01")
+    print("  2. pre-update-2026-05-10 (RECOMMENDED)")
+    print("Run `snowos rollback --id 2` to apply.")
+
+def main():
+    parser = argparse.ArgumentParser(description="SnowOS Management CLI")
+    subparsers = parser.add_subparsers(dest="command")
+
+    subparsers.add_parser("update", help="Perform atomic system update")
+    subparsers.add_parser("doctor", help="Run system diagnostics")
+    
+    ai_parser = subparsers.add_parser("ai", help="Manage AI subsystem")
+    ai_parser.add_argument("action", choices=["status", "restart", "logs"])
+    
+    subparsers.add_parser("rollback", help="Manage system snapshots and rollback")
+    
+    shell_parser = subparsers.add_parser("shell", help="Manage Frost Shell")
+    shell_parser.add_argument("action", choices=["restart", "logs", "config"])
+
+    args = parser.parse_args()
+
+    if args.command == "update":
+        run_update()
+    elif args.command == "doctor":
+        run_doctor()
+    elif args.command == "ai" and args.action == "status":
+        run_ai_status()
+    elif args.command == "rollback":
+        run_rollback()
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

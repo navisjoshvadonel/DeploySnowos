@@ -1,0 +1,25 @@
+[Unit]
+Description=SnowOS AI Core Runtime
+After=snowos-broker.service
+Requires=snowos-broker.service
+
+[Service]
+Type=simple
+ExecStart=/opt/snowos/core/bin/snowos-aicore
+Restart=always
+RestartSec=5
+User=snowos
+Group=snowos
+# Requires GPU access
+SupplementaryGroups=video render
+# Hardening
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+NoNewPrivileges=yes
+# State directory for model weights and chroma db
+StateDirectory=snowos-ai
+StateDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=SnowOS Background Update Manager
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/snowos/core/bin/snowos-updater --daemon
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target
