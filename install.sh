@@ -135,24 +135,37 @@ chmod 0640 \
 write_integrity_manifest
 
 if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ]; then
-  echo "[+] Registering SnowOS core services..."
-  cp "$SCRIPT_DIR"/snowos-runtime/services/*.service /etc/systemd/system/
+  # 3. Configurations
+  echo "[+] Copying configurations..."
+  cp /opt/snowos/system_services/permission_broker/capabilities.json /etc/snowos/
+  chown snowos-sys:snowos-sys /etc/snowos/capabilities.json
+
+  # 3.5 Distribution Components
+  echo "[+] Installing SnowOS CLI..."
+  cp ./distribution/cli/snowos /usr/local/bin/snowos
+  chmod +x /usr/local/bin/snowos
+
+  # 4. Service Registration
+  echo "[+] Registering systemd services..."
+  cp ./snowos-runtime/services/*.service /etc/systemd/system/
+  cp ./distribution/services/*.service /etc/systemd/system/
   systemctl daemon-reload
 
-  for service in \
-    snowos-boot.service \
-    snowos-broker.service \
-    snowos-sentinel.service \
-    snowos-aicore.service \
-    snowos-control.service; do
-    systemctl enable "$service"
-  done
+  echo "[+] Enabling services..."
+  systemctl enable snowos-broker.service
+  systemctl enable snowos-sentinel.service
+  systemctl enable snowos-aicore.service
+  systemctl enable snowos-optimizer.service
+  systemctl enable snowos-control.service
+  systemctl enable snowos-updater.service
 
-  echo "[+] Starting SnowOS core services..."
-  systemctl restart snowos-boot.service
-  systemctl restart snowos-broker.service
-  systemctl restart snowos-sentinel.service
-  systemctl restart snowos-aicore.service || echo "SnowOS AI Core start deferred"
+  # We don't start them immediately in the script to allow manual verification,
+  # or we can start them.
+  echo "[+] Starting core services..."
+  systemctl start snowos-broker.service || echo "Broker start deferred"
+  systemctl start snowos-sentinel.service || echo "Sentinel start deferred"
+  systemctl start snowos-updater.service || echo "Updater start deferred"
+  systemctl start snowos-aicore.service || echo "SnowOS AI Core start deferred"
   systemctl restart snowos-control.service || echo "SnowControl start deferred"
 fi
 
