@@ -204,7 +204,11 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
       systemctl start snowos-aicore.service
       systemctl start snowos-control.service
   else
-      echo "[!] Broker failed to start. Stopping chain immediately."
+      echo "[!] Broker failed to start. Printing crash logs:"
+      echo "---------------------------------------------------"
+      journalctl -u snowos-broker.service --no-pager -n 30 || true
+      echo "---------------------------------------------------"
+      echo "[!] Stopping chain immediately."
       exit 1
   fi
 fi
