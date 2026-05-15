@@ -3,6 +3,8 @@ set -e
 
 echo "--- Starting Root-level Visual Applications ---"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # 1. Unique Icon Set Injection
 echo "[*] Creating icon theme..."
 mkdir -p /usr/share/icons/snowos-frozen
@@ -22,19 +24,20 @@ gtk-update-icon-cache /usr/share/icons/snowos-frozen -f || true
 # 2. Static Snow Wallpaper
 echo "[*] Copying wallpaper..."
 mkdir -p /usr/share/backgrounds
-cp /home/develop/snowos/assets/snowos-wallpaper.png /usr/share/backgrounds/snowos-wallpaper.png
+cp "$SCRIPT_DIR/assets/snowos-wallpaper.png" /usr/share/backgrounds/snowos-wallpaper.png
 
 # 3. Apply identity files
 echo "[*] Copying identity files..."
 dpkg-divert --remove --rename /etc/os-release || true
 dpkg-divert --remove --rename /etc/lsb-release || true
 rm -f /etc/os-release.ubuntu /etc/os-release.ubuntu-default /etc/lsb-release.ubuntu /etc/lsb-release.ubuntu-default
-cp /home/develop/snowos/identity/os-release /etc/os-release
-cp /home/develop/snowos/identity/lsb-release /etc/lsb-release
+cp "$SCRIPT_DIR/identity/os-release" /etc/os-release
+cp "$SCRIPT_DIR/identity/lsb-release" /etc/lsb-release
 
 # 4. Copy logo
 echo "[*] Copying logo..."
-cp /home/develop/snowos/assets/logo.png /usr/share/pixmaps/snowos-logo.png
+cp "$SCRIPT_DIR/assets/logo.png" /usr/share/pixmaps/snowos-logo.png
+
 ln -sf /usr/share/pixmaps/snowos-logo.png /usr/share/pixmaps/system-logo.png
 
 # 5. Update GRUB
