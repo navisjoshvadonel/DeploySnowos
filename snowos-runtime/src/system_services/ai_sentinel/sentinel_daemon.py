@@ -16,15 +16,19 @@ class SentinelDaemon:
         self.running = False
         
     def setup_socket(self):
-        os.makedirs(RUNTIME_DIR, mode=0o750, exist_ok=True)
-        if os.path.exists(SOCKET_PATH):
-            os.remove(SOCKET_PATH)
-        
-        self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.server.bind(SOCKET_PATH)
-        os.chmod(SOCKET_PATH, 0o660)
-        self.server.listen(5)
-        logger.info(f"AI Sentinel active on {SOCKET_PATH}")
+        try:
+            os.makedirs(RUNTIME_DIR, mode=0o775, exist_ok=True)
+            if os.path.exists(SOCKET_PATH):
+                os.remove(SOCKET_PATH)
+            
+            self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.server.bind(SOCKET_PATH)
+            os.chmod(SOCKET_PATH, 0o660)
+            self.server.listen(5)
+            logger.info(f"AI Sentinel active on {SOCKET_PATH}")
+        except Exception as e:
+            logger.error(f"Failed to setup socket at {SOCKET_PATH}: {e}")
+            raise
 
     def handle_request(self, payload_str):
         try:

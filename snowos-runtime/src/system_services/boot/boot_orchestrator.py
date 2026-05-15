@@ -312,7 +312,7 @@ def run_boot():
     warnings = []
     phases = {}
 
-    _ensure_directory(RUNTIME_DIR, 0o750)
+    _ensure_directory(RUNTIME_DIR, 0o775)
     _ensure_directory(STATE_DIR, 0o755)
     _ensure_directory(LOG_DIR, 0o755)
     _ensure_directory(STATE_DIR / "snapshots", 0o750)

@@ -117,7 +117,8 @@ chown root:root /etc/snowos /opt/snowos
 chown -R snowos-ai:snowos-ai /var/lib/snowos/ai
 chown -R snowos-sys:snowos-sys /var/lib/snowos/system /run/snowos
 chmod 0755 /var/log/snowos
-chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system /run/snowos
+chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system
+chmod 0775 /run/snowos
 
 # Secure secrets directory — only root can read/write
 # The broker generates its HMAC key here on first boot.
