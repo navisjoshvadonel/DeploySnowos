@@ -22,6 +22,10 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+echo "[+] Verifying Python/Runtime Dependencies..."
+apt-get update -y || true
+apt-get install -y python3 || true
+
 ensure_service_user() {
   local user_name="$1"
   local home_dir="$2"
@@ -90,11 +94,15 @@ echo "[+] Creating SnowOS directory structure..."
 mkdir -p /etc/snowos /opt/snowos /var/log/snowos /run/snowos
 mkdir -p /var/lib/snowos/system /var/lib/snowos/ai /var/lib/snowos/runtime /var/lib/snowos/logs
 
+# Fix base ownership first
+chown -R root:root /var/lib/snowos
+chmod -R 0755 /var/lib/snowos
+
 # Fix permissions
 chown root:root /etc/snowos /opt/snowos
 chown -R snowos-ai:snowos-ai /var/lib/snowos/ai
 chown -R snowos-sys:snowos-sys /var/lib/snowos/system /run/snowos
-chmod 0755 /var/lib/snowos /var/log/snowos
+chmod 0755 /var/log/snowos
 chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system /run/snowos
 
 # Secure secrets directory — only root can read/write
@@ -170,14 +178,22 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
   systemctl enable snowos-control.service
   systemctl enable snowos-updater.service
 
-  # We don't start them immediately in the script to allow manual verification,
-  # or we can start them.
-  echo "[+] Starting core services..."
-  systemctl start snowos-broker.service || echo "Broker start deferred"
-  systemctl start snowos-sentinel.service || echo "Sentinel start deferred"
-  systemctl start snowos-updater.service || echo "Updater start deferred"
-  systemctl start snowos-aicore.service || echo "SnowOS AI Core start deferred"
-  systemctl restart snowos-control.service || echo "SnowControl start deferred"
+  # Strict service restart order (Agent Recovery)
+  echo "[+] Applying safe restart order for core services..."
+  systemctl stop snowos-broker.service snowos-sentinel.service snowos-updater.service snowos-aicore.service snowos-control.service snowos-optimizer.service || true
+  systemctl daemon-reexec
+
+  systemctl start snowos-broker.service || echo "Broker start failed"
+
+  if systemctl is-active --quiet snowos-broker.service; then
+      echo "[+] Broker is ACTIVE, starting dependent services..."
+      systemctl start snowos-sentinel.service
+      systemctl start snowos-aicore.service
+      systemctl start snowos-control.service
+  else
+      echo "[!] Broker failed to start. Stopping chain immediately."
+      exit 1
+  fi
 fi
 
 if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
@@ -185,6 +201,7 @@ if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth
   add-apt-repository universe -y
   apt-get update -y
   apt-get install -y gnome-shell-extension-ubuntu-dock gnome-tweaks python3-rich papirus-icon-theme || true
+  apt-get remove -y gnome-shell-extension-dash-to-dock || true
 
   echo "[+] Applying SnowOS Aurora branding..."
   bash "$SCRIPT_DIR/apply_branding.sh"
