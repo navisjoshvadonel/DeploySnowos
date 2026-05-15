@@ -36,9 +36,15 @@ ensure_service_user() {
   fi
 
   if ! id -u "$user_name" >/dev/null 2>&1; then
-    useradd -r -M -d "$home_dir" -s /usr/sbin/nologin -g "$user_name" "$user_name" || echo "[!] Warning: useradd returned non-zero for $user_name"
+    useradd -r -M -d "$home_dir" -s /usr/sbin/nologin -g "$user_name" "$user_name"
   fi
   
+  # Verify user creation
+  if ! id -u "$user_name" >/dev/null 2>&1; then
+    echo "[!] Critical Error: Failed to create user $user_name"
+    exit 1
+  fi
+
   mkdir -p "$home_dir"
   chown "$user_name":"$user_name" "$home_dir"
 }
@@ -190,10 +196,10 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
 
   # Strict service restart order (Agent Recovery)
   echo "[+] Applying safe restart order for core services..."
-  systemctl stop snowos-broker.service snowos-sentinel.service snowos-updater.service snowos-aicore.service snowos-control.service snowos-optimizer.service || true
-  systemctl daemon-reexec
-
-  systemctl start snowos-broker.service || echo "Broker start failed"
+  systemctl stop snowos-broker.service snowos-sentinel.service snowos-updater.service snowos-aicore.service snowos-control.service snowos-optimizer.service >/dev/null 2>&1 || true
+  
+  systemctl daemon-reload
+  systemctl start snowos-broker.service
   
   echo "[*] Waiting for broker to initialize..."
   sleep 2

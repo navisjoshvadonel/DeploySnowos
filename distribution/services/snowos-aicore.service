@@ -8,8 +8,8 @@ Type=simple
 ExecStart=/opt/snowos/core/bin/snowos-aicore
 Restart=always
 RestartSec=5
-User=snowos
-Group=snowos
+User=snowos-ai
+Group=snowos-ai
 # Requires GPU access
 SupplementaryGroups=video render
 # Hardening
