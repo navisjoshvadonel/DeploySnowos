@@ -12,7 +12,7 @@ WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/boot/boot_orchestrator.py
 RemainAfterExit=yes
 TimeoutStartSec=30
-UMask=0027
+UMask=0022
 
 # Sandboxing
 ProtectSystem=strict

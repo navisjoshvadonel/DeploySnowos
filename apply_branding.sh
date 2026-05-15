@@ -28,6 +28,23 @@ fi
 echo "--- Starting SnowOS Aurora Branding Transition ---"
 
 # 1. Identity Files
+# Robust diversion handling: remove any existing diversions that might conflict
+for target in /etc/os-release /etc/lsb-release; do
+    CURRENT_DIV=$(dpkg-divert --list "$target")
+    if [ -n "$CURRENT_DIV" ]; then
+        if echo "$CURRENT_DIV" | grep -q "diverted by snowos" && echo "$CURRENT_DIV" | grep -q "to $target.ubuntu"; then
+            echo "[*] Diversion for $target already exists and is correct."
+        else
+            echo "[!] Fixing conflicting diversion for $target..."
+            # Remove existing diversion regardless of who owns it or where it points
+            # This is safe because we will re-apply it correctly
+            dpkg-divert --remove --rename "$target" || true
+            # Clean up potential leftovers from previous failed attempts
+            rm -f "$target.ubuntu" "$target.ubuntu-default"
+        fi
+    fi
+done
+
 if ! dpkg-divert --list /etc/os-release | grep -q "diverted by snowos"; then
     echo "[*] Diverting /etc/os-release..."
     dpkg-divert --add --rename --divert /etc/os-release.ubuntu /etc/os-release

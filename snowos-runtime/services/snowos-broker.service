@@ -30,7 +30,7 @@ RestrictSUIDSGID=yes
 LockPersonality=yes
 SystemCallArchitectures=native
 RestrictAddressFamilies=AF_UNIX
-ReadWritePaths=/run/snowos
+ReadWritePaths=/run/snowos /etc/snowos/secrets
 
 [Install]
 WantedBy=multi-user.target

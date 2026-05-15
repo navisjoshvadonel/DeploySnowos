@@ -99,9 +99,10 @@ chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system /run/snowos
 
 # Secure secrets directory — only root can read/write
 # The broker generates its HMAC key here on first boot.
+# Secure secrets directory — only the broker (snowos-sys) can write here
 echo "[+] Setting up SnowOS secrets directory..."
 mkdir -p /etc/snowos/secrets
-chown root:root /etc/snowos/secrets
+chown snowos-sys:snowos-sys /etc/snowos/secrets
 chmod 0700 /etc/snowos/secrets
 
 echo "[+] Deploying SnowOS runtime to /opt/snowos..."
@@ -181,8 +182,9 @@ fi
 
 if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
   echo "[+] Installing SnowOS visual dependencies..."
+  add-apt-repository universe -y
   apt-get update -y
-  apt-get install -y gnome-shell-extension-dash-to-dock gnome-tweaks python3-rich papirus-icon-theme || true
+  apt-get install -y gnome-shell-extension-ubuntu-dock gnome-tweaks python3-rich papirus-icon-theme || true
 
   echo "[+] Applying SnowOS Aurora branding..."
   bash "$SCRIPT_DIR/apply_branding.sh"
