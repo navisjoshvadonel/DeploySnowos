@@ -4,8 +4,8 @@ After=snowos-broker.service dbus.service
 Requires=snowos-broker.service
 
 [Service]
-Type=dbus
-BusName=org.snowos.Control
+Type=simple
+TimeoutStartSec=infinity
 ExecStart=/opt/snowos/core/bin/snowos-control
 Restart=on-failure
 User=root
