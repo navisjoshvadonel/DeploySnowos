@@ -3,6 +3,8 @@ Description=SnowOS Autonomous System Optimizer
 After=snowos-broker.service
 
 [Service]
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
 Type=simple
 ExecStart=/opt/snowos/core/bin/snowos-optimizer
 Restart=on-failure

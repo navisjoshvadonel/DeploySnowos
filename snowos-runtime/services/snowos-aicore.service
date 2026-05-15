@@ -5,6 +5,8 @@ After=network.target snowos-boot.service
 Requires=snowos-boot.service
 
 [Service]
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
 Type=simple
 User=snowos-ai
 Group=snowos-ai

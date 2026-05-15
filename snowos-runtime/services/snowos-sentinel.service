@@ -5,13 +5,13 @@ After=snowos-boot.service snowos-broker.service
 Requires=snowos-boot.service snowos-broker.service
 
 [Service]
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
 Type=simple
 User=snowos-sys
 Group=snowos-sys
 EnvironmentFile=-/etc/snowos/snowos.env
 WorkingDirectory=/opt/snowos
-RuntimeDirectory=snowos
-RuntimeDirectoryMode=0750
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/ai_sentinel/sentinel_daemon.py
 Restart=always
 RestartSec=3

@@ -4,6 +4,8 @@ After=snowos-broker.service
 Requires=snowos-broker.service
 
 [Service]
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
 Type=simple
 ExecStart=/opt/snowos/core/bin/snowos-aicore
 Restart=always
