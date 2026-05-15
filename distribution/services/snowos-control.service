@@ -1,15 +1,34 @@
 [Unit]
-Description=SnowOS Control Backend
-After=snowos-broker.service dbus.service
-Requires=snowos-broker.service
+Description=SnowOS SnowControl Interface
+Documentation=https://github.com/snowos/core
+After=snowos-boot.service snowos-broker.service snowos-sentinel.service snowos-aicore.service
+Requires=snowos-boot.service snowos-broker.service
 
 [Service]
 Type=simple
-TimeoutStartSec=infinity
-ExecStart=/opt/snowos/core/bin/snowos-control
-Restart=on-failure
-User=root
-# Needs root to adjust network/system settings
+User=snowos-sys
+Group=snowos-sys
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
+ExecStart=/usr/bin/python3 /opt/snowos/app_layer/snow_control/backend/server.py
+Restart=always
+RestartSec=3
+
+# Sandboxing
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/run/snowos
 
 [Install]
 WantedBy=multi-user.target

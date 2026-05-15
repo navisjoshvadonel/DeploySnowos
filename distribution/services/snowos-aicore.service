@@ -1,25 +1,34 @@
 [Unit]
-Description=SnowOS AI Core Runtime
-After=snowos-broker.service
-Requires=snowos-broker.service
+Description=SnowOS AI Core Layer
+Documentation=https://github.com/snowos/core
+After=network.target snowos-boot.service
+Requires=snowos-boot.service
 
 [Service]
 Type=simple
-ExecStart=/opt/snowos/core/bin/snowos-aicore
-Restart=always
-RestartSec=5
 User=snowos-ai
 Group=snowos-ai
-# Requires GPU access
-SupplementaryGroups=video render
-# Hardening
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/var/lib/snowos/ai
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/nyx.py
+Restart=on-failure
+RestartSec=5
+
+# Sandboxing
 ProtectSystem=strict
-ProtectHome=read-only
+ProtectHome=yes
 PrivateTmp=yes
 NoNewPrivileges=yes
-# State directory for model weights and chroma db
-StateDirectory=snowos-ai
-StateDirectoryMode=0700
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/snowos /var/log/snowos
 
 [Install]
 WantedBy=multi-user.target

@@ -1,5 +1,6 @@
 [Unit]
-Description=SnowOS IPC and Permission Broker
+Description=SnowOS Permission Broker Daemon
+Documentation=https://github.com/snowos/core
 After=network.target snowos-boot.service
 Requires=snowos-boot.service
 
@@ -9,18 +10,27 @@ User=snowos-sys
 Group=snowos-sys
 RuntimeDirectory=snowos
 RuntimeDirectoryMode=0775
-WorkingDirectory=/opt/snowos
+RuntimeDirectoryPreserve=yes
 EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/permission_broker/broker_daemon.py
 Restart=always
 RestartSec=3
 
-# Hardening
+# Sandboxing
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
 NoNewPrivileges=yes
-RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX
 ReadWritePaths=/run/snowos /etc/snowos/secrets
 
 [Install]

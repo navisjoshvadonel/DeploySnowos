@@ -1,13 +1,16 @@
 [Unit]
-Description=SnowOS Autonomous System Optimizer
-After=snowos-broker.service
+Description=SnowOS Predictive Optimizer Kernel Layer
+Documentation=https://github.com/snowos/core
+After=snowos-boot.service snowos-broker.service
+Requires=snowos-boot.service
 
 [Service]
 Type=simple
-ExecStart=/opt/snowos/core/bin/snowos-optimizer
-Restart=on-failure
+# Must run as root to issue renice and cgroup modifications
 User=root
-# Needs root to adjust CPU governors, niceness, and zram
+ExecStart=/usr/bin/python3 /opt/snowos/kernel_layer/predictive_optimizer/optimizer_daemon.py
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
