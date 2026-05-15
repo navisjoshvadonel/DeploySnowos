@@ -116,6 +116,7 @@ chmod 0700 /etc/snowos/secrets
 echo "[+] Deploying SnowOS runtime to /opt/snowos..."
 cp -R "$SCRIPT_DIR/snowos-runtime/src/." /opt/snowos/
 chown -R root:root /opt/snowos
+chmod -R 0755 /opt/snowos
 chmod +x /opt/snowos/core/bin/* || true
 
 echo "[+] Installing SnowOS platform defaults..."
@@ -185,6 +186,9 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
   systemctl daemon-reexec
 
   systemctl start snowos-broker.service || echo "Broker start failed"
+  
+  echo "[*] Waiting for broker to initialize..."
+  sleep 2
 
   if systemctl is-active --quiet snowos-broker.service; then
       echo "[+] Broker is ACTIVE, starting dependent services..."
