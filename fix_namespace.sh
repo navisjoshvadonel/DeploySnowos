@@ -43,5 +43,6 @@ echo "Starting control engine..." && sudo systemctl restart snowos-control.servi
 echo "Starting intelligence layer..." && sudo systemctl restart snowos-aicore.service
 
 echo "[+] Step 6: Querying runtime platform diagnostic metrics..."
-cd ~/snowos
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 sudo python3 snowos-runtime/validation/check_health.py
