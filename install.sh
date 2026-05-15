@@ -86,13 +86,13 @@ EOF
   chmod 0640 "$manifest_file"
 }
 
-ensure_service_user snowos-sys /var/lib/snowos/system
-ensure_service_user snowos-ai /var/lib/snowos/ai
-
 # Explicitly create all required directories
 echo "[+] Creating SnowOS directory structure..."
 mkdir -p /etc/snowos /opt/snowos /var/log/snowos /run/snowos
 mkdir -p /var/lib/snowos/system /var/lib/snowos/ai /var/lib/snowos/runtime /var/lib/snowos/logs
+
+ensure_service_user snowos-sys /var/lib/snowos/system
+ensure_service_user snowos-ai /var/lib/snowos/ai
 
 # Fix base ownership first
 chown -R root:root /var/lib/snowos
