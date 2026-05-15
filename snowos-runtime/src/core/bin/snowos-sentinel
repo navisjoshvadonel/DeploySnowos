@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+import time
+
+print("[SnowOS Sentinel] Monitoring system...")
+
+while True:
+    time.sleep(10)

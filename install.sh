@@ -116,6 +116,7 @@ chmod 0700 /etc/snowos/secrets
 echo "[+] Deploying SnowOS runtime to /opt/snowos..."
 cp -R "$SCRIPT_DIR/snowos-runtime/src/." /opt/snowos/
 chown -R root:root /opt/snowos
+chmod +x /opt/snowos/core/bin/* || true
 
 echo "[+] Installing SnowOS platform defaults..."
 install_config_with_dist "$SCRIPT_DIR/snowos-runtime/config/snowos.env" /etc/snowos/snowos.env
