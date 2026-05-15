@@ -20,9 +20,10 @@ for SERVICE in "${SERVICES[@]}"; do
         # Strip existing RuntimeDirectory lines if present to prevent duplicates
         sudo sed -i '/^RuntimeDirectory=/d' "$SERVICE"
         sudo sed -i '/^RuntimeDirectoryMode=/d' "$SERVICE"
+        sudo sed -i '/^RuntimeDirectoryPreserve=/d' "$SERVICE"
         
         # Inject modern systemd volatile memory management rules under the [Service] section
-        sudo sed -i "/\[Service\]/a RuntimeDirectory=snowos\nRuntimeDirectoryMode=0775" "$SERVICE"
+        sudo sed -i "/\[Service\]/a RuntimeDirectory=snowos\nRuntimeDirectoryMode=0775\nRuntimeDirectoryPreserve=yes" "$SERVICE"
     fi
 done
 

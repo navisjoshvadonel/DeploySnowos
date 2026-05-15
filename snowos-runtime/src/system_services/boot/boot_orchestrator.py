@@ -85,12 +85,18 @@ def _is_enabled(value):
     return str(value).strip().lower() in TRUE_VALUES
 
 
-def _ensure_directory(path, mode):
+def _ensure_directory(path, mode, user=None):
     path.mkdir(parents=True, exist_ok=True)
     try:
         os.chmod(path, mode)
-    except OSError:
-        LOGGER.debug("Skipping chmod for %s", path)
+        if user and os.getuid() == 0:
+            import shutil
+            from pwd import getpwnam
+            uid = getpwnam(user).pw_uid
+            gid = getpwnam(user).pw_gid
+            os.chown(path, uid, gid)
+    except Exception:
+        LOGGER.debug("Skipping chmod/chown for %s", path)
 
 
 def _load_boot_inputs():
@@ -312,7 +318,7 @@ def run_boot():
     warnings = []
     phases = {}
 
-    _ensure_directory(RUNTIME_DIR, 0o775)
+    _ensure_directory(RUNTIME_DIR, 0o775, user="snowos-sys")
     _ensure_directory(STATE_DIR, 0o755)
     _ensure_directory(LOG_DIR, 0o755)
     _ensure_directory(STATE_DIR / "snapshots", 0o750)

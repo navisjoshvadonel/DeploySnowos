@@ -9,6 +9,7 @@ ConditionPathExists=/opt/snowos/system_services/boot/boot_orchestrator.py
 Type=oneshot
 RuntimeDirectory=snowos
 RuntimeDirectoryMode=0775
+RuntimeDirectoryPreserve=yes
 EnvironmentFile=-/etc/snowos/snowos.env
 WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/boot/boot_orchestrator.py

@@ -10,6 +10,7 @@ User=snowos-sys
 Group=snowos-sys
 RuntimeDirectory=snowos
 RuntimeDirectoryMode=0775
+RuntimeDirectoryPreserve=yes
 EnvironmentFile=-/etc/snowos/snowos.env
 WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/ai_sentinel/sentinel_daemon.py
