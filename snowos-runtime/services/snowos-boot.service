@@ -6,8 +6,6 @@ Before=snowos-broker.service snowos-sentinel.service snowos-control.service snow
 ConditionPathExists=/opt/snowos/system_services/boot/boot_orchestrator.py
 
 [Service]
-RuntimeDirectory=snowos
-RuntimeDirectoryMode=0775
 Type=oneshot
 EnvironmentFile=-/etc/snowos/snowos.env
 WorkingDirectory=/opt/snowos

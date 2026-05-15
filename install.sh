@@ -181,6 +181,10 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
   fi
 
   # 4. Service Registration
+  echo "[+] Setting up systemd-tmpfiles for volatile memory..."
+  cp ./snowos-runtime/config/snowos-tmpfiles.conf /etc/tmpfiles.d/snowos.conf
+  systemd-tmpfiles --create /etc/tmpfiles.d/snowos.conf
+
   echo "[+] Registering systemd services..."
   cp ./snowos-runtime/services/*.service /etc/systemd/system/
   cp ./distribution/services/*.service /etc/systemd/system/
