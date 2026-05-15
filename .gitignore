@@ -10,3 +10,10 @@ backups/
 SnowOS-Visuals-Pack.zip
 *.swp
 .DS_Store
+*.db
+*.sqlite3
+*.bin
+venv/
+node_modules/
+dist/
+build/

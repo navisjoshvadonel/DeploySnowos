@@ -94,4 +94,15 @@ if __name__ == "__main__":
     check_json_file(FEATURE_FLAGS_FILE, "Feature flags", ["profile", "enabled"])
     check_json_file(INTEGRITY_MANIFEST_FILE, "Integrity manifest", ["tracked_files"])
 
+    print("\n[INFO] Validating SnowOS Identity...")
+    try:
+        with open("/etc/os-release", "r") as f:
+            content = f.read()
+            if 'PRETTY_NAME="SnowOS Aurora 24.04"' in content:
+                print("[OK] Identity: SnowOS Aurora 24.04 detected")
+            else:
+                print("[ERR] Identity: Custom branding not active or incorrect version")
+    except Exception as e:
+        print(f"[ERR] Identity check failed: {e}")
+
     print("\n--- Validation Complete ---")

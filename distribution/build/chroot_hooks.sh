@@ -21,7 +21,7 @@ chmod 755 /opt/snowos/core
 
 # 3. Configure Boot Experience
 echo "Configuring GRUB and Plymouth..."
-sed -i 's/GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS"/g' /etc/default/grub
+sed -i 's/GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS Aurora"/g' /etc/default/grub
 sed -i 's/quiet splash/quiet splash plymouth.ignore-serial-consoles/g' /etc/default/grub
 
 # Enable the required SnowOS services (assuming they are injected into /etc/systemd/system)

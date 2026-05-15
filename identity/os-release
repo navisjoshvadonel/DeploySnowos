@@ -8,6 +8,4 @@ HOME_URL="https://snowos.ai"
 SUPPORT_URL="https://snowos.ai/support"
 BUG_REPORT_URL="https://snowos.ai/bugs"
 PRIVACY_POLICY_URL="https://snowos.ai/privacy"
-VERSION_CODENAME=noble
-UBUNTU_CODENAME=noble
 LOGO=snowos-logo

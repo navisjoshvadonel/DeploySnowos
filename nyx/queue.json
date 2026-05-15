@@ -1,0 +1,65 @@
+{
+  "83487bca": {
+    "id": "83487bca",
+    "goal": "list files",
+    "cwd": "/home/develop/snowos",
+    "priority": "NORMAL",
+    "status": "done",
+    "run_at": "2026-04-18T22:42:49.770399",
+    "interval_sec": null,
+    "depends_on": [],
+    "created_at": "2026-04-18T22:42:44.770429",
+    "completed_at": "2026-04-18T22:59:33.303964"
+  },
+  "a0602ec0": {
+    "id": "a0602ec0",
+    "goal": "show status",
+    "cwd": "/home/develop/snowos",
+    "priority": "HIGH",
+    "status": "running",
+    "run_at": "2026-04-18T22:42:54.779220",
+    "interval_sec": null,
+    "depends_on": [],
+    "created_at": "2026-04-18T22:42:44.779257",
+    "completed_at": null
+  },
+  "61b0ce42": {
+    "id": "61b0ce42",
+    "goal": "create python project",
+    "cwd": "/home/develop/snowos",
+    "priority": "NORMAL",
+    "status": "running",
+    "run_at": null,
+    "interval_sec": null,
+    "depends_on": [],
+    "created_at": "2026-04-18T22:48:17.839930",
+    "completed_at": null,
+    "goal_id": "g_625b006b"
+  },
+  "c04374ad": {
+    "id": "c04374ad",
+    "goal": "Diagnose and resolve the persistent failure of 'npm run dev' and associated server startup issues, beginning with a thorough review and validation of `package.json` and its dependencies.",
+    "cwd": "/home/develop",
+    "priority": "NORMAL",
+    "status": "running",
+    "run_at": null,
+    "interval_sec": null,
+    "depends_on": [],
+    "created_at": "2026-04-22T13:28:27.922398",
+    "completed_at": null,
+    "goal_id": "g_ce5a3178"
+  },
+  "a2eed052": {
+    "id": "a2eed052",
+    "goal": "Investigate and resolve the root cause of 'npm run dev' failures and server startup issues, beginning with a thorough review of package.json and associated dependencies/scripts.",
+    "cwd": "/home/develop/snowos",
+    "priority": "NORMAL",
+    "status": "running",
+    "run_at": null,
+    "interval_sec": null,
+    "depends_on": [],
+    "created_at": "2026-04-22T14:12:57.079663",
+    "completed_at": null,
+    "goal_id": "g_26d2bb4a"
+  }
+}

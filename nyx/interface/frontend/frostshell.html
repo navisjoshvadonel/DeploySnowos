@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowOS | FrostShell</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/xterm@5.1.0/css/xterm.css" />
+    <script src="https://unpkg.com/xterm@5.1.0/lib/xterm.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; overflow: hidden; }
+        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        #terminal-container { height: calc(100vh - 120px); }
+        .xterm-viewport::-webkit-scrollbar { width: 8px; }
+        .xterm-viewport::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .pulse-ai { animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        .frost-gradient { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%); }
+    </style>
+</head>
+<body class="p-6 h-screen flex gap-6">
+
+    <!-- Sidebar: Intelligence Panel -->
+    <aside class="w-80 flex flex-col gap-6 h-full">
+        <div class="glass p-6 rounded-3xl flex flex-col items-center gap-4">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-600/30 pulse-ai">
+                <i data-lucide="snowflake" class="w-10 h-10 text-white"></i>
+            </div>
+            <div class="text-center">
+                <h1 class="text-2xl font-bold tracking-tight">FrostShell</h1>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">AI-Native Shell V1.0</p>
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl flex-1 flex flex-col gap-6 overflow-hidden">
+            <h2 class="text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
+                <i data-lucide="target" class="w-4 h-4"></i> Active Goals
+            </h2>
+            <div id="goal-list" class="flex-1 overflow-y-auto space-y-4 pr-2">
+                <div class="text-center text-xs text-gray-600 py-10 italic">No active autonomous goals.</div>
+            </div>
+
+            <div class="pt-6 border-t border-white/5 space-y-4">
+                <div class="flex justify-between items-center text-xs font-bold text-gray-500 uppercase">
+                    <span>System Stress</span>
+                    <span id="stress-val">12%</span>
+                </div>
+                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div id="stress-bar" class="h-full bg-blue-500 transition-all duration-500" style="width: 12%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-4 rounded-2xl flex items-center gap-4 text-xs text-gray-500">
+            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+            <span>Swarm Peering: <span id="swarm-count" class="text-white">0 Nodes</span></span>
+        </div>
+    </aside>
+
+    <!-- Main: Terminal Area -->
+    <main class="flex-1 flex flex-col gap-6 overflow-hidden">
+        <header class="glass px-8 py-4 rounded-3xl flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="folder" class="w-4 h-4 text-blue-500"></i>
+                    <span class="mono">~/snowos/workspaces/dev</span>
+                </div>
+                <div class="h-4 w-px bg-white/10"></div>
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <i data-lucide="cpu" class="w-4 h-4 text-purple-500"></i>
+                    <span class="mono">gemini-2.0-flash</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 hover:bg-white/5 rounded-lg text-gray-400"><i data-lucide="settings" class="w-5 h-5"></i></button>
+                <button class="bg-white/10 hover:bg-white/15 px-4 py-1.5 rounded-lg text-xs font-bold">REPLAY</button>
+            </div>
+        </header>
+
+        <div class="glass rounded-3xl flex-1 p-6 relative frost-gradient overflow-hidden">
+            <div id="terminal-container"></div>
+            
+            <!-- AI Suggestion Overlay (Hidden by default) -->
+            <div id="ai-suggestion" class="absolute bottom-10 right-10 w-96 glass p-6 rounded-2xl border-blue-500/50 shadow-2xl hidden animate-in slide-in-from-bottom-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <i data-lucide="zap" class="text-yellow-400 w-5 h-5"></i>
+                    <span class="text-sm font-bold text-blue-400 uppercase">Nyx Fix</span>
+                </div>
+                <p id="sugg-text" class="text-sm text-gray-300 mb-4"></p>
+                <button id="fix-btn" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-xl text-xs font-bold transition-all">APPLY FIX</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        
+        // Initialize Terminal
+        const term = new Terminal({
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 14,
+            theme: {
+                background: 'transparent',
+                foreground: '#e5e5e5',
+                cursor: '#3b82f6',
+                selectionBackground: 'rgba(59, 130, 246, 0.3)'
+            },
+            cursorBlink: true,
+            allowTransparency: true
+        });
+        
+        term.open(document.getElementById('terminal-container'));
+        term.write('\x1b[1;34m❄️ SnowOS FrostShell v1.0 Initializing...\x1b[0m\r\n');
+        term.write('\x1b[36mNyx Intelligence Layer Connected.\x1b[0m\r\n\r\n');
+        term.write('user@snowos:~$ ');
+
+        let input = '';
+        term.onData(e => {
+            switch (e) {
+                case '\r': // Enter
+                    term.write('\r\n');
+                    processCommand(input);
+                    input = '';
+                    break;
+                case '\u007F': // Backspace
+                    if (input.length > 0) {
+                        input = input.slice(0, -1);
+                        term.write('\b \b');
+                    }
+                    break;
+                default:
+                    input += e;
+                    term.write(e);
+            }
+        });
+
+        async function processCommand(cmd) {
+            if (!cmd.trim()) {
+                term.write('user@snowos:~$ ');
+                return;
+            }
+            
+            // For now, we simulate shell execution via the bridge logic
+            term.write(`\x1b[90mExecuting: ${cmd}\x1b[0m\r\n`);
+            
+            // Simulation of failure to test bridge
+            if (cmd === 'error') {
+                const res = await fetch('/bridge/error', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ command: 'error', exit_code: '1', error: 'Simulation: Error triggered' })
+                });
+                const data = await res.json();
+                showSuggestion(data.suggestion, data.fix_cmd);
+            } else {
+                term.write('\x1b[32mCommand executed successfully.\x1b[0m\r\n');
+            }
+            
+            term.write('user@snowos:~$ ');
+        }
+
+        function showSuggestion(text, fix) {
+            const el = document.getElementById('ai-suggestion');
+            document.getElementById('sugg-text').innerText = text;
+            el.classList.remove('hidden');
+            
+            document.getElementById('fix-btn').onclick = () => {
+                term.write(`${fix}\r\n`);
+                processCommand(fix);
+                el.classList.add('hidden');
+            };
+        }
+
+        // Periodic Stats Refresh
+        setInterval(async () => {
+            const res = await fetch('/api/metrics');
+            const data = await res.json();
+            // Update UI (simplified)
+            document.getElementById('swarm-count').innerText = '4 Nodes';
+        }, 5000);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "3806d223": {
+    "id": "3806d223",
+    "command": "sleep 5 && echo DAEMON_DONE",
+    "cwd": "/home/develop/snowos",
+    "pid": 8105,
+    "status": "stopped",
+    "start_time": "2026-04-18T22:19:55.350932",
+    "log_file": "/home/develop/snowos/logs/3806d223.log"
+  }
+}
