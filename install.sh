@@ -30,9 +30,17 @@ ensure_service_user() {
   local user_name="$1"
   local home_dir="$2"
 
-  if ! id -u "$user_name" >/dev/null 2>&1; then
-    useradd -r -m -d "$home_dir" -s /usr/sbin/nologin "$user_name"
+  echo "[*] Ensuring service user $user_name exists..."
+  if ! getent group "$user_name" >/dev/null 2>&1; then
+    groupadd -f -r "$user_name"
   fi
+
+  if ! id -u "$user_name" >/dev/null 2>&1; then
+    useradd -r -M -d "$home_dir" -s /usr/sbin/nologin -g "$user_name" "$user_name" || echo "[!] Warning: useradd returned non-zero for $user_name"
+  fi
+  
+  mkdir -p "$home_dir"
+  chown "$user_name":"$user_name" "$home_dir"
 }
 
 install_config_with_dist() {
