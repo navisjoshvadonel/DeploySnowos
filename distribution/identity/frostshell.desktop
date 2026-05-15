@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=FrostShell AI
+Comment=SnowOS AI Native Terminal Experience
+Exec=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/frost_shell.py
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+Categories=System;Utility;TerminalEmulator;
+Keywords=ai;shell;snowos;nyx;
+StartupNotify=true

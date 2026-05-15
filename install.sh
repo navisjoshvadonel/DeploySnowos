@@ -5,10 +5,10 @@ PROFILE="${1:-all}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 case "$PROFILE" in
-  core|visual|all)
+  core|visual|all|smooth)
     ;;
   *)
-    echo "Usage: sudo ./install.sh [core|visual|all]"
+    echo "Usage: sudo ./install.sh [core|visual|all|smooth]"
     exit 1
     ;;
 esac
@@ -85,7 +85,12 @@ EOF
 ensure_service_user snowos-sys /var/lib/snowos/system
 ensure_service_user snowos-ai /var/lib/snowos/ai
 
-mkdir -p /etc/snowos /opt/snowos /var/lib/snowos /var/log/snowos /run/snowos
+# Explicitly create all required directories
+echo "[+] Creating SnowOS directory structure..."
+mkdir -p /etc/snowos /opt/snowos /var/log/snowos /run/snowos
+mkdir -p /var/lib/snowos/system /var/lib/snowos/ai /var/lib/snowos/runtime /var/lib/snowos/logs
+
+# Fix permissions
 chown root:root /etc/snowos /opt/snowos
 chown -R snowos-ai:snowos-ai /var/lib/snowos/ai
 chown -R snowos-sys:snowos-sys /var/lib/snowos/system /run/snowos
@@ -134,16 +139,21 @@ chmod 0640 \
   /etc/snowos/capabilities.json
 write_integrity_manifest
 
-if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ]; then
+if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
   # 3. Configurations
   echo "[+] Copying configurations..."
   cp /opt/snowos/system_services/permission_broker/capabilities.json /etc/snowos/
   chown snowos-sys:snowos-sys /etc/snowos/capabilities.json
 
   # 3.5 Distribution Components
-  echo "[+] Installing SnowOS CLI..."
+  echo "[+] Installing SnowOS CLI and Apps..."
   cp ./distribution/cli/snowos /usr/local/bin/snowos
   chmod +x /usr/local/bin/snowos
+  if [ -f "./distribution/identity/frostshell.desktop" ]; then
+    cp ./distribution/identity/frostshell.desktop /usr/share/applications/
+    chmod 0644 /usr/share/applications/frostshell.desktop
+    update-desktop-database /usr/share/applications/ || true
+  fi
 
   # 4. Service Registration
   echo "[+] Registering systemd services..."
@@ -169,10 +179,13 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ]; then
   systemctl restart snowos-control.service || echo "SnowControl start deferred"
 fi
 
-if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ]; then
+if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
   echo "[+] Installing SnowOS visual dependencies..."
   apt-get update -y
-  apt-get install -y gnome-shell-extension-dash-to-dock gnome-tweaks
+  apt-get install -y gnome-shell-extension-dash-to-dock gnome-tweaks python3-rich papirus-icon-theme || true
+
+  echo "[+] Applying SnowOS Aurora branding..."
+  bash "$SCRIPT_DIR/apply_branding.sh"
 fi
 
 echo "=========================================="
@@ -180,5 +193,6 @@ echo " SnowOS installation complete."
 echo " Core profile:    sudo ./install.sh core"
 echo " Visual profile:  sudo ./install.sh visual"
 echo " Full profile:    sudo ./install.sh all"
+echo " Smooth install:  sudo ./install.sh smooth"
 echo " Validation:      python3 snowos-runtime/validation/check_health.py"
 echo "=========================================="

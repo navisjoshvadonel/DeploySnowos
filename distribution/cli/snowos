@@ -59,6 +59,9 @@ def main():
     shell_parser = subparsers.add_parser("shell", help="Manage Frost Shell")
     shell_parser.add_argument("action", choices=["restart", "logs", "config"])
 
+    mode_parser = subparsers.add_parser("mode", help="Switch SnowOS operational mode")
+    mode_parser.add_argument("type", choices=["developer", "student"])
+
     args = parser.parse_args()
 
     if args.command == "update":
@@ -69,6 +72,17 @@ def main():
         run_ai_status()
     elif args.command == "rollback":
         run_rollback()
+    elif args.command == "mode":
+        if args.type == "developer":
+            print("Switching to Developer Mode...")
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "'prefer-dark'"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences", "show-hidden-files", "true"], capture_output=True)
+            print("Developer Mode activated: Dark theme enforced, hidden files visible, telemetry relaxed.")
+        elif args.type == "student":
+            print("Switching to Student Mode...")
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "'prefer-light'"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences", "show-hidden-files", "false"], capture_output=True)
+            print("Student Mode activated: Focus environment enabled, distractions minimized.")
     else:
         parser.print_help()
 
