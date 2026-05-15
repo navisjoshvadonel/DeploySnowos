@@ -11,6 +11,7 @@ SERVICES=(
     "/etc/systemd/system/snowos-broker.service"
     "/etc/systemd/system/snowos-control.service"
     "/etc/systemd/system/snowos-aicore.service"
+    "/etc/systemd/system/snowos-sentinel.service"
 )
 
 for SERVICE in "${SERVICES[@]}"; do
