@@ -28,9 +28,23 @@ cp "$SCRIPT_DIR/assets/snowos-wallpaper.png" /usr/share/backgrounds/snowos-wallp
 
 # 3. Apply identity files
 echo "[*] Copying identity files..."
-dpkg-divert --remove --rename /etc/os-release || true
-dpkg-divert --remove --rename /etc/lsb-release || true
-rm -f /etc/os-release.ubuntu /etc/os-release.ubuntu-default /etc/lsb-release.ubuntu /etc/lsb-release.ubuntu-default
+for target in /etc/os-release /etc/lsb-release; do
+    echo "[!] Fixing conflicting diversion for $target..."
+    dpkg-divert --remove --rename "$target" 2>/dev/null || true
+    rm -f "$target.ubuntu" "$target.ubuntu-default"
+done
+
+echo "[*] Restoring base system files to clean state..."
+apt-get install --reinstall -y base-files >/dev/null 2>&1
+
+if ! dpkg-divert --list /etc/os-release | grep -q "diverted by snowos"; then
+    dpkg-divert --add --rename --divert /etc/os-release.ubuntu /etc/os-release
+fi
+
+if ! dpkg-divert --list /etc/lsb-release | grep -q "diverted by snowos"; then
+    dpkg-divert --add --rename --divert /etc/lsb-release.ubuntu /etc/lsb-release
+fi
+
 cp "$SCRIPT_DIR/identity/os-release" /etc/os-release
 cp "$SCRIPT_DIR/identity/lsb-release" /etc/lsb-release
 

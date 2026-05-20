@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnowOS - Digital Frost</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Using a common clean system font fallback cascade -->
+</head>
+<body>
+    <div class="ambient-background">
+        <div class="frost-particles" id="particles"></div>
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+        <div class="vignette"></div>
+    </div>
+
+    <main class="login-container">
+        <div class="glass-panel">
+            <div class="brand-header">
+                <div class="logo-wrapper">
+                    <div class="ai-pulse"></div>
+                    <svg class="snow-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2v20M17 5l-10 14M22 12H2M19 17L5 7" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h1 class="os-name">SnowOS</h1>
+                <p class="greeting">Welcome Back</p>
+            </div>
+
+            <form class="login-form" id="loginForm">
+                <div class="avatar-container">
+                    <div class="avatar-img"></div>
+                </div>
+                
+                <h2 class="user-name">Administrator</h2>
+
+                <div class="input-group">
+                    <input type="password" class="glass-input" placeholder="Enter Password" id="passwordField" autofocus>
+                    <div class="input-glow"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Sign In
+                    <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="system-footer">
+        <div class="footer-left">
+            <button class="icon-btn" title="Power">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="icon-btn" title="Accessibility">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="footer-right">
+            <div class="network-status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="clock" id="systemClock">00:00</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
