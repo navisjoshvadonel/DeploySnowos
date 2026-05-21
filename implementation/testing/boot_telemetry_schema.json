@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Boot Telemetry Schema",
+  "type": "object",
+  "properties": {
+    "boot_id": {
+      "type": "string",
+      "description": "Unique identifier for the boot session"
+    },
+    "timestamp_ms": {
+      "type": "integer"
+    },
+    "hardware_profile": {
+      "type": "string",
+      "enum": ["native", "vm", "headless"]
+    },
+    "timings": {
+      "type": "object",
+      "properties": {
+        "firmware_ms": { "type": "integer" },
+        "kernel_ms": { "type": "integer" },
+        "splash_init_ms": { "type": "integer" },
+        "drm_handoff_ms": { "type": "integer" },
+        "compositor_ready_ms": { "type": "integer" },
+        "total_black_screen_duration_ms": { "type": "integer" }
+      },
+      "required": ["total_black_screen_duration_ms"]
+    },
+    "critical_failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service_name": { "type": "string" },
+          "exit_code": { "type": "integer" },
+          "restarts": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "required": ["boot_id", "timings"]
+}

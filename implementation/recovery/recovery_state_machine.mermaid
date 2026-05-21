@@ -1,0 +1,39 @@
+```mermaid
+stateDiagram-v2
+    [*] --> NormalBoot
+    
+    NormalBoot --> FrostWM_Running
+    
+    state FrostWM_Running {
+        [*] --> Active
+        Active --> Crash : SIGSEGV / Hang
+    }
+    
+    Crash --> Sentinel_Watchdog
+    
+    Sentinel_Watchdog --> Restart_Attempt_1 : Strike 1
+    Restart_Attempt_1 --> FrostWM_Running : Success
+    
+    Restart_Attempt_1 --> Crash : Immediate Fail
+    Crash --> Sentinel_Watchdog
+    
+    Sentinel_Watchdog --> Restart_Attempt_2 : Strike 2
+    Restart_Attempt_2 --> FrostWM_Running : Success
+    
+    Restart_Attempt_2 --> Crash : Immediate Fail
+    Crash --> Sentinel_Watchdog
+    
+    Sentinel_Watchdog --> SafeMode_Trigger : Strike 3 (Max limit reached)
+    
+    SafeMode_Trigger --> Terminate_All_Graphical
+    Terminate_All_Graphical --> Launch_Weston_SafeMode
+    
+    state Launch_Weston_SafeMode {
+        [*] --> GUI_Loaded
+        GUI_Loaded --> User_Prompt
+        User_Prompt --> Rollback_BTRFS_Snapshot : User Selects Repair
+    }
+    
+    Rollback_BTRFS_Snapshot --> Reboot_System
+    Reboot_System --> [*]
+```

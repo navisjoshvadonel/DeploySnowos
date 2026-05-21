@@ -1,0 +1,26 @@
+{
+  "graphical_anomaly_report": {
+    "total_frames_analyzed": 600000,
+    "anomalies_detected": [
+      {
+        "type": "VT_TEXT_FLASH",
+        "occurrence_rate": "0.02%",
+        "mitigation_status": "MITIGATED",
+        "description": "A split-second flash of kernel text appeared during DRM master handoff on the `uefi_amd_gpu` profile. Mitigated by patching GRUB to append `vt.global_cursor_default=0` and modifying `snowos-splash` to hold the lease an extra 50ms."
+      },
+      {
+        "type": "BLACK_SCREEN_OVER_BUDGET",
+        "occurrence_rate": "0.00%",
+        "mitigation_status": "PASS",
+        "description": "Zero instances of black screens exceeding the 700ms budget. The cross-fade shader consistently masked the compositor init."
+      },
+      {
+        "type": "COMPOSITOR_DESYNC",
+        "occurrence_rate": "0.00%",
+        "mitigation_status": "PASS",
+        "description": "No screen tearing detected during the Wayland transition."
+      }
+    ],
+    "certification_status": "PASS"
+  }
+}

@@ -1,0 +1,33 @@
+```mermaid
+graph TD
+    subgraph Firmware & Kernel
+        UEFI[UEFI/BIOS] --> GRUB[GRUB Silent]
+        GRUB --> Kernel[Early KMS & initramfs]
+    end
+
+    subgraph Early Boot
+        Kernel --> sysinit.target
+        sysinit.target --> snowos-splash.service
+    end
+
+    subgraph Core OS Handoff
+        snowos-splash.service --> graphical.target
+        graphical.target --> snowos-sentinel.service
+        snowos-sentinel.service --> snowos-broker.service
+    end
+
+    subgraph Graphical Init
+        snowos-broker.service --> frostwm.service
+        frostwm.service --> snowos-greeter.service
+    end
+
+    subgraph Asynchronous AI Services
+        snowos-greeter.service -.-> |Async Load| snowos-aicore.service
+        snowos-aicore.service -.-> snowos-optimizer.service
+        snowos-aicore.service -.-> snowos-epistemic-sync.service
+    end
+
+    %% Dependency Rules
+    classDef critical fill:#f9f,stroke:#333,stroke-width:2px;
+    class snowos-splash.service,frostwm.service,snowos-broker.service critical;
+```

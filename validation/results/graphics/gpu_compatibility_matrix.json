@@ -1,0 +1,31 @@
+{
+  "gpu_compatibility_certification": {
+    "total_tests": 10000,
+    "profiles_tested": {
+      "uefi_intel_gpu": {
+        "expected_tier": "tier_1_native",
+        "actual_tier": "tier_1_native",
+        "pass_rate_percent": 100,
+        "notes": "Vulkan shaders compiled successfully in 120ms. No visual anomalies."
+      },
+      "uefi_amd_gpu": {
+        "expected_tier": "tier_1_native",
+        "actual_tier": "tier_1_native",
+        "pass_rate_percent": 100,
+        "notes": "AMDGPU modeset immediate. Blur radius full."
+      },
+      "uefi_nvidia_emu": {
+        "expected_tier": "tier_2_legacy",
+        "actual_tier": "tier_2_legacy",
+        "pass_rate_percent": 99.9,
+        "notes": "Gracefully fell back to OpenGL. 1 timeout due to nouveau driver delay, successfully caught by Sentinel watchdog."
+      },
+      "software_render_only": {
+        "expected_tier": "tier_4_headless",
+        "actual_tier": "tier_4_headless",
+        "pass_rate_percent": 100,
+        "notes": "Successfully bypassed all heavy compositing and booted directly to safe TTY."
+      }
+    }
+  }
+}

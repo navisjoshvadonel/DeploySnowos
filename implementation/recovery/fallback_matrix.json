@@ -1,0 +1,49 @@
+{
+  "fallback_matrix": {
+    "detection_rules": [
+      {
+        "id": "tier_1_native",
+        "condition": "vulkan_support=true AND is_virtual=false AND opengl_version>=4.6",
+        "profile": "cinematic_workstation",
+        "settings": {
+          "backend": "vulkan",
+          "blur_radius": 32,
+          "animations": "fluid_144hz",
+          "shadows": "raytraced"
+        }
+      },
+      {
+        "id": "tier_2_legacy",
+        "condition": "vulkan_support=false AND opengl_version>=3.3",
+        "profile": "standard_desktop",
+        "settings": {
+          "backend": "opengl",
+          "blur_radius": 8,
+          "animations": "standard_60hz",
+          "shadows": "baked"
+        }
+      },
+      {
+        "id": "tier_3_vm",
+        "condition": "is_virtual=true",
+        "profile": "degraded_virtual",
+        "settings": {
+          "backend": "pixman_software",
+          "blur_radius": 0,
+          "animations": "disabled",
+          "shadows": "none",
+          "max_fps": 30
+        }
+      },
+      {
+        "id": "tier_4_headless",
+        "condition": "drm_nodes_available=0",
+        "profile": "recovery_tty",
+        "settings": {
+          "backend": "none",
+          "force_vt": true
+        }
+      }
+    ]
+  }
+}

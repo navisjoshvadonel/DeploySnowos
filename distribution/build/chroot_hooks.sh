@@ -13,22 +13,24 @@ if [ ! -f /etc/os-release.ubuntu-default ]; then
 fi
 # The custom os-release is injected via includes.chroot
 
-# 2. Setup AI Runtime Environment
-echo "Setting up AI Runtime..."
-mkdir -p /var/lib/snowos-ai
-mkdir -p /opt/snowos/core
-chmod 755 /opt/snowos/core
+# 2. Setup AI Runtime Environment & Install SnowOS
+echo "Running SnowOS Offline Installer..."
+if [ -f "/opt/snowos-installer/install.sh" ]; then
+    cd /opt/snowos-installer
+    chmod +x install.sh
+    ./install.sh all --offline
+    cd /
+    
+    echo "Cleaning up installer files..."
+    rm -rf /opt/snowos-installer
+else
+    echo "WARNING: SnowOS installer not found in chroot!"
+fi
 
 # 3. Configure Boot Experience
 echo "Configuring GRUB and Plymouth..."
 sed -i 's/GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS Aurora"/g' /etc/default/grub
 sed -i 's/quiet splash/quiet splash plymouth.ignore-serial-consoles/g' /etc/default/grub
-
-# Enable the required SnowOS services (assuming they are injected into /etc/systemd/system)
-# systemctl enable snowos-broker.service
-# systemctl enable snowos-sentinel.service
-# systemctl enable snowos-aicore.service
-# systemctl enable snowos-control.service
 
 # 4. Clean up Ubuntu references
 echo "Removing Ubuntu specific branding..."

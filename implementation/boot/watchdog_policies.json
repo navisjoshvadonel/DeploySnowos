@@ -1,0 +1,28 @@
+{
+  "watchdog_policies": {
+    "frostwm": {
+      "target_service": "frostwm.service",
+      "ping_interval_ms": 1000,
+      "timeout_threshold_ms": 3000,
+      "action_on_timeout": "restart",
+      "max_restarts": 3,
+      "interval_window_sec": 60,
+      "action_on_max_restarts": "trigger_safemode",
+      "safemode_service": "frostwm-safemode.service"
+    },
+    "snowos-broker": {
+      "target_service": "snowos-broker.service",
+      "ping_interval_ms": 2000,
+      "timeout_threshold_ms": 5000,
+      "action_on_timeout": "kill_and_restart",
+      "dependencies_to_kill": ["snowos-aicore.service"]
+    },
+    "snowos-aicore": {
+      "target_service": "snowos-aicore.service",
+      "health_endpoint": "/ipc/broker/health",
+      "max_latency_ms": 2000,
+      "action_on_latency_exceeded": "restart",
+      "allow_graceful_shutdown": true
+    }
+  }
+}

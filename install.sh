@@ -4,11 +4,16 @@ set -e
 PROFILE="${1:-all}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+OFFLINE_MODE=false
+if [ "$2" = "--offline" ] || [ "$3" = "--offline" ]; then
+  OFFLINE_MODE=true
+fi
+
 case "$PROFILE" in
   core|visual|all|smooth)
     ;;
   *)
-    echo "Usage: sudo ./install.sh [core|visual|all|smooth]"
+    echo "Usage: sudo ./install.sh [core|visual|all|smooth] [--offline]"
     exit 1
     ;;
 esac
@@ -227,31 +232,35 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
   systemctl enable snowos-healbridge.service || true
 
   # Strict service restart order (Agent Recovery)
-  echo "[+] Applying safe restart order for core services..."
-  systemctl stop snowos-broker.service snowos-sentinel.service snowos-updater.service snowos-aicore.service snowos-control.service snowos-optimizer.service >/dev/null 2>&1 || true
-  
-  systemctl daemon-reload
-  systemctl start snowos-broker.service
-  
-  echo "[*] Waiting for broker to initialize..."
-  sleep 2
+  if [ "$OFFLINE_MODE" != "true" ]; then
+    echo "[+] Applying safe restart order for core services..."
+    systemctl stop snowos-broker.service snowos-sentinel.service snowos-updater.service snowos-aicore.service snowos-control.service snowos-optimizer.service >/dev/null 2>&1 || true
+    
+    systemctl daemon-reload
+    systemctl start snowos-broker.service
+    
+    echo "[*] Waiting for broker to initialize..."
+    sleep 2
 
-  if systemctl is-active --quiet snowos-broker.service; then
-      echo "[+] Broker is ACTIVE, starting dependent services..."
-      systemctl start snowos-sentinel.service
-      systemctl start snowos-aicore.service
-      systemctl start snowos-control.service
-      # Cognitive OS daemons (non-critical — log but don't abort)
-      systemctl start snowos-nyxvfs.service   || echo "[!] nyxvfs not started (non-critical)"
-      systemctl start snowos-governor.service || echo "[!] governor not started (non-critical)"
-      systemctl start snowos-healbridge.service || echo "[!] healbridge not started (non-critical)"
+    if systemctl is-active --quiet snowos-broker.service; then
+        echo "[+] Broker is ACTIVE, starting dependent services..."
+        systemctl start snowos-sentinel.service
+        systemctl start snowos-aicore.service
+        systemctl start snowos-control.service
+        # Cognitive OS daemons (non-critical — log but don't abort)
+        systemctl start snowos-nyxvfs.service   || echo "[!] nyxvfs not started (non-critical)"
+        systemctl start snowos-governor.service || echo "[!] governor not started (non-critical)"
+        systemctl start snowos-healbridge.service || echo "[!] healbridge not started (non-critical)"
+    else
+        echo "[!] Broker failed to start. Printing crash logs:"
+        echo "---------------------------------------------------"
+        journalctl -u snowos-broker.service --no-pager -n 30 || true
+        echo "---------------------------------------------------"
+        echo "[!] Stopping chain immediately."
+        exit 1
+    fi
   else
-      echo "[!] Broker failed to start. Printing crash logs:"
-      echo "---------------------------------------------------"
-      journalctl -u snowos-broker.service --no-pager -n 30 || true
-      echo "---------------------------------------------------"
-      echo "[!] Stopping chain immediately."
-      exit 1
+    echo "[*] Offline mode: Skipping service start sequence."
   fi
 fi
 

@@ -1,0 +1,54 @@
+{
+  "profiles": [
+    {
+      "id": "uefi_intel_gpu",
+      "description": "Standard modern boot with Intel GPU pass-through/emulation",
+      "args": ["-machine", "q35", "-bios", "OVMF.fd", "-vga", "virtio", "-display", "egl-headless"]
+    },
+    {
+      "id": "uefi_amd_gpu",
+      "description": "AMD GPU emulation (amdgpu driver check)",
+      "args": ["-machine", "q35", "-bios", "OVMF.fd", "-device", "amdgpu,x-pci-vendor-id=0x1002"]
+    },
+    {
+      "id": "uefi_nvidia_emu",
+      "description": "NVIDIA proprietary fallback emulation",
+      "args": ["-machine", "q35", "-bios", "OVMF.fd", "-vga", "std"]
+    },
+    {
+      "id": "vmware_compat",
+      "description": "VMware standard hardware stack",
+      "args": ["-vga", "vmware", "-device", "vmxnet3"]
+    },
+    {
+      "id": "virtualbox_compat",
+      "description": "VirtualBox VBoxSVGA emulation",
+      "args": ["-vga", "qxl"]
+    },
+    {
+      "id": "low_mem_2gb",
+      "description": "Starvation test for OOM handler",
+      "args": ["-m", "2048", "-smp", "2"]
+    },
+    {
+      "id": "arm64_virtual",
+      "description": "ARM64 architectural test",
+      "args": ["-M", "virt", "-cpu", "cortex-a57"]
+    },
+    {
+      "id": "software_render_only",
+      "description": "Forces Score C in fallback matrix",
+      "args": ["-vga", "none", "-display", "curses"]
+    },
+    {
+      "id": "tpm_enabled",
+      "description": "Validates biometric unseal path",
+      "args": ["-chardev", "socket,id=chrtpm,path=/tmp/mytpm1/swtpm-sock", "-tpmdev", "emulator,id=tpm0,chardev=chrtpm", "-device", "tpm-tis,tpmdev=tpm0"]
+    },
+    {
+      "id": "tpm_missing",
+      "description": "Validates Blind Mode fallback",
+      "args": ["-machine", "q35", "-bios", "OVMF.fd"] 
+    }
+  ]
+}

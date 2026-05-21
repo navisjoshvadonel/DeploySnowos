@@ -1,0 +1,20 @@
+```mermaid
+sequenceDiagram
+    participant Kernel
+    participant Splash as snowos-splash
+    participant Systemd
+    participant WM as FrostWM
+    participant Sentinel
+
+    Kernel->>Splash: Load GPU driver (Early KMS)
+    Splash->>Splash: Render Vulkan Animation
+    Systemd->>WM: ExecStart frostwm.service
+    WM->>Sentinel: Request DRM Master
+    Sentinel->>Splash: Signal SIGUSR1 (Yield DRM)
+    Splash->>Sentinel: DRM Lease FD
+    Sentinel->>WM: Pass DRM Lease FD
+    WM->>WM: Initialize Renderer
+    WM->>Systemd: sd_notify("READY=1")
+    WM->>Splash: Signal SIGTERM (Exit)
+    Splash-->>WM: Handoff Complete (No black screen)
+```

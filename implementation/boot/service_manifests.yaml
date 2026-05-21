@@ -1,0 +1,52 @@
+# SnowOS Systemd Service Manifests (Hardened)
+# These templates enforce strict timeout and fallback rules.
+
+snowos-splash.service:
+  Unit:
+    Description: SnowOS Vulkan Splash Screen
+    DefaultDependencies: no
+    After: systemd-vconsole-setup.service
+    Before: graphical.target
+    Conflicts: plymouth-start.service
+  Service:
+    ExecStart: /system/bin/snowos-splash --drm-lease
+    Type: notify
+    OOMScoreAdjust: -1000
+    TimeoutStartSec: 2
+    RemainAfterExit: yes
+
+snowos-broker.service:
+  Unit:
+    Description: SnowOS IPC Permission Broker
+    After: snowos-sentinel.service
+    Requires: snowos-sentinel.service
+  Service:
+    ExecStart: /system/bin/snowos-broker --policy-dir=/system/broker/policies.ro
+    Type: notify
+    Restart: on-failure
+    RestartSec: 1
+    OOMScoreAdjust: -900
+    WatchdogSec: 5
+
+frostwm.service:
+  Unit:
+    Description: SnowOS Frost Wayland Compositor
+    After: snowos-broker.service
+    Requires: snowos-broker.service
+    OnFailure: frostwm-safemode.service
+  Service:
+    ExecStart: /system/bin/frostwm --wait-for-drm-lease
+    Type: notify
+    Restart: on-failure
+    RestartSec: 2
+    StartLimitIntervalSec: 60
+    StartLimitBurst: 3
+    WatchdogSec: 3
+
+frostwm-safemode.service:
+  Unit:
+    Description: SnowOS Graphical Recovery Fallback
+    Conflicts: frostwm.service
+  Service:
+    ExecStart: /system/bin/weston --backend=drm-backend.so --shell=kiosk-shell.so --config=/recovery/safemode.ini
+    Type: simple

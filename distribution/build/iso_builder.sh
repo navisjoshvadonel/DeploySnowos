@@ -44,6 +44,15 @@ network-manager
 pipewire
 python3
 python3-pip
+python3-gi
+python3-gi-cairo
+gir1.2-gtk-3.0
+scrot
+xdotool
+wmctrl
+xbindkeys
+brightnessctl
+libnotify-bin
 grub-efi-amd64
 plymouth
 plymouth-theme-spinner
@@ -57,6 +66,10 @@ chmod +x config/hooks/normal/01-snowos-setup.hook.chroot
 
 mkdir -p config/includes.chroot/etc
 cp $IDENTITY_DIR/os-release config/includes.chroot/etc/os-release
+
+echo "Injecting SnowOS Installer into chroot..."
+mkdir -p config/includes.chroot/opt/snowos-installer
+(cd ../../../ && tar cf - --exclude=distribution/build/"$BUILD_DIR" .) | (cd config/includes.chroot/opt/snowos-installer && tar xf -)
 
 echo "Build configuration complete."
 echo "To build the ISO, run: sudo lb build"

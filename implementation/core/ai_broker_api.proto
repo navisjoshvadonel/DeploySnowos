@@ -1,0 +1,59 @@
+syntax = "proto3";
+package snowos.broker;
+
+// The AI Broker API acts as the immutable permission layer.
+// The AI CANNOT execute arbitrary shell commands. It can only emit Intents.
+
+service CognitiveBroker {
+    // Submit a high-level intent for evaluation
+    rpc SubmitIntent(IntentRequest) returns (IntentResponse);
+    
+    // Request read-only contextual data (hardware state, etc)
+    rpc QueryContext(ContextQuery) returns (ContextData);
+    
+    // Health check endpoint for the Sentinel watchdog
+    rpc CheckHealth(HealthPing) returns (HealthPong);
+}
+
+message IntentRequest {
+    enum Action {
+        NOOP = 0;
+        MODIFY_UI_THEME = 1;
+        ADJUST_WINDOW_LAYOUT = 2;
+        SUPPRESS_NOTIFICATIONS = 3;
+        LAUNCH_APPLICATION = 4;
+        // Notice: No file deletion or arbitrary execution actions exist.
+    }
+    
+    Action action = 1;
+    string target = 2;
+    string reasoning = 3; // The AI must explain why it is doing this
+    float reality_confidence_index = 4; // RCI score (0.0 to 1.0)
+}
+
+message IntentResponse {
+    bool approved = 1;
+    string denial_reason = 2; // e.g., "Policy violation: Cannot modify UI pre-auth"
+}
+
+message ContextQuery {
+    enum Domain {
+        HARDWARE = 0;
+        ENVIRONMENT = 1;
+        USER_PRESENCE = 2; // Pre-auth allowed (returns anonymous boolean)
+        PRIVATE_MEMORY = 3; // Blocked pre-auth
+    }
+    Domain domain = 1;
+}
+
+message ContextData {
+    bytes serialized_json = 1;
+}
+
+message HealthPing {
+    int64 timestamp = 1;
+}
+
+message HealthPong {
+    bool ok = 1;
+}

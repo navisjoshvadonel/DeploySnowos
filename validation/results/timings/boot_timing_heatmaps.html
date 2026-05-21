@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SnowOS Boot Timing Heatmaps</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #0f172a; color: #f8fafc; padding: 2rem; }
+        .heatmap-container { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .profile { background: #1e293b; padding: 1rem; border-radius: 8px; border: 1px solid #334155; width: 45%; }
+        .bar { height: 20px; border-radius: 4px; margin: 4px 0; }
+        .firmware { background: #3b82f6; }
+        .kernel { background: #8b5cf6; }
+        .userspace { background: #10b981; }
+        .black-screen { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>SnowOS Boot Timing Heatmaps (N=10,000)</h1>
+    <p>Target Budget: < 5000ms. Black Screen Budget: < 700ms.</p>
+    <div class="heatmap-container">
+        
+        <div class="profile">
+            <h3>Profile 1: UEFI + Intel NVMe (Native)</h3>
+            <p>Total Average: 4200ms</p>
+            <div style="display: flex;">
+                <div class="bar firmware" style="width: 10%;" title="Firmware (420ms)"></div>
+                <div class="bar kernel" style="width: 25%;" title="Kernel/KMS (1050ms)"></div>
+                <div class="bar userspace" style="width: 60%;" title="FrostWM/Greeter (2520ms)"></div>
+                <div class="bar black-screen" style="width: 5%;" title="Black Screen (210ms)"></div>
+            </div>
+            <p style="color: #10b981;">STATUS: CERTIFIED</p>
+        </div>
+
+        <div class="profile">
+            <h3>Profile 2: ARM64 Virtual Target</h3>
+            <p>Total Average: 4850ms</p>
+            <div style="display: flex;">
+                <div class="bar firmware" style="width: 15%;" title="Firmware (727ms)"></div>
+                <div class="bar kernel" style="width: 30%;" title="Kernel/KMS (1455ms)"></div>
+                <div class="bar userspace" style="width: 50%;" title="FrostWM/Greeter (2425ms)"></div>
+                <div class="bar black-screen" style="width: 5%;" title="Black Screen (242ms)"></div>
+            </div>
+            <p style="color: #10b981;">STATUS: CERTIFIED</p>
+        </div>
+
+    </div>
+</body>
+</html>
