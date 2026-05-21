@@ -30,8 +30,11 @@ RestrictNamespaces=yes
 RestrictSUIDSGID=yes
 LockPersonality=yes
 SystemCallArchitectures=native
-RestrictAddressFamilies=AF_UNIX
-ReadWritePaths=/run/snowos
+RestrictAddressFamilies=AF_UNIX AF_INET
+ReadWritePaths=/run/snowos /tmp
+# Allow journal reads for crash log extraction
+AmbientCapabilities=CAP_DAC_READ_SEARCH
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
 
 [Install]
 WantedBy=multi-user.target

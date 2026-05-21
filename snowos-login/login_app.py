@@ -14,7 +14,7 @@ class SnowOSGreeter(Gtk.Window):
         
         # Configure the window for a fullscreen greeter
         self.set_default_size(1920, 1080)
-        self.fullscreen()
+        GLib.timeout_add(1200, lambda: self.fullscreen() or False)
         self.set_decorated(False)
         self.set_keep_above(True)
         self.connect("destroy", Gtk.main_quit)

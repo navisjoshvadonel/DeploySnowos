@@ -1,0 +1,28 @@
+[Unit]
+Description=SnowOS Cognitive Intent Pre-fetching Governor
+Documentation=https://github.com/snowos/core
+After=snowos-boot.service
+Wants=snowos-boot.service
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/performance/intent_governor.py
+Restart=on-failure
+RestartSec=10
+
+# Allow writing governor via polkit (needs CAP_SYS_NICE for scheduling)
+AmbientCapabilities=CAP_SYS_NICE
+CapabilityBoundingSet=CAP_SYS_NICE
+
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+NoNewPrivileges=no
+ReadWritePaths=/run/snowos /tmp %h/.snowos /sys/devices/system/cpu
+
+[Install]
+WantedBy=multi-user.target

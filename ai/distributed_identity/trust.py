@@ -47,3 +47,29 @@ class TrustManager:
             
         from security.tokens import verify_distributed_token
         return verify_distributed_token(token_data, node["public_key"])
+
+    def evaluate_risk(self, node_id: str, action: str) -> tuple[int, bool]:
+        """
+        Dynamically calculates a confidence score based on historical cryptographic signatures
+        and the behavioral risk of the task.
+        Returns: (score (0-100), is_trusted)
+        """
+        base_score = 50
+        
+        if self.is_trusted(node_id):
+            base_score += 40
+        else:
+            base_score -= 20
+            
+        action_lower = action.lower()
+        
+        high_risk = ["rm ", "sudo ", "chmod ", "chown ", "install", "format"]
+        if any(h in action_lower for h in high_risk):
+            base_score -= 40
+            
+        safe_tasks = ["compile", "build", "analyze", "infer", "calculate"]
+        if any(s in action_lower for s in safe_tasks):
+            base_score += 20
+            
+        final_score = max(0, min(100, base_score))
+        return final_score, final_score >= 80

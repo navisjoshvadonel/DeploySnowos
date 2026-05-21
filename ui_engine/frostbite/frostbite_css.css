@@ -1,0 +1,346 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Frostbite Companion Widget — CSS Design System
+   Theme: Digital Frost Glassmorphism
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Google Font Import (cached, no external call at runtime) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Root Color Tokens ──────────────────────────────────────────────────── */
+* {
+    font-family: 'Inter', 'Segoe UI', Ubuntu, sans-serif;
+    box-sizing: border-box;
+}
+
+/* ── Frostbite Sidebar Window ───────────────────────────────────────────── */
+.frostbite-window {
+    background: rgba(8, 10, 22, 0.92);
+    border-left: 1px solid rgba(120, 180, 255, 0.18);
+    box-shadow: -8px 0 40px rgba(0, 100, 255, 0.12),
+                -2px 0 12px rgba(0, 200, 255, 0.08);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.frostbite-header {
+    background: linear-gradient(135deg,
+        rgba(0, 100, 200, 0.25) 0%,
+        rgba(0, 180, 255, 0.12) 50%,
+        rgba(120, 0, 255, 0.15) 100%);
+    border-bottom: 1px solid rgba(100, 180, 255, 0.2);
+    padding: 14px 16px;
+}
+
+.frostbite-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e8f4ff;
+    letter-spacing: 0.5px;
+}
+
+.frostbite-subtitle {
+    font-size: 10px;
+    font-weight: 300;
+    color: rgba(140, 200, 255, 0.7);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* ── Status Badge ───────────────────────────────────────────────────────── */
+.status-badge {
+    background: rgba(0, 220, 130, 0.15);
+    border: 1px solid rgba(0, 220, 130, 0.35);
+    border-radius: 20px;
+    padding: 2px 10px;
+    color: #00dc82;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+}
+
+.status-badge.thinking {
+    background: rgba(100, 150, 255, 0.15);
+    border-color: rgba(100, 150, 255, 0.4);
+    color: #6496ff;
+}
+
+/* ── Context Ribbon ─────────────────────────────────────────────────────── */
+.context-ribbon {
+    background: rgba(0, 80, 160, 0.12);
+    border: 1px solid rgba(80, 140, 255, 0.12);
+    border-radius: 6px;
+    margin: 8px 12px;
+    padding: 6px 10px;
+}
+
+.context-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(140, 190, 255, 0.8);
+    letter-spacing: 0.8px;
+}
+
+/* ── Chat Area ──────────────────────────────────────────────────────────── */
+.chat-scroll {
+    background: transparent;
+}
+
+.chat-viewport {
+    background: transparent;
+}
+
+/* ── Message Bubbles ────────────────────────────────────────────────────── */
+.message-row {
+    margin: 4px 12px;
+}
+
+.message-bubble {
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-width: 340px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.message-bubble.user {
+    background: linear-gradient(135deg,
+        rgba(0, 100, 200, 0.35),
+        rgba(0, 160, 255, 0.25));
+    border: 1px solid rgba(0, 160, 255, 0.25);
+    color: #ddeeff;
+    margin-left: auto;
+    border-bottom-right-radius: 3px;
+}
+
+.message-bubble.assistant {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(120, 180, 255, 0.12);
+    color: #c8e0ff;
+    margin-right: auto;
+    border-bottom-left-radius: 3px;
+}
+
+.message-bubble.system-event {
+    background: rgba(0, 200, 130, 0.08);
+    border: 1px solid rgba(0, 200, 130, 0.2);
+    color: #80ffcc;
+    font-size: 11px;
+    font-style: italic;
+    margin: 2px auto;
+    border-radius: 20px;
+    padding: 5px 14px;
+    text-align: center;
+}
+
+.message-bubble.error {
+    background: rgba(255, 60, 60, 0.08);
+    border: 1px solid rgba(255, 80, 80, 0.2);
+    color: #ff9090;
+}
+
+.message-timestamp {
+    font-size: 9px;
+    color: rgba(140, 180, 255, 0.4);
+    margin-top: 2px;
+}
+
+/* ── Progress Bar ───────────────────────────────────────────────────────── */
+.progress-container {
+    background: rgba(0, 80, 160, 0.15);
+    border: 1px solid rgba(0, 140, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 4px 12px;
+}
+
+progress, .progress-bar {
+    background: rgba(0, 60, 120, 0.4);
+    border-radius: 4px;
+    height: 4px;
+}
+
+progress::-moz-progress-bar {
+    background: linear-gradient(90deg, #0080ff, #00d4ff);
+    border-radius: 4px;
+}
+
+.progress-label {
+    font-size: 11px;
+    color: rgba(140, 200, 255, 0.8);
+    margin-bottom: 4px;
+}
+
+/* ── Input Area ─────────────────────────────────────────────────────────── */
+.input-area {
+    background: rgba(0, 10, 30, 0.6);
+    border-top: 1px solid rgba(80, 140, 255, 0.15);
+    padding: 10px 12px;
+}
+
+.frostbite-entry {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(80, 140, 255, 0.2);
+    border-radius: 20px;
+    color: #ddeeff;
+    padding: 8px 14px;
+    font-size: 13px;
+    caret-color: #40aaff;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.frostbite-entry:focus {
+    border-color: rgba(0, 160, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(0, 140, 255, 0.12),
+                0 0 12px rgba(0, 100, 200, 0.15);
+    outline: none;
+}
+
+.frostbite-entry placeholder {
+    color: rgba(100, 150, 200, 0.45);
+}
+
+/* ── Send Button ────────────────────────────────────────────────────────── */
+.send-button {
+    background: linear-gradient(135deg, #0070cc, #0050aa);
+    border: 1px solid rgba(0, 140, 255, 0.4);
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 16px;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0;
+    transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+}
+
+.send-button:hover {
+    background: linear-gradient(135deg, #0090ff, #0068dd);
+    box-shadow: 0 0 12px rgba(0, 120, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.send-button:active {
+    transform: scale(0.95);
+}
+
+/* ── Quick Action Pills ─────────────────────────────────────────────────── */
+.quick-actions {
+    padding: 6px 12px 4px;
+}
+
+.quick-pill {
+    background: rgba(0, 80, 160, 0.15);
+    border: 1px solid rgba(0, 140, 255, 0.2);
+    border-radius: 14px;
+    color: rgba(140, 200, 255, 0.9);
+    font-size: 11px;
+    padding: 3px 10px;
+    margin: 2px 3px;
+    transition: background 150ms, border-color 150ms;
+}
+
+.quick-pill:hover {
+    background: rgba(0, 100, 200, 0.25);
+    border-color: rgba(0, 180, 255, 0.4);
+    color: #80d0ff;
+}
+
+/* ── Minimize / Close Button ────────────────────────────────────────────── */
+.header-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    color: rgba(180, 210, 255, 0.6);
+    font-size: 11px;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    transition: background 150ms, color 150ms;
+}
+
+.header-btn:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: rgba(255, 80, 80, 0.3);
+    color: #ff8080;
+}
+
+/* ── Typing Indicator ───────────────────────────────────────────────────── */
+.typing-dot {
+    font-size: 20px;
+    color: rgba(100, 180, 255, 0.6);
+    animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50%       { opacity: 1.0; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+scrollbar {
+    background: rgba(0, 20, 60, 0.3);
+    border-radius: 4px;
+    min-width: 6px;
+}
+
+scrollbar slider {
+    background: rgba(0, 120, 220, 0.35);
+    border-radius: 4px;
+    min-height: 30px;
+    transition: background 150ms;
+}
+
+scrollbar slider:hover {
+    background: rgba(0, 160, 255, 0.5);
+}
+
+/* ── Frost Panel (existing desktop) ────────────────────────────────────── */
+.frost-panel {
+    background: rgba(5, 8, 20, 0.88);
+    border-bottom: 1px solid rgba(80, 140, 255, 0.15);
+    color: #c0d8ff;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.frost-panel label {
+    color: #c0d8ff;
+    font-size: 13px;
+}
+
+/* ── Frost Dock ─────────────────────────────────────────────────────────── */
+.frost-dock {
+    background: rgba(5, 8, 25, 0.85);
+    border: 1px solid rgba(80, 140, 255, 0.2);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0, 60, 180, 0.25),
+                0 2px 8px rgba(0, 100, 255, 0.12);
+}
+
+.frost-dock-icon {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(100, 160, 255, 0.15);
+    border-radius: 12px;
+    color: #a0c0ff;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 52px;
+    min-height: 52px;
+    transition: background 150ms, border-color 150ms, transform 120ms;
+}
+
+.frost-dock-icon:hover {
+    background: rgba(0, 100, 200, 0.2);
+    border-color: rgba(0, 180, 255, 0.4);
+    transform: translateY(-3px);
+}
+
+.frost-dock-icon.frostbite-btn {
+    background: linear-gradient(135deg, rgba(0, 80, 180, 0.3), rgba(0, 160, 255, 0.15));
+    border-color: rgba(0, 180, 255, 0.35);
+    color: #60d0ff;
+}
+
+.frost-dock-icon.frostbite-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 100, 220, 0.4), rgba(0, 180, 255, 0.25));
+    box-shadow: 0 4px 16px rgba(0, 140, 255, 0.3);
+    transform: translateY(-4px);
+}

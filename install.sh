@@ -25,6 +25,12 @@ fi
 echo "[+] Verifying Python/Runtime Dependencies..."
 apt-get update -y || true
 apt-get install -y python3 || true
+# Cognitive OS tools
+apt-get install -y \
+  python3-gi python3-gi-cairo gir1.2-gtk-3.0 \
+  scrot xdotool wmctrl xbindkeys \
+  brightnessctl libnotify-bin \
+  || true
 
 ensure_service_user() {
   local user_name="$1"
@@ -134,6 +140,23 @@ chown -R root:root /opt/snowos
 chmod -R 0755 /opt/snowos
 chmod +x /opt/snowos/core/bin/* || true
 
+echo "[+] Deploying SnowOS Cognitive OS modules..."
+# NyxVFS + Healing Bridge
+mkdir -p /opt/snowos/ai_core/nyxvfs
+cp -R "$SCRIPT_DIR/ai/nyxvfs/." /opt/snowos/ai_core/nyxvfs/
+# Intent Governor
+mkdir -p /opt/snowos/ai_core/performance
+cp -R "$SCRIPT_DIR/ai/performance/." /opt/snowos/ai_core/performance/
+# Context Engine (upgraded)
+cp "$SCRIPT_DIR/ai/context_engine.py" /opt/snowos/ai_core/context_engine.py
+# Frostbite UI widget
+mkdir -p /opt/snowos/ui_engine/frostbite
+cp -R "$SCRIPT_DIR/ui_engine/frostbite/." /opt/snowos/ui_engine/frostbite/
+# Upgraded desktop
+cp "$SCRIPT_DIR/ui_engine/frost_desktop.py" /opt/snowos/ui_engine/frost_desktop.py
+chown -R root:root /opt/snowos/ai_core /opt/snowos/ui_engine
+chmod -R 0755 /opt/snowos/ai_core /opt/snowos/ui_engine
+
 echo "[+] Installing SnowOS platform defaults..."
 install_config_with_dist "$SCRIPT_DIR/snowos-runtime/config/snowos.env" /etc/snowos/snowos.env
 cp "$SCRIPT_DIR/snowos-runtime/config/boot_manifest.json" /etc/snowos/boot_manifest.json
@@ -198,6 +221,10 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
   systemctl enable snowos-optimizer.service
   systemctl enable snowos-control.service
   systemctl enable snowos-updater.service
+  # Cognitive OS services
+  systemctl enable snowos-nyxvfs.service   || true
+  systemctl enable snowos-governor.service || true
+  systemctl enable snowos-healbridge.service || true
 
   # Strict service restart order (Agent Recovery)
   echo "[+] Applying safe restart order for core services..."
@@ -214,6 +241,10 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
       systemctl start snowos-sentinel.service
       systemctl start snowos-aicore.service
       systemctl start snowos-control.service
+      # Cognitive OS daemons (non-critical — log but don't abort)
+      systemctl start snowos-nyxvfs.service   || echo "[!] nyxvfs not started (non-critical)"
+      systemctl start snowos-governor.service || echo "[!] governor not started (non-critical)"
+      systemctl start snowos-healbridge.service || echo "[!] healbridge not started (non-critical)"
   else
       echo "[!] Broker failed to start. Printing crash logs:"
       echo "---------------------------------------------------"

@@ -1,3 +1,4 @@
+import os
 import random
 from typing import Dict, List, Optional, Tuple
 
@@ -15,6 +16,17 @@ class TaskRouter:
     def __init__(self, nyx_agent):
         self.nyx = nyx_agent
 
+    def _get_thermal_load(self) -> float:
+        """Returns the thermal temperature in Celsius, or 0.0 if unknown."""
+        try:
+            temp_path = "/sys/class/thermal/thermal_zone0/temp"
+            if os.path.exists(temp_path):
+                with open(temp_path, "r") as f:
+                    return float(f.read().strip()) / 1000.0
+        except Exception:
+            pass
+        return 0.0
+
     def route_task(self, task_description: str, strategy: str = RoutingStrategy.LEAST_LOADED) -> Tuple[str, str]:
         """
         Routes a task to the best node.
@@ -23,16 +35,27 @@ class TaskRouter:
         peers = self.nyx.swarm_engine.get_active_peers()
         local_profile = self.nyx.profiler.get_profile()
         
+        # Dynamic Swarm Thermal Offloading Governor
+        local_temp = self._get_thermal_load()
+        if local_temp > 85.0 and peers:
+            # Extreme thermal penalty: Force remote offloading to preserve local thermals
+            local_profile["current_load"] = 999.0
+            strategy = RoutingStrategy.LEAST_LOADED
+        
         # Always include self as a candidate
         all_candidates = peers + [{"node_id": self.nyx.node_id, "profile": local_profile}]
         
         if strategy == RoutingStrategy.LOCAL_ONLY or not peers:
             return self.nyx.node_id, "Strategy: Local Only or no peers available"
 
+        reason_prefix = f"Thermal Offload ({local_temp:.1f}°C) - " if local_temp > 85.0 and peers else ""
+
         if strategy == RoutingStrategy.LEAST_LOADED:
-            return self._least_loaded_route(all_candidates)
+            node, reason = self._least_loaded_route(all_candidates)
+            return node, reason_prefix + reason
         elif strategy == RoutingStrategy.FASTEST:
-            return self._fastest_route(all_candidates)
+            node, reason = self._fastest_route(all_candidates)
+            return node, reason_prefix + reason
         
         # Default to local if unsure
         return self.nyx.node_id, "Fallback: Local"

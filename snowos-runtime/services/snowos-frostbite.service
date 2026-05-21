@@ -1,0 +1,24 @@
+[Unit]
+Description=SnowOS Frostbite AI Companion Widget
+Documentation=https://github.com/snowos/core
+After=graphical-session.target snowos-broker.service
+Wants=snowos-broker.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+# Run as the login user — desktop service
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=%h/.Xauthority
+EnvironmentFile=-/etc/snowos/snowos.env
+ExecStart=/usr/bin/python3 /opt/snowos/ui_engine/frostbite/frostbite_widget.py
+Restart=on-failure
+RestartSec=5
+
+# Desktop service — less sandboxed
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/run/snowos /tmp %h/.snowos
+
+[Install]
+WantedBy=graphical-session.target

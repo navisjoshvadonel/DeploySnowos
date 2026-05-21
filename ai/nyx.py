@@ -64,6 +64,11 @@ from runtime.event_bus import bus
 from runtime.config_manager import ConfigManager
 from runtime.plugin_manager import PluginManager
 from runtime.tool_registry import ToolRegistry
+try:
+    from runtime.tool_synthesizer import ToolSynthesizer
+    _SYNTHESIZER_AVAIL = True
+except ImportError:
+    _SYNTHESIZER_AVAIL = False
 from runtime.memory_graph import MemoryGraph
 from runtime.task_scheduler import TaskScheduler
 from runtime.autonomy_engine import AutonomyEngine
@@ -93,6 +98,19 @@ from performance.optimizer import PerformanceOptimizer
 from ai_core.nyx_kernel.swarm.sentient_discovery import SentientDiscovery
 from ai_core.nyx_kernel.swarm.task_broker import TaskBroker
 from ai_core.nyx_kernel.swarm.federated_memory import FederatedMemory
+
+# ── SnowOS Next-Gen Cognitive Layers ────────────────────────────────────────
+try:
+    from nyxvfs.vfs_engine import NyxVFS
+    _NYXVFS_AVAIL = True
+except ImportError:
+    _NYXVFS_AVAIL = False
+
+try:
+    from performance.intent_governor import IntentGovernor
+    _GOVERNOR_AVAIL = True
+except ImportError:
+    _GOVERNOR_AVAIL = False
 
 from rich.console import Console
 from rich.panel import Panel
@@ -1872,6 +1890,35 @@ class NyxAI:
         self.autonomy.start()
         self.start_kernel_monitor()
 
+        # ── NyxVFS: Neural Virtual File System ──────────────────────────────
+        if _NYXVFS_AVAIL:
+            self.nyxvfs = NyxVFS(
+                gemini_client=self.client,
+                watch_dirs=[
+                    os.path.expanduser("~"),
+                    os.path.expanduser("~/snowos"),
+                    self.state.cwd,
+                ]
+            )
+            self.nyxvfs.start_watcher()
+            console.print("[dim cyan]NyxVFS: Neural filesystem watcher active.[/dim cyan]")
+        else:
+            self.nyxvfs = None
+
+        # ── Intent Governor: Cognitive Pre-fetcher ───────────────────────────
+        if _GOVERNOR_AVAIL:
+            self._governor = IntentGovernor()
+            import threading as _threading
+            self._governor_thread = _threading.Thread(
+                target=self._governor.run,
+                daemon=True,
+                name="NyxGovernor"
+            )
+            self._governor_thread.start()
+            console.print("[dim cyan]Governor: Cognitive intent pre-fetcher active.[/dim cyan]")
+        else:
+            self._governor = None
+
     def _load_identity(self):
         from cli.user_cmds import get_token
         from identity.auth import decode_access_token
@@ -3047,6 +3094,33 @@ class NyxAI:
         self.ui_state.state["ai_active"] = True
         self.ui_state._save()
         try:
+            try:
+                import json
+                with open("/tmp/snowos_profile.json") as f:
+                    prof = json.load(f)
+                    if prof.get("active_mode") in ["casual", "gaming"]:
+                        if hasattr(self, "swarm_engine") and hasattr(self, "router"):
+                            node_id, reason = self.router.route_task(user_input, "least_loaded")
+                            if node_id != self.node_id:
+                                console.print(f"[bold cyan]🌐 Swarm Offload:[/bold cyan] Performance profile squeeze detected. Offloading to {node_id} ({reason})")
+                                return
+            except Exception:
+                pass
+
+            if _GOVERNOR_AVAIL and hasattr(self, "governor"):
+                gov_check = self.governor.check_intent(user_input)
+                if not gov_check["safe"]:
+                    console.print(Panel(
+                        f"[bold red]WARNING: DESTRUCTIVE INTENT DETECTED[/bold red]\n\n"
+                        f"[yellow]Command:[/yellow] {user_input}\n"
+                        f"[yellow]Reason:[/yellow] {gov_check['reason']}",
+                        title="Intent Governor",
+                        border_style="red"
+                    ))
+                    if not Confirm.ask("[bold red]Do you want to force execution anyway?[/bold red]", default=False):
+                        console.print("[red]Execution aborted by Intent Governor.[/red]")
+                        return
+
             self._process_logic(user_input, limits)
         finally:
             self.ui_state.state["ai_active"] = False
@@ -3479,6 +3553,97 @@ class NyxAI:
             console.print("[green]✅ Knowledge index cleared and rebuild scheduled.[/green]")
             return
 
+        # ── NyxVFS: Neural Filesystem Search ─────────────────────────────────
+        if text.startswith("nyx find "):
+            query = text[9:].strip().strip('"').strip("'")
+            if not self.nyxvfs:
+                console.print("[yellow]⚠ NyxVFS not available.[/yellow]")
+                return
+            results = self.nyxvfs.semantic_search(query, top_k=8)
+            if not results:
+                console.print(f"[dim]NyxVFS: No files matched '{query}'[/dim]")
+            else:
+                console.print(f"[bold cyan]❄ NyxVFS — Semantic Search: '{query}'[/bold cyan]")
+                for r in results:
+                    score_color = "green" if r['score'] > 0.5 else "yellow" if r['score'] > 0.2 else "dim"
+                    console.print(
+                        f"  [{score_color}]{r['score']:+.3f}[/{score_color}]  "
+                        f"[bold]{r['name']}[/bold]  [dim]{r['path']}[/dim]"
+                    )
+                    if r.get('preview'):
+                        console.print(f"    [dim italic]{r['preview'][:80]}...[/dim italic]")
+            return
+
+        if text.startswith("nyx vfs context "):
+            project = text[16:].strip()
+            if not self.nyxvfs:
+                console.print("[yellow]⚠ NyxVFS not available.[/yellow]")
+                return
+            ctx = self.nyxvfs.get_contextual_links(project)
+            console.print(f"[bold cyan]❄ NyxVFS — Contextual Links: {ctx['project']}[/bold cyan]")
+            if ctx['related_files']:
+                console.print("  [bold]Related Files:[/bold]")
+                for f in ctx['related_files']:
+                    console.print(f"    [cyan]{f['name']}[/cyan]  score={f['score']:.3f}  {f['path']}")
+            if ctx['suggested_configs']:
+                console.print("  [bold]Suggested Configs:[/bold]")
+                for c in ctx['suggested_configs']:
+                    console.print(f"    [yellow]{c}[/yellow]")
+            if ctx['history_links']:
+                console.print("  [bold]Historical Context:[/bold]")
+                for h in ctx['history_links'][:3]:
+                    console.print(f"    [dim]{h.get('app')}  {h.get('context', '')[:60]}[/dim]")
+            return
+
+        if text == "nyx vfs stats":
+            if not self.nyxvfs:
+                console.print("[yellow]⚠ NyxVFS not available.[/yellow]")
+                return
+            stats = self.nyxvfs.stats()
+            console.print(f"[bold cyan]❄ NyxVFS Index Stats[/bold cyan]")
+            console.print(f"  Indexed files:  [green]{stats['indexed_files']}[/green]")
+            console.print(f"  Watching dirs:  {stats['watched_dirs']}")
+            console.print(f"  Index file:     [dim]{stats['index_file']}[/dim]")
+            return
+
+        if text == "nyx vfs index":
+            if not self.nyxvfs:
+                console.print("[yellow]⚠ NyxVFS not available.[/yellow]")
+                return
+            console.print("[cyan]NyxVFS: Triggering full re-index of watched directories...[/cyan]")
+            import threading as _t
+            _t.Thread(
+                target=lambda: [self.nyxvfs._scan_directory(d) for d in self.nyxvfs._watch_dirs],
+                daemon=True
+            ).start()
+            console.print("[green]✅ Re-index started in background.[/green]")
+            return
+
+        # ── Intent Governor CLI ───────────────────────────────────────────────
+        if text == "nyx governor status":
+            import json as _json
+            import os as _os
+            state_file = "/tmp/snowos_governor_state.json"
+            if _os.path.exists(state_file):
+                with open(state_file) as f:
+                    state = _json.load(f)
+                console.print("[bold cyan]⚡ Intent Governor State[/bold cyan]")
+                console.print(f"  Power profile:   [green]{state.get('power_profile', 'unknown')}[/green]")
+                console.print(f"  Predicted apps:  {state.get('predicted_apps', [])}")
+                console.print(f"  Pre-cached:      {state.get('precached', [])[:8]}")
+            else:
+                console.print("[dim]Governor state not yet written — daemon may not be running.[/dim]")
+            return
+
+        if text == "nyx governor run":
+            if self._governor:
+                import threading as _t
+                _t.Thread(target=self._governor.evaluate, daemon=True).start()
+                console.print("[green]✅ Governor evaluation triggered.[/green]")
+            else:
+                console.print("[yellow]⚠ Intent Governor not available.[/yellow]")
+            return
+
         # ── Stage 23: Reflection Engine hooks ─────────────
         if text == "nyx reflect now":
             console.print("[cyan]🧠 Running reflection analysis on recent history...[/cyan]")
@@ -3713,6 +3878,17 @@ class NyxAI:
         if commands:
             self.run_plan(commands, limits=limits)
             return
+
+        # ── Self-Synthesizing Tool Compiler fallback ─────
+        if _SYNTHESIZER_AVAIL:
+            synthesizer = ToolSynthesizer(llm_fn=self.call_ai)
+            console.print("[bold cyan]⚙️ Nyx: No pre-existing tool found. Autonomously compiling custom dynamic utility...[/bold cyan]")
+            synth_res = synthesizer.synthesize(text, context={"current_mode": self.ui_state.state.get("active_mode", "student")})
+            if synth_res.get("status") == "success":
+                console.print(Panel(synth_res["output"], title="✔ Synthesized Tool Execution Output", border_style="green"))
+                return
+            else:
+                console.print(f"[yellow]⚠ Tool synthesis skipped/failed: {synth_res.get('reason', 'Proceeding to AI conversational fallback...')}[/yellow]")
 
         # ── AI conversational fallback ────────────────────
         response = self.call_ai(text)

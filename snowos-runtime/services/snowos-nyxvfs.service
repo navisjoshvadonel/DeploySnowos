@@ -1,0 +1,28 @@
+[Unit]
+Description=SnowOS NyxVFS — Neural Virtual File System Daemon
+Documentation=https://github.com/snowos/core
+After=snowos-boot.service snowos-broker.service
+Wants=snowos-broker.service
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
+RuntimeDirectoryPreserve=yes
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos/ai_core
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyxvfs/vfs_daemon.py
+Restart=on-failure
+RestartSec=5
+
+# Sandboxing (less strict — needs homedir read for indexing)
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+NoNewPrivileges=yes
+ReadWritePaths=/run/snowos /tmp %h/.snowos
+
+[Install]
+WantedBy=multi-user.target

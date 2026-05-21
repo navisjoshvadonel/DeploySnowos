@@ -1,0 +1,31 @@
+[Unit]
+Description=SnowOS Nyx AI Healing Bridge Daemon
+Documentation=https://github.com/snowos/core
+After=snowos-boot.service snowos-broker.service snowos-sentinel.service
+Wants=snowos-sentinel.service
+
+[Service]
+Type=simple
+User=snowos-sys
+Group=snowos-sys
+RuntimeDirectory=snowos
+RuntimeDirectoryMode=0775
+RuntimeDirectoryPreserve=yes
+EnvironmentFile=-/etc/snowos/snowos.env
+WorkingDirectory=/opt/snowos
+ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyxvfs/healing_bridge.py
+Restart=on-failure
+RestartSec=5
+
+# Needs to run systemctl and journalctl
+ProtectSystem=no
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=no
+ReadWritePaths=/run/snowos /tmp /snapshots
+# Allow journal access
+AmbientCapabilities=CAP_SYS_PTRACE
+CapabilityBoundingSet=CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+
+[Install]
+WantedBy=multi-user.target
