@@ -53,7 +53,9 @@ wmctrl
 xbindkeys
 brightnessctl
 libnotify-bin
+grub-pc-bin
 grub-efi-amd64
+grub-efi-amd64-bin
 plymouth
 plymouth-theme-spinner
 calamares

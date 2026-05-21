@@ -162,6 +162,15 @@ cp "$SCRIPT_DIR/ui_engine/frost_desktop.py" /opt/snowos/ui_engine/frost_desktop.
 chown -R root:root /opt/snowos/ai_core /opt/snowos/ui_engine
 chmod -R 0755 /opt/snowos/ai_core /opt/snowos/ui_engine
 
+echo "[+] Deploying SnowOS Architectural Blueprints..."
+if [ -d "$SCRIPT_DIR/implementation" ]; then
+    mkdir -p /opt/snowos/architecture
+    cp -R "$SCRIPT_DIR/implementation" /opt/snowos/architecture/
+    cp -R "$SCRIPT_DIR/validation" /opt/snowos/architecture/ || true
+    chown -R root:root /opt/snowos/architecture
+    chmod -R 0755 /opt/snowos/architecture
+fi
+
 echo "[+] Installing SnowOS platform defaults..."
 install_config_with_dist "$SCRIPT_DIR/snowos-runtime/config/snowos.env" /etc/snowos/snowos.env
 cp "$SCRIPT_DIR/snowos-runtime/config/boot_manifest.json" /etc/snowos/boot_manifest.json
