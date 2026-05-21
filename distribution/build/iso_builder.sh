@@ -69,7 +69,7 @@ cp $IDENTITY_DIR/os-release config/includes.chroot/etc/os-release
 
 echo "Injecting SnowOS Installer into chroot..."
 mkdir -p config/includes.chroot/opt/snowos-installer
-(cd ../../../ && tar cf - --exclude=distribution/build/"$BUILD_DIR" .) | (cd config/includes.chroot/opt/snowos-installer && tar xf -)
+(cd ../../../ && tar cf - --exclude=distribution/build/"$BUILD_DIR" --exclude=.git .) | (cd config/includes.chroot/opt/snowos-installer && tar xf -)
 
 echo "Build configuration complete."
 echo "To build the ISO, run: sudo lb build"
