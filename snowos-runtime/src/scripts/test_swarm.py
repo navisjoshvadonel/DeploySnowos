@@ -4,8 +4,8 @@ import time
 
 # Add modules to path
 sys.path.append(os.path.expanduser("~/snowos"))
-from nyx.swarm.sentient_discovery import SentientDiscovery
-from nyx.swarm.task_broker import TaskBroker
+from ai.swarm.sentient_discovery import SentientDiscovery
+from ai.swarm.task_broker import TaskBroker
 from runtime.event_bus import bus
 
 def test_swarm_asil():

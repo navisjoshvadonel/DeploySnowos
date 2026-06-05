@@ -37,6 +37,9 @@ apt-get install -y \
   brightnessctl libnotify-bin \
   || true
 
+echo "[+] Installing AI and global dependencies..."
+pip3 install --break-system-packages google-genai chromadb rich psutil || true
+
 ensure_service_user() {
   local user_name="$1"
   local home_dir="$2"
@@ -114,7 +117,7 @@ EOF
 # Explicitly create all required directories
 echo "[+] Creating SnowOS directory structure..."
 mkdir -p /etc/snowos /opt/snowos /var/log/snowos /run/snowos
-mkdir -p /var/lib/snowos/system /var/lib/snowos/ai /var/lib/snowos/runtime /var/lib/snowos/logs
+mkdir -p /var/lib/snowos/system/.snowos /var/lib/snowos/ai /var/lib/snowos/runtime /var/lib/snowos/logs /snapshots
 
 ensure_service_user snowos-sys /var/lib/snowos/system
 ensure_service_user snowos-ai /var/lib/snowos/ai
@@ -126,7 +129,7 @@ chmod -R 0755 /var/lib/snowos
 # Fix permissions
 chown root:root /etc/snowos /opt/snowos
 chown -R snowos-ai:snowos-ai /var/lib/snowos/ai
-chown -R snowos-sys:snowos-sys /var/lib/snowos/system /run/snowos
+chown -R snowos-sys:snowos-sys /var/lib/snowos/system /var/lib/snowos/system/.snowos /run/snowos
 chmod 0755 /var/log/snowos
 chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system
 chmod 0775 /run/snowos
@@ -275,7 +278,7 @@ fi
 
 if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
   echo "[+] Installing SnowOS visual dependencies..."
-  add-apt-repository universe -y
+  add-apt-repository universe -y || true
   apt-get update -y
   apt-get install -y gnome-shell-extension-ubuntu-dock gnome-tweaks python3-rich papirus-icon-theme || true
   apt-get remove -y gnome-shell-extension-dash-to-dock || true

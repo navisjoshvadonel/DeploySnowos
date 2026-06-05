@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.expanduser("~/snowos"))
 sys.path.append(os.path.expanduser("~/snowos/nyx"))
 
-from nyx.interface.ui_memory import UIMemory
+from ai.interface.ui_memory import UIMemory
 
 def test_semantic_memory():
     print("--- Initializing UIMemory ---")

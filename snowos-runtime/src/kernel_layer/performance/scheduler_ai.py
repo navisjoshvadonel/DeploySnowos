@@ -2,6 +2,7 @@ import queue
 import threading
 import time
 import logging
+import itertools
 
 class AIScheduler:
     """Staggers expensive AI tasks to prevent system jitter."""
@@ -9,6 +10,7 @@ class AIScheduler:
     def __init__(self, resource_manager):
         self.rm = resource_manager
         self.task_queue = queue.PriorityQueue()
+        self.counter = itertools.count()
         self.logger = logging.getLogger("SnowOS.AIScheduler")
         self.active = True
         
@@ -18,7 +20,8 @@ class AIScheduler:
     def defer(self, task_func, priority=10, args=(), callback=None):
         """Add a task to the deferred queue."""
         # Lower number = higher priority
-        self.task_queue.put((priority, time.time(), task_func, args, callback))
+        count = next(self.counter)
+        self.task_queue.put((priority, count, task_func, args, callback))
         self.logger.debug(f"Scheduler: Deferred task {task_func.__name__} (priority: {priority})")
 
     def _process_loop(self):
@@ -26,7 +29,7 @@ class AIScheduler:
         while self.active:
             try:
                 # 1. Get task
-                priority, _, func, args, callback = self.task_queue.get(timeout=1.0)
+                priority, count, func, args, callback = self.task_queue.get(timeout=1.0)
                 
                 # 2. Check throttling from resource manager
                 # Use current system mode for throttling (stubbed as 'balanced' for test)

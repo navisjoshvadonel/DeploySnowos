@@ -4,8 +4,8 @@ import time
 
 # Add modules to path
 sys.path.append(os.path.expanduser("~/snowos"))
-from nyx.learning.retriever import NyxRetriever
-from nyx.memory.engine import NyxMemoryEngine
+from ai.learning.retriever import NyxRetriever
+from ai.memory.engine import NyxMemoryEngine
 
 def test_learning_rag():
     print("--- Initializing Learning Engine ---")

@@ -13,7 +13,8 @@ class BehaviorPredictor:
             return {
                 "frequent_commands": [],
                 "recent_sequence": [],
-                "predicted_action": None
+                "prediction": None,
+                "total_count": 0
             }
 
         # 1. Most frequent successful commands

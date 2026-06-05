@@ -31,6 +31,7 @@ class NyxRetriever:
                 self.base_corpus.append(f"Command '{cmd}': {ctx}")
         except Exception as e:
             self.logger.error(f"Failed to load KB: {e}")
+            self.kb = {}
             self.base_corpus = []
 
     def retrieve_context(self, query, top_k=3):

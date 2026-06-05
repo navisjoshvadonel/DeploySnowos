@@ -3,7 +3,7 @@ import os
 import time
 
 # Add modules to path
-sys.path.append(os.path.expanduser("~/snowos"))
+sys.path.append(os.path.expanduser("~/snowos/snowos-runtime/src/kernel_layer"))
 from performance.profiler import NyxProfiler
 from performance.resource_manager import ResourceManager
 from performance.scheduler_ai import AIScheduler

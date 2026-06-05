@@ -1856,8 +1856,8 @@ class NyxAI:
         # Stage 100: Deterministic Performance Engine
         self.profiler = NyxProfiler()
         self.resource_manager = ResourceManager(self.profiler)
-        self.scheduler_engine = AIScheduler(self.resource_manager)
-        self.performance_optimizer = PerformanceOptimizer(self.profiler, self.resource_manager, self.scheduler_engine)
+        self.ai_scheduler = AIScheduler(self.resource_manager)
+        self.performance_optimizer = PerformanceOptimizer(self.profiler, self.resource_manager, self.ai_scheduler)
 
         # Stage 110: Sentient Swarm Intelligence (ASIL)
         self.swarm_discovery = SentientDiscovery()
@@ -1906,9 +1906,10 @@ class NyxAI:
                         )
                     
                     # Scan system-level stats
-                    cpu = KernelMonitor.get_cpu_stats()
+                    cpu_stats = KernelMonitor.get_cpu_stats()
+                    cpu = round(100.0 * (1.0 - cpu_stats["idle"] / cpu_stats["total"]), 2) if cpu_stats and cpu_stats.get("total", 0) > 0 else 0.0
                     mem = KernelMonitor.get_mem_info()
-                    sys_events = self.kernel_events.check_system_anomalies(cpu, mem)
+                    sys_events = self.kernel_events.check_system_anomalies(cpu_stats, mem)
                     for e in sys_events:
                         self.healing.process_event(e)
                     
@@ -3798,5 +3799,23 @@ if __name__ == "__main__":
         nyx.ui_state.stop()
         nyx.arch_profiler.stop()
     else:
-        # Launch the Sentient Shell
-        nyx.shell.run()
+        if not (sys.stdin and sys.stdin.isatty()):
+            # Run in headless daemon mode
+            import time
+            try:
+                while True:
+                    time.sleep(3600)
+            except (KeyboardInterrupt, SystemExit):
+                pass
+            finally:
+                nyx.scheduler.stop()
+                nyx.scheduler_engine.stop()
+                nyx.knowledge.stop()
+                nyx.reflection.stop()
+                nyx.autonomy.stop()
+                nyx.api_server.stop()
+                nyx.ui_state.stop()
+                nyx.arch_profiler.stop()
+        else:
+            # Launch the Sentient Shell
+            nyx.shell.run()

@@ -1,5 +1,5 @@
 import re
-from ..memory.vector_db import VectorMemory
+from memory.vector_db import VectorMemory
 
 class BehavioralSecurity:
     """Detects 'out of character' or semantically risky commands."""

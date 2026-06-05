@@ -22,7 +22,7 @@ ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=yes
 NoNewPrivileges=no
-ReadWritePaths=/run/snowos /tmp %h/.snowos /sys/devices/system/cpu
+ReadWritePaths=/run/snowos /tmp /var/lib/snowos/system/.snowos /sys/devices/system/cpu
 
 [Install]
 WantedBy=multi-user.target

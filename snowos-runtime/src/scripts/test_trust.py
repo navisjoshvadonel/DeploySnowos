@@ -3,7 +3,7 @@ import os
 import time
 
 # Add modules to path
-sys.path.append(os.path.expanduser("~/snowos"))
+sys.path.append(os.path.expanduser("~/snowos/snowos-runtime/src"))
 from personality.engine import PersonalityEngine
 from personality.trust import TrustEngine
 from personality.gating import ActionGating

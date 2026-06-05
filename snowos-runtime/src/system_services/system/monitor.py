@@ -13,6 +13,7 @@ class SystemMonitor:
         self._init_db()
 
     def _init_db(self):
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         try:
             conn = sqlite3.connect(self.db_path)
             conn.execute("""

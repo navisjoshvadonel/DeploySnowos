@@ -25,8 +25,8 @@ def test_runtime():
     # Wait for processing
     time.sleep(1)
     
-    current_mode = state.get("mode")
-    load = state.get("system_load")
+    current_mode = state.get_snapshot().get("mode")
+    load = state.get_snapshot().get("system_load")
     print(f"\nFinal State: Mode={current_mode}, Load={load}")
     
     if current_mode == "performance" and load == "high":

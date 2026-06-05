@@ -99,6 +99,8 @@ class FrostShell:
             except KeyboardInterrupt:
                 print()
                 continue
+            except EOFError:
+                break
             except Exception as e:
                 self.console.print(f"[red]❌ Shell Error: {e}[/red]")
 

@@ -3,8 +3,8 @@ import os
 import time
 
 # Add memory module to path
-sys.path.append(os.path.expanduser("~/snowos/nyx"))
-from memory.engine import NyxMemoryEngine
+sys.path.append(os.path.expanduser("~/snowos"))
+from ai.memory.engine import NyxMemoryEngine
 
 def test_memory():
     engine = NyxMemoryEngine()

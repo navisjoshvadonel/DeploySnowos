@@ -20,7 +20,7 @@ import time
 import threading
 import base64
 from .capabilities import CapabilitySet
-from distributed_identity.crypto import CryptoEngine
+from ai.distributed_identity.crypto import CryptoEngine
 
 
 # Secret used for HMAC signing. In production this would come from

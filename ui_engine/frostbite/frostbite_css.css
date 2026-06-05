@@ -3,13 +3,13 @@
    Theme: Digital Frost Glassmorphism
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Google Font Import (cached, no external call at runtime) ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ── Google Font Import (disabled for GTK3 offline safety) ──
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'); */
 
 /* ── Root Color Tokens ──────────────────────────────────────────────────── */
 * {
     font-family: 'Inter', 'Segoe UI', Ubuntu, sans-serif;
-    box-sizing: border-box;
+    /* box-sizing: border-box; (Unsupported in GTK3 CSS) */
 }
 
 /* ── Frostbite Sidebar Window ───────────────────────────────────────────── */
@@ -42,7 +42,7 @@
     font-weight: 300;
     color: rgba(140, 200, 255, 0.7);
     letter-spacing: 1.5px;
-    text-transform: uppercase;
+    /* text-transform: uppercase; (Unsupported in GTK3 CSS) */
 }
 
 /* ── Status Badge ───────────────────────────────────────────────────────── */
@@ -96,9 +96,9 @@
 .message-bubble {
     border-radius: 12px;
     padding: 10px 14px;
-    max-width: 340px;
+    /* max-width: 340px; (Unsupported in GTK3 CSS) */
     font-size: 13px;
-    line-height: 1.5;
+    /* line-height: 1.5; (Unsupported in GTK3 CSS) */
 }
 
 .message-bubble.user {
@@ -107,7 +107,7 @@
         rgba(0, 160, 255, 0.25));
     border: 1px solid rgba(0, 160, 255, 0.25);
     color: #ddeeff;
-    margin-left: auto;
+    /* margin-left: auto; (Unsupported in GTK3 CSS) */
     border-bottom-right-radius: 3px;
 }
 
@@ -115,7 +115,7 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(120, 180, 255, 0.12);
     color: #c8e0ff;
-    margin-right: auto;
+    /* margin-right: auto; (Unsupported in GTK3 CSS) */
     border-bottom-left-radius: 3px;
 }
 
@@ -125,10 +125,10 @@
     color: #80ffcc;
     font-size: 11px;
     font-style: italic;
-    margin: 2px auto;
+    margin: 2px 12px;
     border-radius: 20px;
     padding: 5px 14px;
-    text-align: center;
+    /* text-align: center; (Unsupported in GTK3 CSS) */
 }
 
 .message-bubble.error {
@@ -155,13 +155,13 @@
 progress, .progress-bar {
     background: rgba(0, 60, 120, 0.4);
     border-radius: 4px;
-    height: 4px;
+    /* height: 4px; (Unsupported in GTK3 CSS) */
 }
 
-progress::-moz-progress-bar {
+/* progress::-moz-progress-bar {
     background: linear-gradient(90deg, #0080ff, #00d4ff);
     border-radius: 4px;
-}
+} */
 
 .progress-label {
     font-size: 11px;
@@ -208,17 +208,17 @@ progress::-moz-progress-bar {
     min-width: 38px;
     min-height: 38px;
     padding: 0;
-    transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+    /* transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease; (Unsupported in GTK3 CSS) */
 }
 
 .send-button:hover {
     background: linear-gradient(135deg, #0090ff, #0068dd);
     box-shadow: 0 0 12px rgba(0, 120, 255, 0.4);
-    transform: scale(1.05);
+    /* transform: scale(1.05); (Unsupported in GTK3 CSS) */
 }
 
 .send-button:active {
-    transform: scale(0.95);
+    /* transform: scale(0.95); (Unsupported in GTK3 CSS) */
 }
 
 /* ── Quick Action Pills ─────────────────────────────────────────────────── */
@@ -266,13 +266,13 @@ progress::-moz-progress-bar {
 .typing-dot {
     font-size: 20px;
     color: rgba(100, 180, 255, 0.6);
-    animation: pulse 1s infinite ease-in-out;
+    /* animation: pulse 1s infinite ease-in-out; (Unsupported in GTK3 CSS) */
 }
 
-@keyframes pulse {
+/* @keyframes pulse {
     0%, 100% { opacity: 0.3; }
     50%       { opacity: 1.0; }
-}
+} */
 
 /* ── Scrollbar ──────────────────────────────────────────────────────────── */
 scrollbar {
@@ -324,13 +324,13 @@ scrollbar slider:hover {
     font-weight: 500;
     min-width: 52px;
     min-height: 52px;
-    transition: background 150ms, border-color 150ms, transform 120ms;
+    /* transition: background 150ms, border-color 150ms, transform 120ms; (Unsupported in GTK3 CSS) */
 }
 
 .frost-dock-icon:hover {
     background: rgba(0, 100, 200, 0.2);
     border-color: rgba(0, 180, 255, 0.4);
-    transform: translateY(-3px);
+    /* transform: translateY(-3px); (Unsupported in GTK3 CSS) */
 }
 
 .frost-dock-icon.frostbite-btn {
@@ -342,5 +342,5 @@ scrollbar slider:hover {
 .frost-dock-icon.frostbite-btn:hover {
     background: linear-gradient(135deg, rgba(0, 100, 220, 0.4), rgba(0, 180, 255, 0.25));
     box-shadow: 0 4px 16px rgba(0, 140, 255, 0.3);
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); (Unsupported in GTK3 CSS) */
 }

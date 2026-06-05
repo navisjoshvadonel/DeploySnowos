@@ -8,6 +8,7 @@ class FeedbackSystem:
     
     def __init__(self):
         self.log_path = os.path.expanduser("~/.snowos/personality/feedback.json")
+        os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
         self.logger = logging.getLogger("SnowOS.Feedback")
 
     def submit(self, sentiment, comment=""):

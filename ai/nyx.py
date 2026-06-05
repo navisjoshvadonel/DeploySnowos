@@ -3974,5 +3974,23 @@ if __name__ == "__main__":
         nyx.ui_state.stop()
         nyx.arch_profiler.stop()
     else:
-        # Launch the Sentient Shell
-        nyx.shell.run()
+        if not (sys.stdin and sys.stdin.isatty()):
+            # Run in headless daemon mode
+            import time
+            try:
+                while True:
+                    time.sleep(3600)
+            except (KeyboardInterrupt, SystemExit):
+                pass
+            finally:
+                nyx.scheduler.stop()
+                nyx.scheduler_engine.stop()
+                nyx.knowledge.stop()
+                nyx.reflection.stop()
+                nyx.autonomy.stop()
+                nyx.api_server.stop()
+                nyx.ui_state.stop()
+                nyx.arch_profiler.stop()
+        else:
+            # Launch the Sentient Shell
+            nyx.shell.run()

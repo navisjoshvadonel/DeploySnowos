@@ -9,6 +9,7 @@ Type=simple
 User=snowos-ai
 Group=snowos-ai
 EnvironmentFile=-/etc/snowos/snowos.env
+Environment="PYTHONPATH=/opt/snowos:/opt/snowos/ui_engine:/opt/snowos/kernel_layer:/opt/snowos/kernel_layer/performance:/opt/snowos/system_services:/opt/snowos/runtime"
 WorkingDirectory=/var/lib/snowos/ai
 ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/nyx.py
 Restart=on-failure

@@ -5,8 +5,8 @@ import os
 sys.path.append(os.path.expanduser("~/snowos"))
 sys.path.append(os.path.expanduser("~/snowos/nyx"))
 
-from nyx.deterministic.semantic_fs import SemanticFS
-from nyx.scheduler.engine import SchedulerEngine, TaskPriority
+from ai.deterministic.semantic_fs import SemanticFS
+from ai.scheduler.engine import SchedulerEngine, TaskPriority
 
 class MockAgent:
     def __init__(self):
@@ -17,7 +17,7 @@ def test_final_features():
     agent = MockAgent()
     sfs = SemanticFS(agent)
     
-    test_file = "/home/develop/snowos/scripts/test_security.py"
+    test_file = __file__
     sfs.sync_to_cloud(test_file)
     print(f"File: {test_file}")
     print(f"Is Ghost: {sfs.is_ghost(test_file)}")

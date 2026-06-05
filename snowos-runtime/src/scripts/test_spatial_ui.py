@@ -4,6 +4,7 @@ import time
 
 # Add modules to path
 sys.path.append(os.path.expanduser("~/snowos"))
+sys.path.append(os.path.expanduser("~/snowos/snowos-runtime/src/ui_engine"))
 from runtime.event_bus import bus
 from ui_intelligence.spatial_engine import SpatialUIEngine
 from ui_intelligence.dock_ai import DockAI

@@ -4,6 +4,7 @@ import time
 
 # Add modules to path
 sys.path.append(os.path.expanduser("~/snowos"))
+sys.path.append(os.path.expanduser("~/snowos/snowos-runtime/src/system_services"))
 from system.monitor import SystemMonitor
 from system.watchdog import SnowWatchdog
 from runtime.event_bus import bus

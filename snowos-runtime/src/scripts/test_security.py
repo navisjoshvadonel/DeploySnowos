@@ -5,8 +5,8 @@ import os
 sys.path.append(os.path.expanduser("~/snowos"))
 sys.path.append(os.path.expanduser("~/snowos/nyx"))
 
-from nyx.security.analyzer import CommandAnalyzer
-from nyx.security.capabilities import Capability
+from ai.security.analyzer import CommandAnalyzer
+from ai.security.capabilities import Capability
 
 def test_behavioral_security():
     print("--- Testing Behavioral Security Flagging ---")

@@ -1,0 +1,11 @@
+{
+  "projects": {},
+  "tags": {},
+  "ghost_files": {
+    "/home/develop/snowos/snowos-runtime/src/scripts/test_final.py": {
+      "cloud_provider": "snow-cloud",
+      "remote_path": "snow://test_final.py",
+      "last_sync": "2026-06-05T23:23:31.834556"
+    }
+  }
+}

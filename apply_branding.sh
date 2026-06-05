@@ -419,4 +419,3 @@ fi
 echo "=============================================================================="
 echo "❄️  SUCCESS: SnowOS Visual Environment Customization Layer Configured Natively."
 echo "=============================================================================="
-EOF
