@@ -1854,10 +1854,10 @@ class NyxAI:
         self.crash_handler = CrashHandler(self.sys_logger)
 
         # Stage 100: Deterministic Performance Engine
-        self.profiler = NyxProfiler()
-        self.resource_manager = ResourceManager(self.profiler)
+        self.perf_profiler = NyxProfiler()
+        self.resource_manager = ResourceManager(self.perf_profiler)
         self.ai_scheduler = AIScheduler(self.resource_manager)
-        self.performance_optimizer = PerformanceOptimizer(self.profiler, self.resource_manager, self.ai_scheduler)
+        self.performance_optimizer = PerformanceOptimizer(self.perf_profiler, self.resource_manager, self.ai_scheduler)
 
         # Stage 110: Sentient Swarm Intelligence (ASIL)
         self.swarm_discovery = SentientDiscovery()
@@ -3027,9 +3027,9 @@ class NyxAI:
         )
         
         # Profile reasoning latency
-        span = self.profiler.start("nyx.reasoning")
+        span = self.perf_profiler.start("nyx.reasoning")
         response = self._llm(prompt)
-        self.profiler.stop(span)
+        self.perf_profiler.stop(span)
         
         return response or "AI error: could not get response."
 

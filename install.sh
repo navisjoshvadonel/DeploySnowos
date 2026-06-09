@@ -38,7 +38,7 @@ apt-get install -y \
   || true
 
 echo "[+] Installing AI and global dependencies..."
-pip3 install --break-system-packages google-genai chromadb rich psutil || true
+pip3 install --break-system-packages google-genai chromadb rich psutil prompt_toolkit || true
 
 ensure_service_user() {
   local user_name="$1"

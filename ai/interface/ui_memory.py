@@ -1,6 +1,9 @@
 import json
 import os
-from ..memory.vector_db import VectorMemory
+try:
+    from ai.memory.vector_db import VectorMemory
+except ImportError:
+    from memory.vector_db import VectorMemory
 
 class UIMemory:
     """Remembers user UI preferences and semantic interactions."""

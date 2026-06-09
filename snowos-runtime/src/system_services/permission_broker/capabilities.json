@@ -10,5 +10,8 @@
     "system.ai_core": {
         "filesystem.root": ["read"],
         "network.wan": ["connect"]
+    },
+    "frostbite": {
+        "nyx_ai": ["chat"]
     }
 }

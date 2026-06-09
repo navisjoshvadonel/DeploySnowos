@@ -189,6 +189,10 @@ class SysctlTuner:
             if result.returncode == 0:
                 logger.info("  sysctl: %s = %s", key, value)
                 return True
+            else:
+                if "cannot stat" in result.stderr or "No such file or directory" in result.stderr or "unknown key" in result.stderr:
+                    logger.info("  Kernel parameter %s is not supported by this kernel (skipping).", key)
+                    return True
         except FileNotFoundError:
             pass  # sysctl not found — try /proc/sys/
 
@@ -199,7 +203,13 @@ class SysctlTuner:
                 f.write(value + "\n")
             logger.info("  /proc/sys: %s = %s", key, value)
             return True
-        except (OSError, FileNotFoundError) as exc:
+        except FileNotFoundError:
+            logger.info("  Kernel parameter %s is not supported by this kernel (skipping).", key)
+            return True
+        except PermissionError as exc:
+            logger.warning("  Failed to set %s=%s: Permission denied (requires root).", key, value)
+            return False
+        except OSError as exc:
             logger.warning("  Failed to set %s=%s: %s", key, value, exc)
             return False
 
@@ -228,19 +238,29 @@ class SysctlTuner:
             return
 
         set_count = 0
+        has_cpufreq = False
+        permission_denied = False
         for entry in os.listdir(cpu_base):
             if not entry.startswith("cpu") or not entry[3:].isdigit():
                 continue
             gov_path = os.path.join(cpu_base, entry, "cpufreq", "scaling_governor")
+            if os.path.exists(os.path.dirname(gov_path)):
+                has_cpufreq = True
             try:
                 with open(gov_path, "w") as f:
                     f.write(governor + "\n")
                 set_count += 1
+            except PermissionError:
+                permission_denied = True
             except OSError:
                 pass
 
         if set_count > 0:
             logger.info("  CPU governor: %s (via sysfs, %d CPUs)", governor, set_count)
+        elif not has_cpufreq:
+            logger.info("  CPU governor: CPU frequency scaling is not supported by the hardware/kernel (skipping).")
+        elif permission_denied:
+            logger.warning("  CPU governor: Permission denied trying to set '%s' (requires root).", governor)
         else:
             logger.warning("  CPU governor: Could not set '%s' on any CPU.", governor)
 
@@ -256,18 +276,30 @@ class SysctlTuner:
             return
 
         set_count = 0
+        has_schedulers = False
+        permission_denied = False
         for device in os.listdir(block_dir):
             # Skip loop, ram, and zram devices
             if device.startswith(("loop", "ram", "zram")):
                 continue
             sched_path = os.path.join(block_dir, device, "queue", "scheduler")
+            if os.path.exists(sched_path):
+                has_schedulers = True
             try:
                 with open(sched_path, "w") as f:
                     f.write(scheduler + "\n")
                 set_count += 1
                 logger.info("  I/O scheduler: %s → %s", device, scheduler)
+            except PermissionError:
+                permission_denied = True
             except OSError as exc:
                 logger.debug("  I/O scheduler: %s skipped: %s", device, exc)
 
-        if set_count == 0:
+        if set_count > 0:
+            pass
+        elif not has_schedulers:
+            logger.info("  I/O scheduler: No writeable device scheduler queue found (skipping).")
+        elif permission_denied:
+            logger.warning("  I/O scheduler: Permission denied trying to set '%s' (requires root).", scheduler)
+        else:
             logger.warning("  I/O scheduler: No block devices updated.")
