@@ -2,6 +2,7 @@ import time
 import logging
 import sys
 import os
+import signal
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,14 +20,18 @@ class OptimizerDaemon:
         self.scheduler = SchedulerCore()
         self.running = False
 
+    def stop(self, *_):
+        self.running = False
+
     def run(self):
         logger.info("Starting Predictive Optimizer Daemon...")
         self.running = True
         
         try:
-            # For prototype, we will run a few cycles and then exit to demonstrate
-            for cycle in range(1, 4):
-                logger.info(f"--- Optimization Cycle {cycle} ---")
+            cycle = 0
+            while self.running:
+                cycle += 1
+                logger.info("Optimization cycle %s", cycle)
                 
                 # 1. Gather Telemetry
                 snapshot = self.telemetry.gather_snapshot()
@@ -40,11 +45,16 @@ class OptimizerDaemon:
                 else:
                     logger.info("System optimized. No actions required.")
                     
-                time.sleep(2)
+                for _ in range(30):
+                    if not self.running:
+                        break
+                    time.sleep(1)
                 
         except KeyboardInterrupt:
             logger.info("Optimizer Daemon shutting down...")
 
 if __name__ == "__main__":
     daemon = OptimizerDaemon()
+    signal.signal(signal.SIGTERM, daemon.stop)
+    signal.signal(signal.SIGINT, daemon.stop)
     daemon.run()

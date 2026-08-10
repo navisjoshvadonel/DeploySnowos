@@ -11,6 +11,8 @@ class AIScheduler:
         self.task_queue = queue.PriorityQueue()
         self.logger = logging.getLogger("SnowOS.AIScheduler")
         self.active = True
+        self._sequence = 0
+        self._sequence_lock = threading.Lock()
         
         self.worker_thread = threading.Thread(target=self._process_loop, daemon=True)
         self.worker_thread.start()
@@ -18,19 +20,24 @@ class AIScheduler:
     def defer(self, task_func, priority=10, args=(), callback=None):
         """Add a task to the deferred queue."""
         # Lower number = higher priority
-        self.task_queue.put((priority, time.time(), task_func, args, callback))
+        with self._sequence_lock:
+            self._sequence += 1
+            sequence = self._sequence
+        self.task_queue.put((priority, sequence, task_func, args, callback))
         self.logger.debug(f"Scheduler: Deferred task {task_func.__name__} (priority: {priority})")
 
     def _process_loop(self):
         """Worker loop that handles tasks with appropriate spacing."""
         while self.active:
+            task_received = False
             try:
                 # 1. Get task
                 priority, _, func, args, callback = self.task_queue.get(timeout=1.0)
+                task_received = True
                 
                 # 2. Check throttling from resource manager
                 # Use current system mode for throttling (stubbed as 'balanced' for test)
-                throttle = 0.05 # Base delay to prevent micro-bursts
+                throttle = self.rm.get_throttle_limit("throttled") if priority > 5 else 0.05
                 time.sleep(throttle)
                 
                 # 3. Execute
@@ -42,12 +49,14 @@ class AIScheduler:
                     callback(result)
                 
                 self.logger.debug(f"Scheduler: Finished {func.__name__} in {int(duration*1000)}ms")
-                self.task_queue.task_done()
-                
             except queue.Empty:
                 continue
             except Exception as e:
                 self.logger.error(f"Scheduler: Task failed: {e}")
+            finally:
+                if task_received:
+                    self.task_queue.task_done()
 
     def stop(self):
         self.active = False
+        self.worker_thread.join(timeout=2)

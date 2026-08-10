@@ -31,6 +31,7 @@ import uuid
 import datetime
 import threading
 import logging
+from pathlib import Path
 
 logger = logging.getLogger("SnowOS.TaskScheduler")
 
@@ -48,6 +49,7 @@ class TaskScheduler:
     def __init__(self, queue_file: str, nyx_agent):
         self.queue_file = queue_file
         self.nyx = nyx_agent
+        self._lock = threading.RLock()
         self.queue: dict[str, dict] = self._load()
         self._stop_event = threading.Event()
         self._thread = threading.Thread(
@@ -66,8 +68,14 @@ class TaskScheduler:
         return {}
 
     def _save(self):
-        with open(self.queue_file, "w") as f:
-            json.dump(self.queue, f, indent=2)
+        queue_path = Path(self.queue_file)
+        queue_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary_path = queue_path.with_suffix(queue_path.suffix + ".tmp")
+        with open(temporary_path, "w", encoding="utf-8") as handle:
+            json.dump(self.queue, handle, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, queue_path)
 
     # ── Public task API ───────────────────────────────────────────────────────
 
@@ -89,41 +97,45 @@ class TaskScheduler:
                 datetime.datetime.now() + datetime.timedelta(seconds=delay_sec)
             ).isoformat()
 
-        self.queue[task_id] = {
-            "id": task_id,
-            "goal": goal,
-            "cwd": cwd,
-            "priority": priority.upper() if priority.upper() in PRIORITY else "NORMAL",
-            "status": "pending",
-            "run_at": run_at,
-            "interval_sec": interval_sec,
-            "depends_on": depends_on or [],
-            "created_at": datetime.datetime.now().isoformat(),
-            "completed_at": None,
-            "goal_id": goal_id,
-        }
-        self._save()
+        with self._lock:
+            self.queue[task_id] = {
+                "id": task_id,
+                "goal": goal,
+                "cwd": cwd,
+                "priority": priority.upper() if priority.upper() in PRIORITY else "NORMAL",
+                "status": "pending",
+                "run_at": run_at,
+                "interval_sec": interval_sec,
+                "depends_on": depends_on or [],
+                "created_at": datetime.datetime.now().isoformat(),
+                "completed_at": None,
+                "goal_id": goal_id,
+            }
+            self._save()
         return task_id
 
     def cancel(self, task_id: str) -> bool:
         """Cancel a pending task. Returns True if cancelled."""
-        if task_id in self.queue and self.queue[task_id]["status"] == "pending":
-            self.queue[task_id]["status"] = "cancelled"
-            self._save()
-            return True
+        with self._lock:
+            if task_id in self.queue and self.queue[task_id]["status"] == "pending":
+                self.queue[task_id]["status"] = "cancelled"
+                self._save()
+                return True
         return False
 
     def list_tasks(self) -> list[dict]:
         """Return all tasks sorted by priority then creation time."""
-        return sorted(
-            self.queue.values(),
-            key=lambda t: (PRIORITY.get(t["priority"], 1), t["created_at"]),
-        )
+        with self._lock:
+            return sorted(
+                self.queue.values(),
+                key=lambda t: (PRIORITY.get(t["priority"], 1), t["created_at"]),
+            )
 
     # ── Background scheduler ──────────────────────────────────────────────────
 
     def start(self):
-        self._thread.start()
+        if not self._thread.is_alive():
+            self._thread.start()
 
     def stop(self):
         self._stop_event.set()
@@ -138,34 +150,57 @@ class TaskScheduler:
 
     def _tick(self):
         """Dispatch ready tasks to the Nyx scheduler engine."""
-        ready = [
-            t for t in self.queue.values()
-            if t["status"] == "pending"
-            and self._is_due(t)
-            and self._deps_satisfied(t)
-        ]
+        with self._lock:
+            ready = [
+                t.copy() for t in self.queue.values()
+                if t["status"] == "pending"
+                and self._is_due(t)
+                and self._deps_satisfied(t)
+            ]
         ready.sort(key=lambda t: PRIORITY.get(t["priority"], 1))
 
         pool = getattr(self.nyx, "scheduler_engine", None)
         priority_map = {"HIGH": 10, "NORMAL": 5, "LOW": 1}
+        deferred_priority_map = {"HIGH": 1, "NORMAL": 5, "LOW": 10}
 
         for task in ready:
-            task["status"] = "running"
-            self._save()
+            with self._lock:
+                if self.queue.get(task["id"], {}).get("status") != "pending":
+                    continue
+                self.queue[task["id"]]["status"] = "running"
+                self._save()
 
-            if pool:
+            if pool and hasattr(pool, "defer"):
+                pool.defer(
+                    self._execute,
+                    priority=deferred_priority_map.get(task["priority"], 5),
+                    args=(task,),
+                )
+            elif pool and hasattr(pool, "submit"):
                 pool.submit(
-                    goal=task["goal"],
-                    cwd=task["cwd"],
-                    priority=priority_map.get(task["priority"], 5),
-                    on_complete=lambda _r, tid=task["id"]: self._mark_done(tid),
+                    {
+                        "id": task["id"],
+                        "description": task["goal"],
+                        "priority": priority_map.get(task["priority"], 5),
+                        "handler": lambda _task, _limits, queued_task=task: self._execute(queued_task),
+                    }
                 )
             else:
-                self.nyx.process(task["goal"])
-                self._mark_done(task["id"])
+                self._execute(task)
+
+    def _execute(self, task: dict):
+        try:
+            self.nyx.process(task["goal"])
+        except Exception as exc:
+            logger.exception("Scheduled task %s failed", task["id"])
+            self._mark_failed(task["id"], str(exc))
+            raise
+        self._mark_done(task["id"])
 
     def _mark_done(self, task_id: str):
-        if task_id in self.queue:
+        with self._lock:
+            if task_id not in self.queue:
+                return
             task = self.queue[task_id]
             task["status"] = "done"
             task["completed_at"] = datetime.datetime.now().isoformat()
@@ -181,6 +216,15 @@ class TaskScheduler:
                     goal_id=task.get("goal_id"),
                 )
             self._save()
+
+    def _mark_failed(self, task_id: str, error: str):
+        with self._lock:
+            if task_id in self.queue:
+                task = self.queue[task_id]
+                task["status"] = "failed"
+                task["completed_at"] = datetime.datetime.now().isoformat()
+                task["error"] = error
+                self._save()
 
     # ── Dependency resolution ─────────────────────────────────────────────────
 

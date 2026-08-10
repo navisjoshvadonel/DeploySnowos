@@ -1,12 +1,13 @@
 import subprocess
 import os
 import logging
+import sys
 
 logger = logging.getLogger("PythonSandbox")
 
 class PythonSandbox:
     def __init__(self):
-        pass
+        self.python_executable = sys.executable
 
     def execute(self, module_path, entry_point, token):
         """
@@ -26,8 +27,9 @@ class PythonSandbox:
         try:
             # We use Popen so we don't block the daemon and can manage the lifecycle
             process = subprocess.Popen(
-                ["python3", script_path],
+                [self.python_executable, script_path],
                 env=env,
+                cwd=module_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True

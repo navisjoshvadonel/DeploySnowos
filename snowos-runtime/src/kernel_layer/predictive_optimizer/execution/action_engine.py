@@ -1,4 +1,10 @@
 import logging
+import os
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger("ActionEngine")
 
@@ -17,15 +23,17 @@ class ActionEngine:
 
     def execute_throttle(self, target_pid, target_name):
         if self.check_permission("modify_priority", target_name):
-            # In production, this would call `os.nice(19)` or use cgroups
-            logger.warning(f"[KERNEL ACTION] Reniced {target_name} (PID: {target_pid}) to +19 to free CPU cycles.")
-            # Send alert to SnowControl
-            return True
+            if psutil is None or target_pid in (0, 1, os.getpid()):
+                return False
+            try:
+                process = psutil.Process(target_pid)
+                process.nice(max(process.nice(), 10))
+                logger.warning("Reniced %s (PID %s) to reduce contention", target_name, target_pid)
+                return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.Error) as exc:
+                logger.warning("Could not throttle %s (PID %s): %s", target_name, target_pid, exc)
         return False
         
     def execute_preload(self, target_name):
-        if self.check_permission("memory_cache", target_name):
-            # In production, this would mmap the binary to RAM
-            logger.info(f"[KERNEL ACTION] Preloaded {target_name} binary into memory cache.")
-            return True
+        logger.info("Preload recommendation for %s recorded; explicit file targets are required", target_name)
         return False

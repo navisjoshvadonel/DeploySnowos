@@ -32,6 +32,9 @@ class ModuleManagerDaemon:
         
         # 2. Get Capability Token
         token = self.issuer.request_token(manifest)
+        if not token:
+            logger.error("Installation aborted: capability broker did not grant access.")
+            return False
         
         # 3. Spawn Sandbox
         process = self.sandbox.execute(module_path, manifest["entry_point"], token)

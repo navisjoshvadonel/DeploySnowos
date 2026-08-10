@@ -1,6 +1,10 @@
-import time
-import random
 import logging
+import time
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger("TelemetryEngine")
 
@@ -9,21 +13,35 @@ class TelemetryEngine:
         self.history = []
 
     def gather_snapshot(self):
-        """
-        Simulate gathering eBPF telemetry or psutil metrics.
-        Returns a mock snapshot of active foreground and background load.
-        """
-        # For prototype, we will simulate a state where a game is launching
-        # and background processes are consuming resources.
+        """Return a bounded snapshot of the current machine load."""
+        if psutil is None:
+            logger.warning("psutil is unavailable; predictive optimizer is idle")
+            return {"timestamp": time.time(), "cpu_total": 0.0, "ram_total": 0.0, "processes": []}
+
+        processes = []
+        current_pid = psutil.Process().pid
+        for process in psutil.process_iter(["pid", "name", "cpu_percent", "nice"]):
+            try:
+                info = process.info
+                if info["pid"] in (0, 1, current_pid):
+                    continue
+                cpu = float(info["cpu_percent"] or 0.0)
+                if cpu <= 0:
+                    continue
+                processes.append({
+                    "name": info["name"] or str(info["pid"]),
+                    "pid": info["pid"],
+                    "cpu": cpu,
+                    "state": "background" if (info["nice"] or 0) > 0 else "foreground",
+                })
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
         snapshot = {
             "timestamp": time.time(),
-            "cpu_total": random.randint(60, 95),
-            "ram_total": random.uniform(6.0, 8.0),
-            "processes": [
-                {"name": "app.browser", "pid": 1001, "cpu": 15.0, "state": "background"},
-                {"name": "system.updater", "pid": 500, "cpu": 45.0, "state": "background"},
-                {"name": "app.game", "pid": 2048, "cpu": 30.0, "state": "foreground"}
-            ]
+            "cpu_total": psutil.cpu_percent(interval=0.1),
+            "ram_total": psutil.virtual_memory().percent,
+            "processes": processes,
         }
         
         self.history.append(snapshot)

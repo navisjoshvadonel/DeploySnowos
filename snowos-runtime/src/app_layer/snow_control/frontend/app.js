@@ -68,11 +68,13 @@ document.addEventListener("DOMContentLoaded", () => {
         data.enabled.forEach((feature) => {
             const card = document.createElement("div");
             card.className = "feature-chip";
-            card.innerHTML = `
-                <span>${feature.category}</span>
-                <strong>${feature.name}</strong>
-                <p>${feature.summary}</p>
-            `;
+            const category = document.createElement("span");
+            category.textContent = feature.category || "general";
+            const name = document.createElement("strong");
+            name.textContent = feature.name || feature.id || "Unnamed feature";
+            const summary = document.createElement("p");
+            summary.textContent = feature.summary || "No summary available.";
+            card.append(category, name, summary);
             container.appendChild(card);
         });
 
@@ -92,10 +94,18 @@ document.addEventListener("DOMContentLoaded", () => {
         data.forEach((event) => {
             const item = document.createElement("div");
             item.className = `event ${event.status.toLowerCase()}`;
-            item.innerHTML = `
-                <div class="time">[${event.time}] ${event.type.toUpperCase()}</div>
-                <div><strong>${event.source}</strong> :: <em>${event.action}</em> -> <b>${event.status}</b></div>
-            `;
+            const time = document.createElement("div");
+            time.className = "time";
+            time.textContent = `[${event.time}] ${event.type.toUpperCase()}`;
+            const details = document.createElement("div");
+            const source = document.createElement("strong");
+            source.textContent = event.source;
+            const action = document.createElement("em");
+            action.textContent = event.action;
+            const status = document.createElement("b");
+            status.textContent = event.status;
+            details.append(source, " :: ", action, " -> ", status);
+            item.append(time, details);
             feed.appendChild(item);
         });
     }

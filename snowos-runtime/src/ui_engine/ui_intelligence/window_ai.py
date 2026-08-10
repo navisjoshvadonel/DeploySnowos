@@ -31,4 +31,9 @@ class WindowAI:
             })
 
     def update_active_app(self, data):
-        pass
+        app_name = data.get("app") if isinstance(data, dict) else None
+        if not isinstance(app_name, str) or not app_name.strip():
+            self.logger.warning("WindowAI: Ignoring active-app event without a valid app name")
+            return False
+        self.propose_arrangement_for(app_name.strip().lower())
+        return True
