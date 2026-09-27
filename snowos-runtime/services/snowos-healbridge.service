@@ -17,15 +17,20 @@ ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyxvfs/healing_bridge.py
 Restart=on-failure
 RestartSec=5
 
-# Needs to run systemctl and journalctl
-ProtectSystem=no
+# Sandboxing & least privilege
+ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
-NoNewPrivileges=no
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
 ReadWritePaths=/run/snowos /tmp /snapshots
-# Allow journal access
-AmbientCapabilities=CAP_SYS_PTRACE
-CapabilityBoundingSet=CAP_SYS_PTRACE CAP_DAC_READ_SEARCH
+# Allow journal reading for crash log inspection; drop ptrace
+AmbientCapabilities=CAP_DAC_READ_SEARCH
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH
 
 [Install]
 WantedBy=multi-user.target

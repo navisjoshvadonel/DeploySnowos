@@ -60,7 +60,7 @@ class FrostCompositor:
             
             server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             server.bind(self.wm_socket_path)
-            os.chmod(self.wm_socket_path, 0o666)
+            os.chmod(self.wm_socket_path, 0o660)
             server.listen(5)
             logger.info(f"FrostWM IPC Socket bound at {self.wm_socket_path}")
             

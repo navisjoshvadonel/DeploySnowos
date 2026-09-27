@@ -7,9 +7,9 @@ Requires=snowos-boot.service
 [Service]
 Type=simple
 User=snowos-sys
-Group=snowos-sys
+Group=snowos
 RuntimeDirectory=snowos
-RuntimeDirectoryMode=0775
+RuntimeDirectoryMode=0770
 RuntimeDirectoryPreserve=yes
 EnvironmentFile=-/etc/snowos/snowos.env
 WorkingDirectory=/opt/snowos

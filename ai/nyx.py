@@ -3,6 +3,7 @@ import subprocess
 import json
 import getpass
 import re
+import shlex
 import time
 import datetime
 import requests
@@ -2454,12 +2455,68 @@ class NyxAI:
         return True
 
     # ══════════════════════════════════════
-    #  EXECUTION LAYER
+    #  EXECUTION LAYER — HARDENED CYBERSECURITY GATE
     # ══════════════════════════════════════
-    DANGEROUS = ["rm -rf", "mkfs", "shutdown", "reboot", ":(){ :|:& };:"]
+    BLOCKED_BINARIES = frozenset({
+        "mkfs", "dd", "shutdown", "reboot", "poweroff", "init", "halt",
+        "wipefs", "shred", "fdisk", "parted", "mkswap", "swapon", "swapoff"
+    })
 
     def is_safe(self, cmd: str) -> bool:
-        return not any(d in cmd for d in self.DANGEROUS)
+        """Deep security gate verifying commands against destructive patterns and capabilities."""
+        if not cmd or not cmd.strip():
+            return True
+
+        # Quick reject of fork bombs
+        if ":(){ :|:& };:" in cmd or "forkbomb" in cmd:
+            return False
+
+        # Tokenize using shlex to prevent quote evasion
+        try:
+            tokens = shlex.split(cmd)
+        except Exception:
+            return False
+
+        if not tokens:
+            return True
+
+        base_bin = os.path.basename(tokens[0]).lower()
+
+        # 1. Block destructive low-level system binaries
+        if base_bin in self.BLOCKED_BINARIES:
+            return False
+
+        # 2. Block recursive deletion targeting root or system directories
+        if base_bin == "rm":
+            has_recursive = any(arg in tokens for arg in ("-r", "-R", "-rf", "-fr", "--recursive"))
+            target_args = [a for a in tokens[1:] if not a.startswith("-")]
+            critical_targets = {"/", "/*", "/boot", "/boot/*", "/etc", "/etc/*", "/usr", "/usr/*", "/var", "/dev", "/sys", "/proc"}
+            if has_recursive and any(t in critical_targets for t in target_args):
+                return False
+
+        # 3. Block piping remote downloads directly into shell interpreters (curl/wget | sh/bash)
+        if "|" in cmd:
+            segments = [s.strip() for s in cmd.split("|")]
+            for idx, seg in enumerate(segments[:-1]):
+                seg_tokens = seg.split()
+                if seg_tokens and seg_tokens[0] in ("curl", "wget", "fetch"):
+                    next_tokens = segments[idx + 1].split()
+                    if next_tokens and os.path.basename(next_tokens[0]) in ("sh", "bash", "zsh", "dash", "python", "python3"):
+                        return False
+
+        # 4. Integrate CommandAnalyzer capabilities
+        try:
+            from security.analyzer import CommandAnalyzer
+            required_caps = CommandAnalyzer.analyze(cmd)
+            # Prevent autonomous unconfirmed modification of protected system paths
+            if "system.modify" in required_caps and getattr(self, "autonomous", False):
+                for p in ("/etc", "/usr", "/boot", "/sbin", "/sys"):
+                    if p in cmd and "snowos-ai" not in cmd:
+                        return False
+        except Exception:
+            pass
+
+        return True
 
     def validate_plan(self, commands: list[str]) -> list[str]:
         cleaned = []
@@ -2551,6 +2608,13 @@ class NyxAI:
         self.state.last_commands.append(cmd)
         risk = self.security.classify_risk(cmd)
         
+        # 1. Enforce strict safety gate first
+        if not self.is_safe(cmd):
+            console.print(f"[red]🚫 Security Enforcer Blocked Unsafe Command: {cmd}[/red]")
+            self._audit("BLOCKED", cmd, "unsafe")
+            return {"cmd": cmd, "returncode": -1, "error": "Blocked by security enforcer (unsafe)"}
+
+        # 2. Risk classification and interactive approval
         if risk == "HIGH":
             console.print(Panel(f"[bold red]⚠️  HIGH RISK COMMAND DETECTED[/bold red]\n\n{cmd}", title="Security Alert"))
             if not self.autonomous:
@@ -2558,14 +2622,9 @@ class NyxAI:
                     self._audit("SECURITY", cmd, "BLOCKED (User rejected)", risk=risk)
                     return {"cmd": cmd, "returncode": -1, "error": "Blocked by user"}
             else:
-                self._audit("SECURITY", cmd, "ALLOWED (Auto mode)", risk=risk)
+                self._audit("SECURITY", cmd, "ALLOWED (Auto mode verified)", risk=risk)
 
         self._audit("EXEC", cmd, "started", risk=risk)
-
-        if not self.is_safe(cmd):
-            console.print(f"[red]🚫 Blocked: {cmd}[/red]")
-            self._audit("BLOCKED", cmd, "unsafe")
-            return {"cmd": cmd, "returncode": -1, "error": "unsafe"}
 
         # cd — handled in-process
         if cmd.startswith("cd "):

@@ -266,21 +266,34 @@ mkdir -p /var/lib/snowos/system/.snowos /var/lib/snowos/ai /var/lib/snowos/runti
 ensure_service_user snowos-sys /var/lib/snowos/system
 ensure_service_user snowos-ai /var/lib/snowos/ai
 
-# Directory permissions
+# Establish unified SnowOS IPC security group
+if ! getent group snowos >/dev/null 2>&1; then
+  groupadd -f -r snowos
+fi
+usermod -aG snowos snowos-sys 2>/dev/null || true
+usermod -aG snowos snowos-ai 2>/dev/null || true
+if [ -n "$SUDO_USER" ] && id -u "$SUDO_USER" >/dev/null 2>&1; then
+  usermod -aG snowos "$SUDO_USER" 2>/dev/null || true
+fi
+
+# Directory permissions & least privilege
 chown -R root:root /var/lib/snowos
 chmod -R 0755 /var/lib/snowos
 
 chown root:root /etc/snowos /opt/snowos
 chown -R snowos-ai:snowos-ai /var/lib/snowos/ai
-chown -R snowos-sys:snowos-sys /var/lib/snowos/system /var/lib/snowos/system/.snowos /run/snowos
+chown -R snowos-sys:snowos-sys /var/lib/snowos/system /var/lib/snowos/system/.snowos
 chmod 0755 /var/log/snowos
 chmod 0750 /var/lib/snowos/ai /var/lib/snowos/system
-chmod 0775 /run/snowos
 
-# Secure secrets directory (HMAC key location, accessible only by broker)
+# Restrict runtime socket directory strictly to snowos group
+chown -R root:snowos /run/snowos
+chmod 0770 /run/snowos
+
+# Secure secrets directory (HMAC key location, accessible only by broker and system daemons)
 mkdir -p /etc/snowos/secrets
-chown snowos-sys:snowos-sys /etc/snowos/secrets
-chmod 0700 /etc/snowos/secrets
+chown root:snowos-sys /etc/snowos/secrets
+chmod 0750 /etc/snowos/secrets
 
 # ==============================================================================
 # 4. RUNTIME CODE & ARCHITECTURE DEPLOYMENT

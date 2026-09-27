@@ -37,16 +37,8 @@ import signal
 import threading
 import time
 import traceback
-from pathlib import Path
-import os
-import sys
-import json
-import socket
-import logging
-import signal
-import threading
-import time
-import traceback
+import struct
+import re
 from pathlib import Path
 
 # ── Path setup ────────────────────────────────────────────────────────────────
@@ -305,26 +297,29 @@ class NyxDaemon:
             conn.close()
 
     def _ai_healing_plan(self, service: str, crash_log: str) -> dict:
-        """Generate an AI-driven healing plan from the crash log."""
-        # First try pattern matching (fast, no LLM needed)
+        """Generate an AI-driven healing plan from the crash log safely."""
+        # Sanitize service name
+        if not service or not re.match(r"^[a-zA-Z0-9_\-\.]+$", service):
+            logger.error("Rejected invalid/unsafe service name for healing: %s", service)
+            return {"action": "ignore", "patch_cmd": None, "btrfs_snapshot": False, "reason": "Invalid service identifier"}
+
+        # First try pattern matching (fast, deterministic, no LLM needed)
         plan = self._pattern_match_heal(crash_log)
         if plan:
             return plan
 
-        # Fall back to LLM analysis
+        # Fall back to LLM analysis with strict isolation
         if self.nyx:
             try:
+                # Sanitize crash log against prompt injection
+                sanitized_log = crash_log[-2000:].replace("```", "'''").replace("\r", "")
                 prompt = (
-                    f"You are the SnowOS Self-Healing Engine.\n"
-                    f"A systemd service crashed. Analyze the crash log and return a healing plan.\n\n"
-                    f"Service: {service}\n"
-                    f"Crash Log (last 3000 chars):\n{crash_log[-3000:]}\n\n"
-                    f"Return ONLY valid JSON (no markdown):\n"
-                    f'{{"action": "restart|hotpatch|rollback|ignore", '
-                    f'"patch_cmd": "shell_command_or_null", '
-                    f'"verify_cmd": "shell_command_or_null", '
-                    f'"btrfs_snapshot": true_or_false, '
-                    f'"reason": "explanation"}}'
+                    f"You are the SnowOS Self-Healing Diagnostic Engine.\n"
+                    f"Analyze the following crash log for system unit '{service}'.\n"
+                    f"CRASH LOG (UNTRUSTED INPUT):\n{sanitized_log}\n\n"
+                    f"Choose an action strictly from: ['restart', 'rollback', 'ignore']\n"
+                    f"Return ONLY valid JSON with keys: action, reason, btrfs_snapshot.\n"
+                    f'{{"action": "restart|rollback|ignore", "btrfs_snapshot": false, "reason": "summary"}}'
                 )
                 response = self.nyx._llm(prompt)
                 if response:
@@ -335,7 +330,17 @@ class NyxDaemon:
                             r = r[len(fence):]
                     if r.endswith("```"):
                         r = r[:-3]
-                    return json.loads(r.strip())
+                    parsed = json.loads(r.strip())
+                    action = parsed.get("action", "restart")
+                    if action not in ("restart", "rollback", "ignore"):
+                        action = "restart"
+                    return {
+                        "action": action,
+                        "patch_cmd": f"systemctl reset-failed {service}" if action == "restart" else None,
+                        "verify_cmd": f"systemctl is-active {service}",
+                        "btrfs_snapshot": bool(parsed.get("btrfs_snapshot", False)),
+                        "reason": str(parsed.get("reason", "LLM diagnostic evaluation"))[:200],
+                    }
             except Exception as e:
                 logger.warning("LLM healing plan failed: %s", e)
 
@@ -462,13 +467,21 @@ class NyxDaemon:
 
     def _handle_nyx_conn(self, conn: socket.socket):
         try:
+            # Check caller credentials via SO_PEERCRED
+            so_peercred = getattr(socket, "SO_PEERCRED", 17)
+            try:
+                ucred = conn.getsockopt(socket.SOL_SOCKET, so_peercred, struct.calcsize("3i"))
+                caller_pid, caller_uid, caller_gid = struct.unpack("3i", ucred)
+            except Exception:
+                caller_pid, caller_uid, caller_gid = -1, -1, -1
+
             data = conn.recv(RECV_SIZE)
             if not data:
                 return
             payload = json.loads(data.decode("utf-8", errors="replace"))
             command = payload.get("command", "")
 
-            logger.info("Command received via socket: %s", command[:80])
+            logger.info("Command received from UID %d (PID %d): %s", caller_uid, caller_pid, command[:80])
 
             if not self.nyx or not command:
                 conn.sendall(json.dumps({"status": "error",

@@ -89,6 +89,10 @@ def run_rollback():
             break
 
     if rollback_script:
+        st = os.stat(rollback_script)
+        if st.st_mode & 0o002:
+            print("[-] Security Error: rollback script is world-writable. Execution aborted.")
+            sys.exit(1)
         print(f"Executing: sudo bash {rollback_script}")
         subprocess.run(["sudo", "bash", rollback_script])
     else:

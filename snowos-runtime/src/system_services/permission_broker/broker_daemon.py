@@ -36,6 +36,8 @@ import secrets
 import stat
 import threading
 import signal
+import struct
+import pwd
 from collections import defaultdict
 from typing import Dict, Set
 
@@ -172,9 +174,26 @@ class MessageBroker:
         except Exception:
             return None
 
+    @staticmethod
+    def _get_peer_identity(conn: socket.socket) -> tuple[int, int, str]:
+        """Query kernel for connected socket's (PID, UID, Username) via SO_PEERCRED."""
+        try:
+            so_peercred = getattr(socket, "SO_PEERCRED", 17)
+            ucred = conn.getsockopt(socket.SOL_SOCKET, so_peercred, struct.calcsize("3i"))
+            pid, uid, gid = struct.unpack("3i", ucred)
+            try:
+                username = pwd.getpwuid(uid).pw_name
+            except Exception:
+                username = f"uid_{uid}"
+            return pid, uid, username
+        except Exception as exc:
+            logger.debug("SO_PEERCRED query unavailable: %s", exc)
+            return -1, -1, "unknown"
+
     # ── Request handler ───────────────────────────────────────────────────────
 
-    def _handle_request(self, payload: dict) -> dict:
+    def _handle_request(self, payload: dict, conn: socket.socket) -> dict:
+        pid, uid, username = self._get_peer_identity(conn)
         source_id       = payload.get("source_id", "")
         target_resource = payload.get("target_resource", "")
         action          = payload.get("action", "")
@@ -182,23 +201,39 @@ class MessageBroker:
         if not all([source_id, target_resource, action]):
             return {"status": "ERROR", "reason": "Missing required fields"}
 
+        # ── Kernel-level caller authorization gate ──
+        # Privileged system.* source_ids can only be claimed by root, snowos-sys, or snowos-ai
+        if source_id.startswith("system."):
+            allowed_users = {"root", "snowos-sys", "snowos-ai"}
+            if uid != 0 and username not in allowed_users:
+                logger.warning(
+                    "SECURITY REJECTION: User '%s' (UID %d, PID %d) attempted to impersonate '%s'",
+                    username, uid, pid, source_id
+                )
+                with self._stats_lock:
+                    self._stats["denied"] += 1
+                return {
+                    "status": "DENIED",
+                    "reason": f"Caller '{username}' unauthorized to claim '{source_id}'",
+                }
+
         with self._stats_lock:
             self._stats["requests"] += 1
 
         if not self.policy.evaluate(source_id, target_resource, action):
-            logger.warning("DENIED: %s → %s on %s", source_id, action, target_resource)
+            logger.warning("DENIED: %s (%s) → %s on %s", source_id, username, action, target_resource)
             with self._stats_lock:
                 self._stats["denied"] += 1
             return {"status": "DENIED", "reason": "Capability not granted"}
 
         if not self.validator.validate_intent(payload):
-            logger.warning("DENIED (intent): %s", source_id)
+            logger.warning("DENIED (intent): %s (%s)", source_id, username)
             with self._stats_lock:
                 self._stats["denied"] += 1
             return {"status": "DENIED", "reason": "Suspicious intent"}
 
         token = self._issue_token(source_id, target_resource, action)
-        logger.info("GRANTED: %s → %s on %s", source_id, action, target_resource)
+        logger.info("GRANTED: %s (%s) → %s on %s", source_id, username, action, target_resource)
         with self._stats_lock:
             self._stats["granted"] += 1
         return {"status": "GRANTED", "token": token, "expires_in": 30}
@@ -269,7 +304,7 @@ class MessageBroker:
             with self._stats_lock:
                 return {"status": "OK", "stats": dict(self._stats)}
         elif msg_type == "request":
-            return self._handle_request(msg)
+            return self._handle_request(msg, conn)
         elif msg_type == "subscribe":
             return self._handle_subscribe(msg, conn)
         elif msg_type == "publish":

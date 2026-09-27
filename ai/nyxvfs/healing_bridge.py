@@ -15,7 +15,7 @@ Protocol:
       "reason": "explanation"
   }
 """
-import os, sys, json, socket, logging, signal, subprocess, threading, time
+import os, sys, json, socket, logging, signal, subprocess, threading, time, re
 
 _AI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _AI_DIR)
@@ -150,46 +150,62 @@ def _try_nyx_analysis(service: str, crash_log: str) -> dict | None:
 
 
 # ─── Execute Healing Plan ──────────────────────────────────────────────────────
+_SAFE_UNIT_PATTERN = re.compile(r"^[a-zA-Z0-9_\-\.]+$")
+
 def _execute_healing_plan(service: str, plan: dict) -> bool:
-    """Apply the healing plan and return True if service recovers."""
+    """Apply the healing plan safely with zero arbitrary shell execution."""
+    if not service or not _SAFE_UNIT_PATTERN.match(service):
+        logger.error(f"HealingBridge: Rejected invalid/unsafe service name: {service}")
+        return False
+
     snapshot_path = None
 
     # Step 1: Optionally create BTRFS snapshot before patching
     if plan.get("btrfs_snapshot") and _has_btrfs():
         snapshot_path = _create_btrfs_snapshot(service.replace("-", "_"))
 
-    # Step 2: Apply patch command if provided
-    if plan.get("patch_cmd"):
-        try:
-            cmd = plan["patch_cmd"]
-            logger.info(f"HealingBridge: Applying patch: {cmd}")
-            subprocess.run(cmd, shell=True, timeout=30, capture_output=True)
-        except Exception as e:
-            logger.error(f"HealingBridge: Patch command failed: {e}")
+    # Step 2: Apply strictly vetted patch primitive (No arbitrary shell=True)
+    action = plan.get("action", "restart")
+    patch_cmd = plan.get("patch_cmd")
 
-    # Step 3: Restart the service
+    # If the patch_cmd is specifically reset-failed, run safely without shell
+    if patch_cmd and "reset-failed" in patch_cmd:
+        try:
+            logger.info(f"HealingBridge: Resetting failed state for {service}")
+            subprocess.run(["systemctl", "reset-failed", service], shell=False, timeout=10, capture_output=True)
+        except Exception as e:
+            logger.error(f"HealingBridge: reset-failed command error: {e}")
+
+    # Step 3: Restart or reload the service using direct non-shell systemctl
     try:
-        logger.info(f"HealingBridge: Restarting {service}...")
-        subprocess.run(["systemctl", "restart", service],
-            timeout=15, capture_output=True)
-        time.sleep(3)
+        if action == "reload":
+            logger.info(f"HealingBridge: Reloading {service}...")
+            subprocess.run(["systemctl", "reload", service], shell=False, timeout=15, capture_output=True)
+        else:
+            logger.info(f"HealingBridge: Restarting {service}...")
+            subprocess.run(["systemctl", "restart", service], shell=False, timeout=15, capture_output=True)
+        time.sleep(2)
     except Exception as e:
-        logger.error(f"HealingBridge: Restart failed: {e}")
+        logger.error(f"HealingBridge: Service restart failed: {e}")
         return False
 
-    # Step 4: Verify recovery
-    verify_cmd = plan.get("verify_cmd", f"systemctl is-active {service}")
+    # Step 4: Verify recovery using strictly parameterized check
     try:
         result = subprocess.run(
-            verify_cmd, shell=True, capture_output=True, text=True, timeout=10
+            ["systemctl", "is-active", service],
+            shell=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
-        recovered = result.returncode == 0
+        recovered = (result.returncode == 0 and result.stdout.strip() == "active")
         if recovered:
             logger.info(f"HealingBridge: Service {service} recovered successfully.")
         else:
-            logger.warning(f"HealingBridge: Service {service} still down after patch.")
+            logger.warning(f"HealingBridge: Service {service} still down after restart (status: {result.stdout.strip()}).")
         return recovered
-    except Exception:
+    except Exception as e:
+        logger.error(f"HealingBridge: Recovery verification check error: {e}")
         return False
 
 

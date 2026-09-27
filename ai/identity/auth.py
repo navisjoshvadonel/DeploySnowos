@@ -28,9 +28,9 @@ def _load_jwt_secret() -> str:
                 return secret
 
     secret = secrets.token_urlsafe(48)
-    with open(secret_path, "w", encoding="utf-8") as handle:
+    fd = os.open(secret_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
         handle.write(secret)
-    os.chmod(secret_path, 0o600)
     return secret
 
 
