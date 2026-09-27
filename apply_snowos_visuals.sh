@@ -195,7 +195,7 @@ POSSIBLE_PATHS=(
     "/usr/share/gnome-shell/gnome-shell-theme.gresource"
 )
 
-for path in "${POSSIBLE_PATHS[@];}" do
+for path in "${POSSIBLE_PATHS[@]}"; do
     if [ -f "$path" ]; then
         GRESOURCE_SRC="$path"
         break

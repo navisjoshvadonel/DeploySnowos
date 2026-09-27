@@ -2248,6 +2248,44 @@ class NyxAI:
                     f"--- {r['file']} ---\n{r['text']}" for r in results
                 )
 
+        # ── LIVE CONTEXT INJECTION (Context Engine → Planner) ─────────────────
+        # Reads real-time system state injected by context_engine every 2-3s.
+        live_ctx = ""
+        live_context_raw = self.memory.get("_live_context", "")
+        live_context_age = time.time() - self.memory.get("_live_context_ts", 0)
+        if live_context_raw and live_context_age < 30:
+            live_ctx = f"\n{live_context_raw}\n"
+
+        # ── PERSONALITY MODE INJECTION ─────────────────────────────────────────
+        personality_ctx = ""
+        if hasattr(self, "personality"):
+            mode = self.personality.current_mode
+            mode_guidance = {
+                "developer": (
+                    "Developer mode: prefer verbose technical commands with diagnostic flags. "
+                    "Assume full admin access. Show all output."
+                ),
+                "secure": (
+                    "Secure mode: avoid network calls, prefer dry-runs, "
+                    "never use sudo unless absolutely necessary, explain security risks."
+                ),
+                "immersive": (
+                    "Immersive mode: keep commands minimal and non-disruptive. "
+                    "Avoid verbose output. Do not install packages without explicit confirmation."
+                ),
+                "balanced": "Balanced mode: standard helpful behavior.",
+            }
+            guidance = mode_guidance.get(mode, mode_guidance["balanced"])
+            personality_ctx = f"\nPersonality Mode: {mode}\nBehavior: {guidance}\n"
+
+        # ── FLOW STATE CONTEXT ─────────────────────────────────────────────────
+        flow_ctx = ""
+        if self.memory.get("_flow_state") == "deep_work":
+            flow_ctx = (
+                "\n[FLOW STATE] User is in deep work. Keep response minimal. "
+                "Prefer background/quiet execution over interactive steps.\n"
+            )
+
         prompt = (
             "You are a system planner for SnowOS.\n"
             "Convert user requests into a list of safe shell commands.\n"
@@ -2256,7 +2294,10 @@ class NyxAI:
             f"Last Commands: {self.state.last_commands[-5:]}\n"
             f"Recent Context:\n{history_str}"
             f"{emg_ctx}\n"
-            f"{knowledge_ctx}\n\n"
+            f"{knowledge_ctx}"
+            f"{live_ctx}"
+            f"{personality_ctx}"
+            f"{flow_ctx}\n"
             f"User Request: {user_input}"
         )
         text = self._llm(prompt)

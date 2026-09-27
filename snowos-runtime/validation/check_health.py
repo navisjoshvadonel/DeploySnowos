@@ -76,6 +76,8 @@ if __name__ == "__main__":
         else:
             print(f"[ERR] Layer {layer_path} missing")
 
+    critical_failures = 0
+
     print("\n[INFO] Checking core services...")
     for service in [
         "snowos-boot.service",
@@ -84,10 +86,13 @@ if __name__ == "__main__":
         "snowos-aicore.service",
         "snowos-control.service",
     ]:
-        check_service(service)
+        if not check_service(service):
+            if service in ["snowos-boot.service", "snowos-broker.service"]:
+                critical_failures += 1
 
     print("\n[INFO] Checking runtime sockets...")
-    check_sockets()
+    if not check_sockets():
+        critical_failures += 1
 
     print("\n[INFO] Checking SnowOS boot artifacts...")
     check_json_file(BOOT_STATUS_FILE, "Boot status", ["profile", "status", "feature_count"])
@@ -101,8 +106,14 @@ if __name__ == "__main__":
             if 'PRETTY_NAME="SnowOS Aurora 24.04"' in content:
                 print("[OK] Identity: SnowOS Aurora 24.04 detected")
             else:
-                print("[ERR] Identity: Custom branding not active or incorrect version")
+                print("[INFO] Identity: Baseline Ubuntu identity active (visual profile not deployed)")
     except Exception as e:
         print(f"[ERR] Identity check failed: {e}")
 
     print("\n--- Validation Complete ---")
+    if critical_failures > 0:
+        print(f"[ERR] Critical integrity check failed with {critical_failures} critical errors.")
+        exit(1)
+    else:
+        print("[OK] Platform core integrity verified.")
+        exit(0)

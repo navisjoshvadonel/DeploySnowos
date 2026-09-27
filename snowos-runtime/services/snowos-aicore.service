@@ -1,18 +1,25 @@
 [Unit]
-Description=SnowOS AI Core Layer
+Description=SnowOS AI Core — Nyx Cognitive Engine (Headless Daemon)
 Documentation=https://github.com/snowos/core
-After=network.target snowos-boot.service
+After=network.target snowos-boot.service snowos-broker.service
 Requires=snowos-boot.service
+Wants=snowos-broker.service
 
 [Service]
 Type=simple
 User=snowos-ai
 Group=snowos-ai
 EnvironmentFile=-/etc/snowos/snowos.env
-WorkingDirectory=/var/lib/snowos/ai
-ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/nyx.py
+# NYX_API_KEY must be set in snowos.env or the environment
+EnvironmentFile=-/etc/snowos/secrets/nyx_api_key.env
+WorkingDirectory=/opt/snowos/ai
+# NyxDaemon — headless AI core service wrapper
+ExecStart=/usr/bin/python3 /opt/snowos/ai/nyx_daemon.py
 Restart=on-failure
-RestartSec=5
+RestartSec=10
+# Allow up to 3 restarts in 120s before giving up
+StartLimitIntervalSec=120
+StartLimitBurst=3
 
 # Sandboxing
 ProtectSystem=strict
@@ -28,7 +35,10 @@ RestrictSUIDSGID=yes
 LockPersonality=yes
 SystemCallArchitectures=native
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-ReadWritePaths=/var/lib/snowos /var/log/snowos
+ReadWritePaths=/var/lib/snowos /var/log/snowos /run/snowos /tmp
+
+# Systemd watchdog — if Nyx hangs, restart it
+WatchdogSec=120
 
 [Install]
 WantedBy=multi-user.target
