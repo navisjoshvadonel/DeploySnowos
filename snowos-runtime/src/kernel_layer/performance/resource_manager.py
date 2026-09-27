@@ -5,19 +5,29 @@ Arbitrates CPU scheduling, memory budgeting, and concurrency controls
 between core OS services and heavy AI workloads.
 """
 
+from __future__ import annotations
+
 import os
 import psutil
 import logging
-from typing import Optional, Callable, Any, Tuple
+from typing import Optional, Callable, Any, Tuple, List, Dict
 
 from .smart_scheduler import MLFQScheduler, SchedTask, QueueLevel
 from .memory_governor import AIMemoryGovernor, BufferPool
+from .nj_engine import (
+    NJAlgorithmSuite,
+    NJRingBuffer,
+    NJCoalescer,
+    NJCoalesceEvent,
+    EventPriority,
+    NJFaultDomain,
+)
 
 logger = logging.getLogger("SnowOS.ResourceManager")
 
 
 class ResourceManager:
-    """Arbitrates CPU and memory resource allocation between SnowOS modules."""
+    """Arbitrates CPU, memory, IPC, and fault domains between SnowOS modules."""
 
     def __init__(self, profiler=None, num_workers: int = 4):
         self.profiler = profiler
@@ -32,6 +42,9 @@ class ResourceManager:
 
         # 3. IPC Zero-Copy Buffer Pool (64KB chunks)
         self.buffer_pool = BufferPool(buffer_size=65536, pool_capacity=32)
+
+        # 4. NJ Performance & Stability Framework (Zero-copy IPC, Coalescer, Fault Domains)
+        self.nj = NJAlgorithmSuite()
 
         self.priority_map = {
             "critical": -15, # System stability / Input
@@ -87,6 +100,58 @@ class ResourceManager:
             return 0.5
         return 0.0
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # NJ Performance & Stability Facade
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def get_ipc_channel(
+        self,
+        name: str,
+        capacity: int = 128,
+        slot_size: int = 4096,
+        create: bool = True
+    ) -> NJRingBuffer:
+        """Acquire a zero-copy NJ Shared Memory IPC Channel."""
+        return self.nj.create_channel(name, capacity=capacity, slot_size=slot_size, create=create)
+
+    def create_event_coalescer(
+        self,
+        name: str,
+        callback: Callable[[List[NJCoalesceEvent]], None],
+        burst_threshold_hz: float = 50.0
+    ) -> NJCoalescer:
+        """Acquire an NJ Adaptive Micro-Burst Coalescer."""
+        return self.nj.create_coalescer(name, callback, burst_threshold_hz=burst_threshold_hz)
+
+    def run_isolated(
+        self,
+        domain_name: str,
+        target_fn: Callable[..., Any],
+        *args,
+        state_snapshot: Optional[Dict[str, Any]] = None,
+        rollback_fn: Optional[Callable[[Dict[str, Any]], None]] = None,
+        fallback_fn: Optional[Callable[[Exception, Any], Any]] = None,
+        failure_threshold: int = 3,
+        **kwargs
+    ) -> Tuple[bool, Any]:
+        """
+        Execute an unverified or AI task safely inside an NJ Fault Domain cage.
+        Guarantees that crashes and memory faults will not freeze the host OS/daemon.
+        """
+        domain = self.nj.create_fault_domain(
+            domain_name,
+            failure_threshold=failure_threshold,
+            fallback_fn=fallback_fn
+        )
+        return domain.execute(
+            target_fn,
+            *args,
+            state_snapshot=state_snapshot,
+            rollback_fn=rollback_fn,
+            **kwargs
+        )
+
     def shutdown(self):
-        """Clean shutdown of background scheduling and compaction threads."""
+        """Clean shutdown of background scheduling, compaction threads, and NJ engine."""
         self.scheduler.stop()
+        self.nj.shutdown()

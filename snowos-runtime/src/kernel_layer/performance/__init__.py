@@ -28,6 +28,16 @@ from .memory_governor import (
     PrivilegeViolationError,
 )
 
+from .nj_engine import (
+    NJRingBuffer,
+    NJCoalescer,
+    NJCoalesceEvent,
+    EventPriority,
+    NJFaultDomain,
+    ComponentHealthState,
+    NJAlgorithmSuite,
+)
+
 __all__ = [
     "DeadlockDetectingMutex",
     "AdaptiveSpinlock",
@@ -46,4 +56,11 @@ __all__ = [
     "MemoryProtectionError",
     "AccessViolationError",
     "PrivilegeViolationError",
+    "NJRingBuffer",
+    "NJCoalescer",
+    "NJCoalesceEvent",
+    "EventPriority",
+    "NJFaultDomain",
+    "ComponentHealthState",
+    "NJAlgorithmSuite",
 ]
