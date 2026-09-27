@@ -9,5 +9,12 @@ Provides low-level operating system primitives:
 
 from . import performance
 from . import io_hardware
+from .boot_init import KernelBootSequence, KernelContext, BootStage
 
-__all__ = ["performance", "io_hardware"]
+__all__ = [
+    "performance",
+    "io_hardware",
+    "KernelBootSequence",
+    "KernelContext",
+    "BootStage",
+]
