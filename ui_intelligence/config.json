@@ -1,0 +1,8 @@
+{
+  "dock_reorder_sensitivity": 0.8,
+  "window_split_default": "horizontal",
+  "enable_spatial_learning": true,
+  "safety_lock_while_typing": true,
+  "animation_speed": "smooth",
+  "min_load_for_minimal_mode": 85
+}

@@ -17,19 +17,38 @@ class PersonalityEngine:
     """Manages the behavioral persona of SnowOS."""
     
     def __init__(self):
-        self.profile_path = os.path.expanduser("~/.snowos/personality/profiles.json")
-        self.state_path = os.path.expanduser("~/.snowos/personality/state.json")
+        self.profile_path = os.environ.get("SNOWOS_PROFILES_PATH") or os.path.expanduser("~/.snowos/personality/profiles.json")
+        self.state_path = os.environ.get("SNOWOS_STATE_PATH") or os.path.expanduser("~/.snowos/personality/state.json")
         self.logger = logging.getLogger("SnowOS.Personality")
         
         self.profiles = self._load_profiles()
         self.current_mode = self._load_state()
 
     def _load_profiles(self):
-        try:
-            with open(self.profile_path, 'r') as f:
-                return json.load(f)
-        except Exception:
-            return {}
+        # 1. Try specified or home path
+        if os.path.exists(self.profile_path):
+            try:
+                with open(self.profile_path, 'r') as f:
+                    return json.load(f)
+            except Exception:
+                pass
+        
+        # 2. Try adjacent profiles.json
+        local_path = os.path.join(os.path.dirname(__file__), "profiles.json")
+        if os.path.exists(local_path):
+            try:
+                with open(local_path, 'r') as f:
+                    return json.load(f)
+            except Exception:
+                pass
+
+        # 3. Built-in resilient fallback
+        return {
+            "calm": {"suggestion_level": "low", "auto_action": False, "ui_movement": "minimal", "confidence_threshold": 0.95},
+            "assistive": {"suggestion_level": "medium", "auto_action": False, "ui_movement": "moderate", "confidence_threshold": 0.85},
+            "autonomous": {"suggestion_level": "high", "auto_action": True, "ui_movement": "dynamic", "confidence_threshold": 0.80},
+            "developer": {"suggestion_level": "low", "auto_action": False, "ui_movement": "none", "confidence_threshold": 0.99}
+        }
 
     def _load_state(self):
         if os.path.exists(self.state_path):

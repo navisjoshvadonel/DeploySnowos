@@ -25,7 +25,13 @@ logger = logging.getLogger("NyxVFS")
 # ──────────────────────────────────────────────────────────────────────────────
 # Paths
 # ──────────────────────────────────────────────────────────────────────────────
-_VFS_DIR = os.path.expanduser("~/.snowos/nyxvfs")
+_VFS_DIR = os.environ.get("SNOWOS_VFS_DIR") or os.path.expanduser("~/.snowos/nyxvfs")
+try:
+    os.makedirs(_VFS_DIR, exist_ok=True)
+except (OSError, PermissionError):
+    _VFS_DIR = "/tmp/snowos_nyxvfs"
+    os.makedirs(_VFS_DIR, exist_ok=True)
+
 _INDEX_FILE = os.path.join(_VFS_DIR, "index.json")
 _REGISTRY_FILE = os.path.join(_VFS_DIR, "file_registry.json")
 _CONTEXT_FILE = "/tmp/snowos_context.json"
@@ -78,7 +84,10 @@ class NyxVFS:
                            If None, uses hash-based fingerprinting as fallback.
             watch_dirs:    Directories to watch on startup.
         """
-        os.makedirs(_VFS_DIR, exist_ok=True)
+        try:
+            os.makedirs(_VFS_DIR, exist_ok=True)
+        except (OSError, PermissionError):
+            pass
         self._client = gemini_client
         self._index: dict = self._load_json(_INDEX_FILE, {})
         self._registry: dict = self._load_json(_REGISTRY_FILE, {})
@@ -351,8 +360,12 @@ class NyxVFS:
         else:
             dest_folder = app.replace(" ", "_").replace("/", "_") if app != "Unknown" else "Misc"
 
-        base_dest = os.path.expanduser(f"~/Documents/{dest_folder}")
-        os.makedirs(base_dest, exist_ok=True)
+        base_dest = os.environ.get("SNOWOS_DOCUMENTS_DIR") or os.path.expanduser(f"~/Documents/{dest_folder}")
+        try:
+            os.makedirs(base_dest, exist_ok=True)
+        except (OSError, PermissionError):
+            base_dest = f"/tmp/Documents/{dest_folder}"
+            os.makedirs(base_dest, exist_ok=True)
         
         final_dest_path = os.path.join(base_dest, smart_name)
         if os.path.exists(final_dest_path):
@@ -539,9 +552,13 @@ class NyxVFS:
             return self._ghosts.get(path, {})
 
     def purge_desktop(self) -> dict:
-        desktop = os.path.expanduser("~/Desktop")
-        archive = os.path.expanduser("~/Archive/Vault")
-        os.makedirs(archive, exist_ok=True)
+        desktop = os.environ.get("SNOWOS_DESKTOP_DIR") or os.path.expanduser("~/Desktop")
+        archive = os.environ.get("SNOWOS_ARCHIVE_DIR") or os.path.expanduser("~/Archive/Vault")
+        try:
+            os.makedirs(archive, exist_ok=True)
+        except (OSError, PermissionError):
+            archive = "/tmp/Archive/Vault"
+            os.makedirs(archive, exist_ok=True)
         
         now = time.time()
         purged = []

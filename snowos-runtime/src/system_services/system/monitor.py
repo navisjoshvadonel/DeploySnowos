@@ -7,14 +7,19 @@ import logging
 class SystemMonitor:
     """Tracks system telemetry and stores time-series metrics."""
     
-    def __init__(self):
-        self.db_path = os.path.expanduser("~/.snowos/system/metrics.db")
+    def __init__(self, db_path=None):
+        default_dir = os.environ.get("SNOWOS_DATA_DIR") or os.path.expanduser("~/.snowos")
+        self.db_path = db_path or os.path.join(default_dir, "system/metrics.db")
         self.logger = logging.getLogger("SnowOS.Monitor")
         self._init_db()
 
     def _init_db(self):
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         try:
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            conn = sqlite3.connect(self.db_path)
+        except (OSError, PermissionError):
+            self.db_path = "/tmp/snowos_metrics.db"
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
             conn = sqlite3.connect(self.db_path)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS metrics (

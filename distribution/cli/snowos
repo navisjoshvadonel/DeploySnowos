@@ -10,8 +10,44 @@ import argparse
 import subprocess
 import socket
 import json
+import shutil
 
 RUNTIME_DIR = os.environ.get("SNOWOS_RUNTIME_DIR", "/run/snowos")
+
+# ── All registered SnowOS systemd services ────────────────────────────────────
+_ALL_SERVICES = [
+    "snowos-boot.service",
+    "snowos-broker.service",
+    "snowos-sentinel.service",
+    "snowos-aicore.service",
+    "snowos-healbridge.service",
+    "snowos-nyxvfs.service",
+    "snowos-governor.service",
+    "snowos-optimizer.service",
+    "snowos-frostbite.service",
+    "snowos-control.service",
+]
+
+# ── IPC sockets to probe ───────────────────────────────────────────────────────
+_ALL_SOCKETS = [
+    ("Broker Socket",        "broker.sock"),
+    ("Sentinel Socket",      "sentinel.sock"),
+    ("NyxVFS Socket",        "nyxvfs.sock"),
+    ("Healing Bridge Socket","nyx_heal.sock"),
+    ("Nyx AI Socket",        "nyx.sock"),
+]
+
+
+def _service_status(name: str) -> str:
+    """Return the systemctl is-active text for a service."""
+    try:
+        return subprocess.run(
+            ["systemctl", "is-active", name],
+            capture_output=True, text=True,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
+
 
 def run_update():
     print("Initiating SnowOS System Update...")
@@ -30,50 +66,98 @@ def run_update():
         print("  [OK] Runtime validated.")
     print("Update routine completed.")
 
+
 def run_doctor():
-    print("=== SnowOS Real-Time Health Diagnostics ===")
-    services = [
-        "snowos-boot.service",
-        "snowos-broker.service",
-        "snowos-sentinel.service",
-        "snowos-aicore.service",
-        "snowos-control.service"
-    ]
-    for s in services:
-        status = subprocess.run(["systemctl", "is-active", s], capture_output=True, text=True).stdout.strip()
-        mark = "✔" if status == "active" else "✖"
-        print(f"  [{mark}] {s}: {status.upper()}")
+    print("=== SnowOS Real-Time Health Diagnostics ===\n")
 
-    sockets = [
-        ("Broker Socket", os.path.join(RUNTIME_DIR, "broker.sock")),
-        ("Sentinel Socket", os.path.join(RUNTIME_DIR, "sentinel.sock")),
-        ("NyxVFS Socket", os.path.join(RUNTIME_DIR, "nyxvfs.sock"))
-    ]
+    # ── Service health ─────────────────────────────────────────────────────────
+    print("Services:")
+    all_ok = True
+    for s in _ALL_SERVICES:
+        status = _service_status(s)
+        mark   = "✔" if status == "active" else "✖"
+        if status != "active":
+            all_ok = False
+        print(f"  [{mark}] {s:<38} {status.upper()}")
+
+    # ── IPC socket probe ───────────────────────────────────────────────────────
     print("\nIPC Sockets:")
-    for name, sock_path in sockets:
+    for name, fname in _ALL_SOCKETS:
+        sock_path = os.path.join(RUNTIME_DIR, fname)
         if os.path.exists(sock_path):
-            print(f"  [✔] {name}: Active ({sock_path})")
+            print(f"  [✔] {name:<26} Active  ({sock_path})")
         else:
-            print(f"  [ℹ] {name}: Not found ({sock_path})")
+            print(f"  [ℹ] {name:<26} Missing ({sock_path})")
 
+    # ── Integrity manifest ─────────────────────────────────────────────────────
     manifest = "/etc/snowos/integrity_manifest.json"
-    if os.path.exists(manifest):
-        print(f"\n  [✔] Integrity Manifest: Active ({manifest})")
-    else:
-        print(f"\n  [✖] Integrity Manifest: Missing")
+    print(f"\n  {'[✔]' if os.path.exists(manifest) else '[✖]'} "
+          f"Integrity Manifest: {'Active' if os.path.exists(manifest) else 'Missing'} ({manifest})")
+
+    # ── Healing status summary ─────────────────────────────────────────────────
+    status_file = os.path.join(RUNTIME_DIR, "healing_status.json")
+    if os.path.exists(status_file):
+        try:
+            with open(status_file) as f:
+                hs = json.load(f)
+            services_tracked = [k for k in hs if k != "updated_at"]
+            if services_tracked:
+                print(f"\nHealing Status ({hs.get('updated_at', 'n/a')[:19]}):")
+                for svc in services_tracked:
+                    rec = hs[svc]
+                    outcome = rec.get("outcome", "unknown")
+                    mark = "✔" if outcome == "success" else ("⏳" if outcome == "pending" else "✖")
+                    print(f"  [{mark}] {svc}: {outcome}")
+        except Exception:
+            pass
+
+    print(f"\n{'✅ All systems nominal.' if all_ok else '⚠️  One or more services need attention.'}")
+
 
 def run_ai_status():
-    print("AI Core Status:")
-    aicore_status = subprocess.run(["systemctl", "is-active", "snowos-aicore.service"], capture_output=True, text=True).stdout.strip()
-    print(f"  Daemon State: {aicore_status.upper()}")
+    print("=== SnowOS AI Core Status ===\n")
+
+    # Daemon systemctl state
+    aicore_status = _service_status("snowos-aicore.service")
+    healbridge_status = _service_status("snowos-healbridge.service")
+    mark_ai = "✔" if aicore_status == "active" else "✖"
+    mark_hb = "✔" if healbridge_status == "active" else "✖"
+    print(f"  [{mark_ai}] AI Core (nyx_daemon)  : {aicore_status.upper()}")
+    print(f"  [{mark_hb}] Healing Bridge        : {healbridge_status.upper()}")
+
+    # AI features file
     feature_file = "/etc/snowos/ai_features.json"
     if os.path.exists(feature_file):
         try:
             with open(feature_file) as f:
                 features = json.load(f)
-            print(f"  Active Capabilities: {len(features)} configured")
+            print(f"\n  Active Capabilities   : {len(features)} configured")
         except Exception:
             pass
+
+    # Healing outcome summary from tracker
+    heal_hist = os.path.expanduser("~/.snowos/healing_history.jsonl")
+    status_file = os.path.join(RUNTIME_DIR, "healing_status.json")
+    if os.path.exists(status_file):
+        try:
+            with open(status_file) as f:
+                hs = json.load(f)
+            services = [k for k in hs if k != "updated_at"]
+            if services:
+                print(f"\n  Healing Summary (last status per service):")
+                for svc in services:
+                    rec  = hs[svc]
+                    out  = rec.get("outcome", "—")
+                    ts   = rec.get("iso_ts", "")[:19]
+                    plan = rec.get("plan", {})
+                    print(f"    {svc}  →  {out}  (action: {plan.get('action','?')}, "
+                          f"confidence: {plan.get('confidence','?')}, at: {ts})")
+        except Exception as e:
+            print(f"  [WARN] Could not read healing status: {e}")
+
+    if not os.path.exists(status_file):
+        print("\n  No healing activity recorded yet.")
+
 
 def run_rollback():
     print("Initiating SnowOS System Rollback...")
@@ -99,18 +183,63 @@ def run_rollback():
         print("[-] Error: rollback.sh could not be located on this system.")
         sys.exit(1)
 
+
+def run_shell(action: str):
+    """Manage the Frost Shell (snowos-frostbite.service)."""
+    if action == "restart":
+        print("Restarting Frost Shell...")
+        subprocess.run(["sudo", "systemctl", "restart", "snowos-frostbite.service"])
+    elif action == "logs":
+        subprocess.run(["journalctl", "-u", "snowos-frostbite.service",
+                        "-n", "100", "--no-pager"])
+    elif action == "config":
+        config_path = "/etc/snowos/frost_shell.conf"
+        editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "nano"
+        if not os.path.exists(config_path):
+            # Create a default skeleton so the editor opens something useful
+            try:
+                os.makedirs(os.path.dirname(config_path), exist_ok=True)
+                with open(config_path, "w") as f:
+                    f.write("# Frost Shell configuration\n"
+                            "# See /opt/snowos/docs/frost_shell.md for option reference\n\n"
+                            "[general]\n"
+                            "theme=frost-dark\n"
+                            "font=JetBrainsMono Nerd Font\n"
+                            "font_size=12\n")
+                print(f"Created default config at {config_path}")
+            except PermissionError:
+                print(f"[-] Cannot create {config_path} — run with sudo or "
+                      f"use 'sudo snowos shell config'")
+                sys.exit(1)
+        if shutil.which(editor):
+            subprocess.run([editor, config_path])
+        else:
+            print(f"[-] Editor '{editor}' not found. Set $EDITOR or install it.")
+            sys.exit(1)
+
+
 def main():
-    parser = argparse.ArgumentParser(description="SnowOS Management CLI")
+    parser = argparse.ArgumentParser(
+        description="SnowOS Management CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  snowos doctor               — full system health check\n"
+            "  snowos ai status            — AI core and healing summary\n"
+            "  snowos ai logs              — live AI core journal\n"
+            "  snowos shell config         — edit Frost Shell config\n"
+            "  snowos mode developer       — switch to developer mode\n"
+        )
+    )
     subparsers = parser.add_subparsers(dest="command")
 
-    subparsers.add_parser("update", help="Perform system update and integrity check")
-    subparsers.add_parser("doctor", help="Run system diagnostics and verify active services")
-    
+    subparsers.add_parser("update",   help="Perform system update and integrity check")
+    subparsers.add_parser("doctor",   help="Run full system diagnostics (all services + sockets)")
+    subparsers.add_parser("rollback", help="Safely revert SnowOS platform modifications")
+
     ai_parser = subparsers.add_parser("ai", help="Manage AI subsystem")
     ai_parser.add_argument("action", choices=["status", "restart", "logs"])
-    
-    subparsers.add_parser("rollback", help="Safely revert SnowOS platform modifications")
-    
+
     shell_parser = subparsers.add_parser("shell", help="Manage Frost Shell")
     shell_parser.add_argument("action", choices=["restart", "logs", "config"])
 
@@ -129,22 +258,29 @@ def main():
         elif args.action == "restart":
             subprocess.run(["sudo", "systemctl", "restart", "snowos-aicore.service"])
         elif args.action == "logs":
-            subprocess.run(["journalctl", "-u", "snowos-aicore.service", "-n", "50", "--no-pager"])
+            subprocess.run(["journalctl", "-u", "snowos-aicore.service", "-n", "100", "--no-pager"])
     elif args.command == "rollback":
         run_rollback()
+    elif args.command == "shell":
+        run_shell(args.action)
     elif args.command == "mode":
         if args.type == "developer":
             print("Switching to Developer Mode...")
-            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "'prefer-dark'"], capture_output=True)
-            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences", "show-hidden-files", "true"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface",
+                            "color-scheme", "prefer-dark"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences",
+                            "show-hidden-files", "true"], capture_output=True)
             print("Developer Mode activated: Dark theme enforced, hidden files visible.")
         elif args.type == "student":
             print("Switching to Student Mode...")
-            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "'prefer-light'"], capture_output=True)
-            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences", "show-hidden-files", "false"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface",
+                            "color-scheme", "prefer-light"], capture_output=True)
+            subprocess.run(["gsettings", "set", "org.gnome.nautilus.preferences",
+                            "show-hidden-files", "false"], capture_output=True)
             print("Student Mode activated: Focus environment enabled.")
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

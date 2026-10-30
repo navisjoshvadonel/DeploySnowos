@@ -314,21 +314,55 @@ chown -R "$TARGET_USER":"$TARGET_USER" "$USER_GTK_DIR" || true
 # ==============================================================================
 # [PART 4: GRUB CONFIGURATION]
 # ==============================================================================
-echo "[*] Updating GRUB distributor branding and background..."
-if grep -q "GRUB_DISTRIBUTOR" /etc/default/grub; then
-    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS Aurora"/' /etc/default/grub
-else
-    echo 'GRUB_DISTRIBUTOR="SnowOS Aurora"' >> /etc/default/grub
-fi
+echo "[*] Updating GRUB distributor branding, background, and boot reliability..."
+if [ -f /etc/default/grub ]; then
+    if [ ! -f /etc/default/grub.snowos.bak ]; then
+        cp -p /etc/default/grub /etc/default/grub.snowos.bak
+    fi
 
-if grep -q "GRUB_BACKGROUND" /etc/default/grub; then
-    sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"|' /etc/default/grub
-else
-    echo 'GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"' >> /etc/default/grub
-fi
+    if grep -q "^GRUB_DISTRIBUTOR=" /etc/default/grub; then
+        sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS"/' /etc/default/grub
+    else
+        echo 'GRUB_DISTRIBUTOR="SnowOS"' >> /etc/default/grub
+    fi
 
-echo "[*] Refreshing GRUB entries..."
-update-grub || true
+    if grep -q "^GRUB_TIMEOUT_STYLE=" /etc/default/grub; then
+        sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
+    else
+        echo 'GRUB_TIMEOUT_STYLE=menu' >> /etc/default/grub
+    fi
+
+    if grep -q "^GRUB_TIMEOUT=" /etc/default/grub; then
+        sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=5/' /etc/default/grub
+    else
+        echo 'GRUB_TIMEOUT=5' >> /etc/default/grub
+    fi
+
+    if grep -q "^GRUB_GFXMODE=" /etc/default/grub; then
+        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="1024x768,auto"/' /etc/default/grub
+    else
+        echo 'GRUB_GFXMODE="1024x768,auto"' >> /etc/default/grub
+    fi
+
+    if grep -q "^GRUB_GFXPAYLOAD_LINUX=" /etc/default/grub; then
+        sed -i 's/^GRUB_GFXPAYLOAD_LINUX=.*/GRUB_GFXPAYLOAD_LINUX=keep/' /etc/default/grub
+    else
+        echo 'GRUB_GFXPAYLOAD_LINUX=keep' >> /etc/default/grub
+    fi
+
+    if [ -f "/usr/share/backgrounds/snowos-wallpaper.png" ]; then
+        if grep -q "^GRUB_BACKGROUND=" /etc/default/grub; then
+            sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"|' /etc/default/grub
+        else
+            echo 'GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"' >> /etc/default/grub
+        fi
+    fi
+
+    echo "[*] Refreshing GRUB entries..."
+    if command -v update-grub >/dev/null 2>&1; then
+        update-grub || true
+    fi
+fi
 
 # ==============================================================================
 # [PART 5: LOGIN BANNERS]

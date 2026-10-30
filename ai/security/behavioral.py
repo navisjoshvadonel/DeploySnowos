@@ -19,7 +19,7 @@ class BehavioralSecurity:
             self.vector_db = vector_db or VectorMemory()
         except Exception:
             self.vector_db = VectorMemory()
-        self.risk_threshold = 0.75 # Lower distance means more similar (safe)
+        self.risk_threshold = 0.65 # Threshold above which command is considered anomalous
         
         # High-risk semantic concepts
         self.DANGER_CONCEPTS = [
@@ -49,9 +49,9 @@ class BehavioralSecurity:
         
         # B) Heuristic Entropy
         entropy_score = 0.0
-        if re.search(r"rm\s+-rf\s+/", command): entropy_score += 0.9
-        if re.search(r"curl.*\|\s*(?:ba)?sh", command): entropy_score += 0.7
-        if re.search(r">/dev/mem", command): entropy_score += 0.8
+        if re.search(r"rm\s+-rf\s+/", command): entropy_score += 0.95
+        if re.search(r"(?:curl|wget).*?\|\s*(?:ba)?sh", command): entropy_score += 0.95
+        if re.search(r">/dev/mem", command): entropy_score += 0.95
         
         # Final Score Calculation
         # High avg_safe_dist (e.g. 0.9) means it's unlike anything seen before.

@@ -8,13 +8,19 @@ class MemoryLogger:
     
     def __init__(self, db_path=None):
         if db_path is None:
-            db_path = os.path.expanduser("~/.snowos/nyx/memory/memory.db")
+            default_dir = os.environ.get("SNOWOS_DATA_DIR") or os.path.expanduser("~/.snowos")
+            db_path = os.path.join(default_dir, "nyx/memory/memory.db")
         self.db_path = db_path
         self._init_db()
 
     def _init_db(self):
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
-        conn = sqlite3.connect(self.db_path)
+        try:
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            conn = sqlite3.connect(self.db_path)
+        except (OSError, PermissionError):
+            self.db_path = "/tmp/snowos_memory.db"
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS command_history (

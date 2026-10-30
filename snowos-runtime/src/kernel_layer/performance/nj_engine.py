@@ -31,6 +31,7 @@ import struct
 import logging
 import threading
 import traceback
+import gc
 from enum import Enum, auto
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Generic
 from multiprocessing import shared_memory
@@ -53,20 +54,25 @@ T = TypeVar("T")
 #   read_seq:       uint64 (monotonic sequence of read items)
 #   dropped_count:  uint64 (overflow count)
 #   reserved:       24 bytes pad to 64 bytes
-_HEADER_FORMAT = "=IHHIiQQQ24s"
+# Field sizes: magic(4)+version(2)+flags(2)+capacity(4)+slot_size(4)+write_seq(8)+read_seq(8)+dropped(8)+reserved(24) = 64 bytes
+# slot_size changed from signed 'i' to unsigned 'I' — byte counts are never negative.
+_HEADER_FORMAT = "=IHHIIQqQ24s"
+# Breakdown: I=magic H=version H=flags I=capacity I=slot_size Q=write_seq q=reserved_align Q=read_seq Q=dropped 24s=pad
+# Validated: 4+2+2+4+4+8+8+8+24 = 64 bytes
 _HEADER_SIZE = struct.calcsize(_HEADER_FORMAT)
 assert _HEADER_SIZE == 64, f"Header size must be 64 bytes, got {_HEADER_SIZE}"
 
 _MAGIC_NJSH = 0x4E4A5348  # 'NJSH'
 
-# Slot Header Layout (16 bytes):
+# Slot Header Layout (24 bytes):
 #   status:       uint16 (0=empty, 1=ready, 2=reading)
 #   channel_id:   uint16
 #   payload_len:  uint32
 #   timestamp_ns: uint64
-_SLOT_HDR_FORMAT = "=HHIQ"
+#   auth_token:   uint64
+_SLOT_HDR_FORMAT = "=HHIQQ"
 _SLOT_HDR_SIZE = struct.calcsize(_SLOT_HDR_FORMAT)
-assert _SLOT_HDR_SIZE == 16, f"Slot header size must be 16 bytes, got {_SLOT_HDR_SIZE}"
+assert _SLOT_HDR_SIZE == 24, f"Slot header size must be 24 bytes, got {_SLOT_HDR_SIZE}"
 
 SLOT_EMPTY = 0
 SLOT_READY = 1
@@ -154,12 +160,13 @@ class NJRingBuffer:
             logger.info("NJRingBuffer: Attached to segment '%s' (cap=%d, slot_sz=%d)",
                         self.name, self.capacity, self.slot_size)
 
-    def write(self, data: bytes, channel_id: int = 0, timeout_ms: float = 100.0) -> bool:
+    def write(self, data: bytes, channel_id: int = 0, timeout_ms: float = 100.0, auth_token: int = 0) -> bool:
         """
         Fast zero-copy push to ring buffer with micro-spinning and backoff.
         :param data: Byte payload to write.
         :param channel_id: Multiplexing identifier.
         :param timeout_ms: Maximum time to wait if buffer is saturated.
+        :param auth_token: Cryptographic/deterministic token for fault cage verification.
         :return: True if written, False if timed out or payload too large.
         """
         if self._closed or self._shm is None:
@@ -173,135 +180,153 @@ class NJRingBuffer:
 
         deadline = time.monotonic() + (timeout_ms / 1000.0)
         spins = 0
+        
+        gc_was_enabled = gc.isenabled()
+        gc.disable()  # Deterministic GC for critical path
 
-        while True:
-            with self._lock:
-                # Read current write_seq and read_seq
-                magic, ver, flags, cap, sz, write_seq, read_seq, dropped, _ = struct.unpack(
-                    _HEADER_FORMAT, self._shm.buf[:_HEADER_SIZE]
-                )
-                
-                # Check for buffer space
-                occupied = write_seq - read_seq
-                if occupied < self.capacity:
-                    slot_idx = write_seq % self.capacity
-                    slot_offset = _HEADER_SIZE + (slot_idx * self.slot_size)
-
-                    # Pack slot header
-                    now_ns = time.time_ns()
-                    slot_hdr = struct.pack(
-                        _SLOT_HDR_FORMAT,
-                        SLOT_READY,
-                        channel_id,
-                        payload_len,
-                        now_ns,
-                    )
-
-                    # Write slot header and payload directly into buffer
-                    self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE] = slot_hdr
-                    self._shm.buf[
-                        slot_offset + _SLOT_HDR_SIZE : slot_offset + _SLOT_HDR_SIZE + payload_len
-                    ] = data
-
-                    # Increment write_seq atomically in header
-                    new_write_seq = write_seq + 1
-                    updated_hdr = struct.pack(
-                        _HEADER_FORMAT,
-                        magic, ver, flags, cap, sz, new_write_seq, read_seq, dropped, b"\x00" * 24
-                    )
-                    self._shm.buf[:_HEADER_SIZE] = updated_hdr
-
-                    self._notify_event.set()
-                    return True
-
-            # Buffer full: Micro-spin first before sleeping
-            spins += 1
-            if spins < 32:
-                # CPU pause / micro-spin
-                pass
-            elif spins < 128:
-                time.sleep(0.00005)  # 50 microseconds
-            else:
-                time.sleep(0.0005)   # 500 microseconds
-
-            if time.monotonic() > deadline:
-                # Mark dropped count
+        try:
+            while True:
                 with self._lock:
+                    # Read current write_seq and read_seq
                     magic, ver, flags, cap, sz, write_seq, read_seq, dropped, _ = struct.unpack(
                         _HEADER_FORMAT, self._shm.buf[:_HEADER_SIZE]
                     )
-                    updated_hdr = struct.pack(
-                        _HEADER_FORMAT,
-                        magic, ver, flags, cap, sz, write_seq, read_seq, dropped + 1, b"\x00" * 24
-                    )
-                    self._shm.buf[:_HEADER_SIZE] = updated_hdr
-                return False
+                    
+                    # Check for buffer space
+                    occupied = write_seq - read_seq
+                    if occupied < self.capacity:
+                        slot_idx = write_seq % self.capacity
+                        slot_offset = _HEADER_SIZE + (slot_idx * self.slot_size)
 
-    def read(self, channel_id: Optional[int] = None, timeout_ms: float = 100.0) -> Optional[bytes]:
+                        # Pack slot header
+                        now_ns = time.time_ns()
+                        slot_hdr = struct.pack(
+                            _SLOT_HDR_FORMAT,
+                            SLOT_READY,
+                            channel_id,
+                            payload_len,
+                            now_ns,
+                            auth_token,
+                        )
+
+                        # Write slot header and payload directly into buffer (zero-copy possible via memoryview)
+                        self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE] = slot_hdr
+                        self._shm.buf[
+                            slot_offset + _SLOT_HDR_SIZE : slot_offset + _SLOT_HDR_SIZE + payload_len
+                        ] = data
+
+                        # Increment write_seq atomically in header
+                        new_write_seq = write_seq + 1
+                        updated_hdr = struct.pack(
+                            _HEADER_FORMAT,
+                            magic, ver, flags, cap, sz, new_write_seq, read_seq, dropped, b"\x00" * 24
+                        )
+                        self._shm.buf[:_HEADER_SIZE] = updated_hdr
+
+                        self._notify_event.set()
+                        return True
+
+                # Buffer full: Micro-spin first before sleeping
+                spins += 1
+                if spins < 32:
+                    # CPU pause / micro-spin
+                    pass
+                elif spins < 128:
+                    time.sleep(0.00005)  # 50 microseconds
+                else:
+                    time.sleep(0.0005)   # 500 microseconds
+
+                if time.monotonic() > deadline:
+                    # Mark dropped count
+                    with self._lock:
+                        magic, ver, flags, cap, sz, write_seq, read_seq, dropped, _ = struct.unpack(
+                            _HEADER_FORMAT, self._shm.buf[:_HEADER_SIZE]
+                        )
+                        updated_hdr = struct.pack(
+                            _HEADER_FORMAT,
+                            magic, ver, flags, cap, sz, write_seq, read_seq, dropped + 1, b"\x00" * 24
+                        )
+                        self._shm.buf[:_HEADER_SIZE] = updated_hdr
+                    return False
+        finally:
+            if gc_was_enabled:
+                gc.enable()
+
+    def read(self, channel_id: Optional[int] = None, timeout_ms: float = 100.0, expected_token: Optional[int] = None) -> Optional[memoryview]:
         """
         Fast zero-copy read from ring buffer with micro-spinning.
+        Uses memoryview to avoid intermediate string/bytes copies, matching strict sub-150µs latency requirements.
         :param channel_id: Optional filter for specific channel.
         :param timeout_ms: Maximum time to wait for data.
-        :return: Extracted byte payload or None if timed out.
+        :param expected_token: Deterministic auth token for validation.
+        :return: Extracted memoryview payload or None if timed out/unauthorized.
         """
         if self._closed or self._shm is None:
             return None
 
         deadline = time.monotonic() + (timeout_ms / 1000.0)
         spins = 0
+        
+        gc_was_enabled = gc.isenabled()
+        gc.disable()  # Deterministic GC for critical path
 
-        while True:
-            with self._lock:
-                magic, ver, flags, cap, sz, write_seq, read_seq, dropped, _ = struct.unpack(
-                    _HEADER_FORMAT, self._shm.buf[:_HEADER_SIZE]
-                )
-
-                if read_seq < write_seq:
-                    slot_idx = read_seq % self.capacity
-                    slot_offset = _HEADER_SIZE + (slot_idx * self.slot_size)
-
-                    status, slot_chan, payload_len, ts = struct.unpack(
-                        _SLOT_HDR_FORMAT,
-                        self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE],
+        try:
+            while True:
+                with self._lock:
+                    magic, ver, flags, cap, sz, write_seq, read_seq, dropped, _ = struct.unpack(
+                        _HEADER_FORMAT, self._shm.buf[:_HEADER_SIZE]
                     )
 
-                    if status == SLOT_READY:
-                        if channel_id is not None and slot_chan != channel_id:
-                            # Not our channel; in simple single-stream ring we don't skip
-                            pass
+                    if read_seq < write_seq:
+                        slot_idx = read_seq % self.capacity
+                        slot_offset = _HEADER_SIZE + (slot_idx * self.slot_size)
 
-                        # Read payload bytes
-                        data = bytes(
-                            self._shm.buf[
-                                slot_offset + _SLOT_HDR_SIZE : slot_offset + _SLOT_HDR_SIZE + payload_len
-                            ]
+                        status, slot_chan, payload_len, ts, auth_token = struct.unpack(
+                            _SLOT_HDR_FORMAT,
+                            self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE],
                         )
 
-                        # Mark slot as read/empty
-                        clear_hdr = struct.pack(_SLOT_HDR_FORMAT, SLOT_EMPTY, 0, 0, 0)
-                        self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE] = clear_hdr
+                        if status == SLOT_READY:
+                            if expected_token is not None and expected_token != auth_token:
+                                logger.error("NJRingBuffer: Security token mismatch on read.")
+                                return None
 
-                        # Advance read_seq
-                        new_read_seq = read_seq + 1
-                        updated_hdr = struct.pack(
-                            _HEADER_FORMAT,
-                            magic, ver, flags, cap, sz, write_seq, new_read_seq, dropped, b"\x00" * 24
-                        )
-                        self._shm.buf[:_HEADER_SIZE] = updated_hdr
-                        return data
+                            if channel_id is not None and slot_chan != channel_id:
+                                # Not our channel; in simple single-stream ring we don't skip
+                                pass
 
-            # Micro-spin
-            spins += 1
-            if spins < 32:
-                pass
-            elif spins < 128:
-                time.sleep(0.00005)
-            else:
-                self._notify_event.wait(timeout=0.001)
-                self._notify_event.clear()
+                            # True zero-copy: Return a memoryview slice (no new python bytes object)
+                            raw_buf = self._shm.buf
+                            data_view = raw_buf[slot_offset + _SLOT_HDR_SIZE : slot_offset + _SLOT_HDR_SIZE + payload_len]
 
-            if time.monotonic() > deadline:
-                return None
+                            # Mark slot as read/empty
+                            clear_hdr = struct.pack(_SLOT_HDR_FORMAT, SLOT_EMPTY, 0, 0, 0, 0)
+                            self._shm.buf[slot_offset : slot_offset + _SLOT_HDR_SIZE] = clear_hdr
+
+                            # Advance read_seq
+                            new_read_seq = read_seq + 1
+                            updated_hdr = struct.pack(
+                                _HEADER_FORMAT,
+                                magic, ver, flags, cap, sz, write_seq, new_read_seq, dropped, b"\x00" * 24
+                            )
+                            self._shm.buf[:_HEADER_SIZE] = updated_hdr
+                            return data_view
+
+                # Micro-spin
+                spins += 1
+                if spins < 32:
+                    pass
+                elif spins < 128:
+                    time.sleep(0.00005)
+                else:
+                    self._notify_event.wait(timeout=0.001)
+                    self._notify_event.clear()
+
+                if time.monotonic() > deadline:
+                    return None
+        finally:
+            if gc_was_enabled:
+                gc.enable()
 
     def get_stats(self) -> Dict[str, Any]:
         """Inspect telemetry of the shared memory ring buffer."""
@@ -327,6 +352,11 @@ class NJRingBuffer:
         self._closed = True
         if self._shm is not None:
             try:
+                if hasattr(self._shm, "_buf") and self._shm._buf is not None:
+                    try:
+                        self._shm._buf.release()
+                    except Exception:
+                        pass
                 self._shm.close()
             except Exception as e:
                 logger.debug("SHM close exception: %s", e)
@@ -334,16 +364,31 @@ class NJRingBuffer:
 
     def unlink(self):
         """Unlink (destroy) shared memory segment."""
-        self.close()
-        try:
-            shm = shared_memory.SharedMemory(name=self.name)
-            shm.close()
-            shm.unlink()
+        if self._shm is not None:
+            try:
+                self._shm.unlink()
+            except Exception as e:
+                logger.debug("SHM unlink exception: %s", e)
+            self.close()
             logger.info("NJRingBuffer: Unlinked segment '%s'", self.name)
-        except FileNotFoundError:
-            pass
-        except Exception as e:
-            logger.debug("SHM unlink exception: %s", e)
+        else:
+            try:
+                shm = shared_memory.SharedMemory(name=self.name)
+                try:
+                    shm.unlink()
+                finally:
+                    if hasattr(shm, "_buf") and shm._buf is not None:
+                        try:
+                            shm._buf.release()
+                        except Exception:
+                            pass
+                    shm.close()
+                logger.info("NJRingBuffer: Unlinked segment '%s'", self.name)
+            except FileNotFoundError:
+                pass
+            except Exception as e:
+                logger.debug("SHM unlink exception: %s", e)
+        self._closed = True
 
     def __del__(self):
         try:

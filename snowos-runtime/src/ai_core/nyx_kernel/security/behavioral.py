@@ -1,12 +1,25 @@
 import re
-from memory.vector_db import VectorMemory
+try:
+    try:
+        from ai.memory.vector_db import VectorMemory
+    except ImportError:
+        from memory.vector_db import VectorMemory
+except Exception:
+    class VectorMemory:
+        def __init__(self):
+            self.collection = None
+        def query(self, *args, **kwargs):
+            return {}
 
 class BehavioralSecurity:
     """Detects 'out of character' or semantically risky commands."""
     
     def __init__(self, vector_db=None):
-        self.vector_db = vector_db or VectorMemory()
-        self.risk_threshold = 0.75 # Lower distance means more similar (safe)
+        try:
+            self.vector_db = vector_db or VectorMemory()
+        except Exception:
+            self.vector_db = VectorMemory()
+        self.risk_threshold = 0.65 # Threshold above which command is considered anomalous
         
         # High-risk semantic concepts
         self.DANGER_CONCEPTS = [
@@ -23,33 +36,22 @@ class BehavioralSecurity:
         Returns a risk score from 0.0 (safe) to 1.0 (malicious).
         Combines pattern entropy with semantic distance to known risks.
         """
-        # 1. Semantic Risk: How close is this to a 'Danger Concept'?
-        results = self.vector_db.query(command, n_results=1)
-        danger_query = self.vector_db.collection.query(
-            query_texts=self.DANGER_CONCEPTS,
-            n_results=1
-        )
-        
-        # Check against dangerous concepts
-        min_danger_dist = 1.0
-        if danger_query and 'distances' in danger_query:
-            # This is slightly complex: we want to know if 'command' is close to any DANGER_CONCEPTS
-            # Actually, we should just query the collection WITH the command and see the distance.
-            # But the collection contains safe interactions.
-            pass
-
-        # Let's simplify: 
         # A) Distance from 'Safe History' (anomaly detection)
-        # B) Presence of 'Exploitative' patterns (heuristic)
-        
-        safe_results = self.vector_db.query(command, n_results=3)
-        avg_safe_dist = sum(safe_results['distances'][0]) / len(safe_results['distances'][0]) if safe_results['distances'][0] else 1.0
+        avg_safe_dist = 0.5
+        try:
+            if hasattr(self.vector_db, "collection") and self.vector_db.collection:
+                safe_results = self.vector_db.query(command, n_results=3)
+                if safe_results and 'distances' in safe_results and safe_results['distances']:
+                    dists = safe_results['distances'][0]
+                    avg_safe_dist = sum(dists) / len(dists) if dists else 0.5
+        except Exception:
+            avg_safe_dist = 0.5
         
         # B) Heuristic Entropy
         entropy_score = 0.0
-        if re.search(r"rm\s+-rf\s+/", command): entropy_score += 0.9
-        if re.search(r"curl.*\|\s*(?:ba)?sh", command): entropy_score += 0.7
-        if re.search(r">/dev/mem", command): entropy_score += 0.8
+        if re.search(r"rm\s+-rf\s+/", command): entropy_score += 0.95
+        if re.search(r"(?:curl|wget).*?\|\s*(?:ba)?sh", command): entropy_score += 0.95
+        if re.search(r">/dev/mem", command): entropy_score += 0.95
         
         # Final Score Calculation
         # High avg_safe_dist (e.g. 0.9) means it's unlike anything seen before.

@@ -1,2 +1,0 @@
-useradd: Permission denied.
-useradd: cannot lock /etc/passwd; try again later.

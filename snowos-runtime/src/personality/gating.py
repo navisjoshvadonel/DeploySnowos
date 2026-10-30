@@ -14,7 +14,7 @@ class ActionGating:
         analysis = self.trust.analyze_prediction(action_name)
         
         # 1. Mode Check
-        if not config.get("auto_action", False):
+        if not config or not config.get("auto_action", False):
             return False, f"Current mode '{self.persona.current_mode}' requires manual confirmation."
 
         # 2. Confidence Check

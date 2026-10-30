@@ -16,6 +16,9 @@ WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/system_services/ai_sentinel/sentinel_daemon.py
 Restart=always
 RestartSec=3
+StartLimitIntervalSec=60
+StartLimitBurst=5
+OnFailure=snowos-healbridge.service
 
 # Sandboxing
 ProtectSystem=strict

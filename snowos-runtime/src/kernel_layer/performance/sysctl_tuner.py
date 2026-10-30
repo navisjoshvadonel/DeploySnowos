@@ -265,41 +265,99 @@ class SysctlTuner:
             logger.warning("  CPU governor: Could not set '%s' on any CPU.", governor)
 
     def _set_io_scheduler(self, scheduler: str):
-        """Set the I/O scheduler for all rotational and NVMe block devices."""
+        """
+        Set the I/O scheduler for all writable block devices.
+
+        Modern kernels use blk-mq for NVMe and fast SSDs. These devices only
+        support schedulers in {none, mq-deadline, kyber, bfq} — the legacy
+        'deadline' and 'cfq' names do not exist under blk-mq. This method
+        reads each device's 'queue/scheduler' file to discover what schedulers
+        are actually available, and automatically maps legacy names to their
+        blk-mq equivalents before writing.
+        """
         if _DRY_RUN:
             logger.info("[DRY RUN] I/O scheduler → %s", scheduler)
             return
+
+        # Mapping from legacy names to blk-mq equivalents
+        _BLK_MQ_COMPAT: dict[str, str] = {
+            "deadline": "mq-deadline",
+            "cfq":      "bfq",
+            "noop":     "none",
+        }
 
         block_dir = "/sys/block"
         if not os.path.isdir(block_dir):
             logger.warning("  I/O scheduler: /sys/block not available — skipping.")
             return
 
-        set_count = 0
-        has_schedulers = False
+        set_count       = 0
+        has_schedulers  = False
         permission_denied = False
+
         for device in os.listdir(block_dir):
             # Skip loop, ram, and zram devices
             if device.startswith(("loop", "ram", "zram")):
                 continue
+
             sched_path = os.path.join(block_dir, device, "queue", "scheduler")
-            if os.path.exists(sched_path):
-                has_schedulers = True
+            if not os.path.exists(sched_path):
+                continue
+
+            has_schedulers = True
+
+            # Read available schedulers for this device to pick the right name
+            chosen = scheduler
+            try:
+                with open(sched_path) as f:
+                    available_raw = f.read()
+                # The file lists schedulers like: [mq-deadline] kyber none
+                # Strip brackets from the current one and collect all names
+                available = set(
+                    s.strip("[]").strip()
+                    for s in available_raw.split()
+                    if s.strip("[]").strip()
+                )
+
+                if chosen not in available:
+                    # Try the blk-mq mapped equivalent
+                    mapped = _BLK_MQ_COMPAT.get(chosen)
+                    if mapped and mapped in available:
+                        logger.debug(
+                            "  I/O scheduler: %s: '%s' not available, using blk-mq "
+                            "equivalent '%s'", device, chosen, mapped
+                        )
+                        chosen = mapped
+                    else:
+                        # Scheduler simply not supported on this device — skip
+                        logger.debug(
+                            "  I/O scheduler: %s skipped — '%s' not in available: %s",
+                            device, chosen, available
+                        )
+                        continue
+            except (OSError, IOError) as e:
+                logger.debug("  I/O scheduler: %s: could not read available schedulers: %s",
+                             device, e)
+                # Fall through and attempt to write anyway
+
             try:
                 with open(sched_path, "w") as f:
-                    f.write(scheduler + "\n")
+                    f.write(chosen + "\n")
                 set_count += 1
-                logger.info("  I/O scheduler: %s → %s", device, scheduler)
+                logger.info("  I/O scheduler: %s → %s", device, chosen)
             except PermissionError:
                 permission_denied = True
             except OSError as exc:
                 logger.debug("  I/O scheduler: %s skipped: %s", device, exc)
 
         if set_count > 0:
-            pass
+            pass  # individual devices already logged above
         elif not has_schedulers:
             logger.info("  I/O scheduler: No writeable device scheduler queue found (skipping).")
         elif permission_denied:
-            logger.warning("  I/O scheduler: Permission denied trying to set '%s' (requires root).", scheduler)
+            logger.warning(
+                "  I/O scheduler: Permission denied trying to set '%s' (requires root).", scheduler
+            )
         else:
             logger.warning("  I/O scheduler: No block devices updated.")
+

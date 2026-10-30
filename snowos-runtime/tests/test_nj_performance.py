@@ -80,8 +80,8 @@ class TestNJFastPathIPC(unittest.TestCase):
         received = client_rb.read(channel_id=1, timeout_ms=50.0)
         self.assertEqual(received, test_payload, "Client received corrupted payload")
 
-        server_rb.unlink()
         client_rb.close()
+        server_rb.unlink()
 
     def test_ipc_latency_and_throughput(self):
         """Verify high-throughput, microsecond-scale messaging across threads."""

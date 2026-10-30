@@ -228,7 +228,7 @@ if [ -n "$GRESOURCE_SRC" ]; then
 
         # Mutate #lockDialogGroup for deep cinematic glassmorphism
         sed -i '/#lockDialogGroup {/,/}/c\
-#lockDialogGroup {\n  background-color: rgba(10, 15, 30, 0.75);\n  backdrop-filter: blur(30px);\n  background-gradient-direction: none;\n}' "$TARGET_CSS"
+#lockDialogGroup {\n  background-color: rgba(10, 15, 30, 0.85);\n  background-gradient-direction: none;\n}' "$TARGET_CSS"
 
         # Mutate login dialog container box values
         if grep -q "\.login-dialog {" "$TARGET_CSS"; then
@@ -250,14 +250,24 @@ if [ -n "$GRESOURCE_SRC" ]; then
 
         # Recompile the binary securely
         echo "Compiling system production asset -> gnome-shell-theme.gresource"
-        glib-compile-resources "$MANIFEST_FILE"
-
-        # Transaction-safe staging and deployment of the recompiled lockscreen
-        cp -p "$GRESOURCE_SRC" "${GRESOURCE_SRC}.bak"
-        BACKUP_FILES+=("${GRESOURCE_SRC}|${GRESOURCE_SRC}.bak")
-
-        cp gnome-shell-theme.gresource "$GRESOURCE_SRC"
-        echo "✅ Lockscreen manager successfully compiled and isolated."
+        if glib-compile-resources "$MANIFEST_FILE" 2>/dev/null && [ -f gnome-shell-theme.gresource ]; then
+            compiled_size=$(stat -c%s "gnome-shell-theme.gresource" 2>/dev/null || stat -f%z "gnome-shell-theme.gresource" 2>/dev/null || echo 0)
+            orig_size=$(stat -c%s "$GRESOURCE_SRC" 2>/dev/null || stat -f%z "$GRESOURCE_SRC" 2>/dev/null || echo 0)
+            
+            # A valid GNOME Shell gresource bundle must be at least 200KB and at least half the original size
+            if [ "$compiled_size" -ge 200000 ] && [ "$compiled_size" -ge $((orig_size / 2)) ]; then
+                if [ ! -f "${GRESOURCE_SRC}.bak" ]; then
+                    cp -p "$GRESOURCE_SRC" "${GRESOURCE_SRC}.bak"
+                fi
+                BACKUP_FILES+=("${GRESOURCE_SRC}|${GRESOURCE_SRC}.bak")
+                cp gnome-shell-theme.gresource "$GRESOURCE_SRC"
+                echo "✅ Lockscreen manager successfully compiled and verified (${compiled_size} bytes)."
+            else
+                echo "[!] Notice: Compiled GDM resource (${compiled_size} bytes) is incomplete. Retaining original to prevent GDM boot crashes."
+            fi
+        else
+            echo "[!] Notice: glib-compile-resources not available or failed. Retaining baseline GDM theme."
+        fi
     fi
     cd "$SCRIPT_DIR"
 else
@@ -314,37 +324,77 @@ chown -R "$TARGET_USER":"$TARGET_USER" "$USER_GTK_DIR" || true
 # ==============================================================================
 # [PART 4: GRUB CONFIGURATION]
 # ==============================================================================
-echo "[*] Updating GRUB distributor branding, background, and silent boot..."
+echo "[*] Updating GRUB distributor branding, background, and boot reliability..."
 
-# Ensure GRUB_CMDLINE_LINUX_DEFAULT is quiet splash
-if grep -q "^GRUB_CMDLINE_LINUX_DEFAULT=" /etc/default/grub; then
-    sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"/' /etc/default/grub
-else
-    echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"' >> /etc/default/grub
+if [ -f /etc/default/grub ]; then
+    # Backup original GRUB config if not already backed up
+    if [ ! -f /etc/default/grub.snowos.bak ]; then
+        cp -p /etc/default/grub /etc/default/grub.snowos.bak
+        BACKUP_FILES+=("/etc/default/grub|/etc/default/grub.snowos.bak")
+    fi
+
+    # Ensure quiet splash
+    if grep -q "^GRUB_CMDLINE_LINUX_DEFAULT=" /etc/default/grub; then
+        sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"/' /etc/default/grub
+    else
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"' >> /etc/default/grub
+    fi
+
+    # Set SnowOS distributor identity
+    if grep -q "^GRUB_DISTRIBUTOR=" /etc/default/grub; then
+        sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS"/' /etc/default/grub
+    else
+        echo 'GRUB_DISTRIBUTOR="SnowOS"' >> /etc/default/grub
+    fi
+
+    # CRITICAL FOR VIRTUAL MACHINES: Ensure menu is visible with a 5s countdown
+    # (prevents invisible hang / black screen on boot in VirtualBox, VMware, and QEMU)
+    if grep -q "^GRUB_TIMEOUT_STYLE=" /etc/default/grub; then
+        sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
+    else
+        echo 'GRUB_TIMEOUT_STYLE=menu' >> /etc/default/grub
+    fi
+
+    if grep -q "^GRUB_TIMEOUT=" /etc/default/grub; then
+        sed -i 's/^GRUB_TIMEOUT=.*/GRUB_TIMEOUT=5/' /etc/default/grub
+    else
+        echo 'GRUB_TIMEOUT=5' >> /etc/default/grub
+    fi
+
+    # Safe display mode compatible with virtual machine display adapters
+    if grep -q "^GRUB_GFXMODE=" /etc/default/grub; then
+        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="1024x768,auto"/' /etc/default/grub
+    else
+        echo 'GRUB_GFXMODE="1024x768,auto"' >> /etc/default/grub
+    fi
+
+    if grep -q "^GRUB_GFXPAYLOAD_LINUX=" /etc/default/grub; then
+        sed -i 's/^GRUB_GFXPAYLOAD_LINUX=.*/GRUB_GFXPAYLOAD_LINUX=keep/' /etc/default/grub
+    else
+        echo 'GRUB_GFXPAYLOAD_LINUX=keep' >> /etc/default/grub
+    fi
+
+    # Only apply wallpaper if the file exists on disk
+    if [ -f "/usr/share/backgrounds/snowos-wallpaper.png" ]; then
+        if grep -q "^GRUB_BACKGROUND=" /etc/default/grub; then
+            sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"|' /etc/default/grub
+        else
+            echo 'GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"' >> /etc/default/grub
+        fi
+    fi
+
+    # Prevent os-prober errors
+    if grep -q "^GRUB_DISABLE_OS_PROBER=" /etc/default/grub; then
+        sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+    else
+        echo 'GRUB_DISABLE_OS_PROBER=false' >> /etc/default/grub
+    fi
+
+    echo "[*] Refreshing GRUB entries..."
+    if command -v update-grub >/dev/null 2>&1; then
+        update-grub || true
+    fi
 fi
-
-if grep -q "^GRUB_DISTRIBUTOR=" /etc/default/grub; then
-    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS Aurora"/' /etc/default/grub
-else
-    echo 'GRUB_DISTRIBUTOR="SnowOS Aurora"' >> /etc/default/grub
-fi
-
-if grep -q "^GRUB_BACKGROUND=" /etc/default/grub; then
-    sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"|' /etc/default/grub
-else
-    echo 'GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"' >> /etc/default/grub
-fi
-
-# Prevent os-prober errors
-if grep -q "^GRUB_DISABLE_OS_PROBER=" /etc/default/grub; then
-    sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
-else
-    echo 'GRUB_DISABLE_OS_PROBER=false' >> /etc/default/grub
-fi
-
-echo "[*] Refreshing GRUB entries..."
-# Suppress stderr to ensure error-free terminal output for GRUB
-update-grub 2>/dev/null || true
 
 # ==============================================================================
 # [PART 5: LOGIN BANNERS & HOSTNAME]

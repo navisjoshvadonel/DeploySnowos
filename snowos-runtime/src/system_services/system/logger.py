@@ -7,15 +7,22 @@ class SnowLogger:
     """Unified JSON logging for all SnowOS subsystems."""
     
     def __init__(self):
-        self.log_dir = os.path.expanduser("~/.snowos/system")
-        os.makedirs(self.log_dir, exist_ok=True)
-        self.log_path = os.path.join(self.log_dir, "snowos.log")
+        default_dir = os.environ.get("SNOWOS_DATA_DIR") or os.path.expanduser("~/.snowos")
+        self.log_dir = os.path.join(default_dir, "system")
+        try:
+            os.makedirs(self.log_dir, exist_ok=True)
+            self.log_path = os.path.join(self.log_dir, "snowos.log")
+            handler = logging.FileHandler(self.log_path)
+        except (OSError, PermissionError):
+            self.log_dir = "/tmp/snowos_logs"
+            os.makedirs(self.log_dir, exist_ok=True)
+            self.log_path = os.path.join(self.log_dir, "snowos.log")
+            handler = logging.FileHandler(self.log_path)
         
         # Configure standard logging for internal use
         self.logger = logging.getLogger("SnowOS.System")
         self.logger.setLevel(logging.INFO)
         if not self.logger.handlers:
-            handler = logging.FileHandler(self.log_path)
             self.logger.addHandler(handler)
 
     def event(self, module, name, data=None):

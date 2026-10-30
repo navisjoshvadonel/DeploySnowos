@@ -5,7 +5,7 @@ After=snowos-boot.service snowos-broker.service snowos-sentinel.service
 Wants=snowos-sentinel.service
 
 [Service]
-Type=simple
+Type=notify
 User=snowos-sys
 Group=snowos-sys
 RuntimeDirectory=snowos
@@ -16,6 +16,10 @@ WorkingDirectory=/opt/snowos
 ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyxvfs/healing_bridge.py
 Restart=on-failure
 RestartSec=5
+StartLimitIntervalSec=120
+StartLimitBurst=3
+# Systemd watchdog — restarts bridge if it hangs on a stale socket or deadlock
+WatchdogSec=60
 
 # Sandboxing & least privilege
 ProtectSystem=strict

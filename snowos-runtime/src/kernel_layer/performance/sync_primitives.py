@@ -52,7 +52,7 @@ class _ResourceAllocationGraph:
       - Thread -> Set of locks it currently holds
     """
     _instance = None
-    _rag_lock = threading.Lock()
+    _rag_lock = threading.RLock()
 
     def __init__(self):
         # thread_id -> lock_id (what lock is this thread blocked on)
@@ -156,12 +156,18 @@ class DeadlockDetectingMutex:
                 self._count += 1
                 return True
 
-        # Check for deadlock BEFORE waiting
-        cycle = self._rag.would_deadlock(tid, self.lock_id)
-        if cycle:
-            raise DeadlockDetectedException(tid, self.lock_id, cycle)
+        # ── Atomic deadlock-check + register_wait ────────────────────────────
+        # IMPORTANT: both operations must happen under _rag_lock so there is no
+        # TOCTOU window between "would this deadlock?" and "mark as waiting".  
+        # Doing them separately allowed another thread to acquire the target lock
+        # in between, creating a real deadlock that was never detected.
+        with self._rag._rag_lock:
+            cycle = self._rag.would_deadlock(tid, self.lock_id)
+            if cycle:
+                raise DeadlockDetectedException(tid, self.lock_id, cycle)
+            # Safe to wait — register intent atomically with the check
+            self._rag.waiting_for[tid] = self.lock_id
 
-        self._rag.register_wait(tid, self.lock_id)
         start_time = time.monotonic()
 
         with self._inner_lock:
@@ -243,7 +249,7 @@ class AdaptiveSpinlock:
                 if remaining <= 0:
                     return False
 
-            self._sleep_event.wait(timeout=remaining if remaining is not None else 0.05)
+            self._sleep_event.wait(timeout=remaining if remaining is not None else None)
 
     def release(self):
         with self._gate:
@@ -299,18 +305,21 @@ class FairCountingSemaphore:
                     if remaining <= 0:
                         break
 
-                if my_event.wait(timeout=remaining if remaining is not None else 0.1):
+                if my_event.wait(timeout=remaining if remaining is not None else None):
                     acquired = True
                     break
         finally:
             if not acquired:
                 with self._lock:
-                    try:
+                    # Only return the token if our event is still in the queue.
+                    # If release() already popped it (race at timeout boundary),
+                    # the token has been consumed by the wake-up — don't re-add it.
+                    if my_event in self._waiters:
                         self._waiters.remove(my_event)
-                    except ValueError:
-                        # If we were woken up right as timeout hit, return the token
-                        self._value += 1
-                        self._wake_next()
+                    else:
+                        # Event was already popped by release() — token already consumed.
+                        # Do NOT increment _value; we effectively did acquire it.
+                        acquired = True  # prevent spurious "not acquired" interpretation
 
         return acquired
 
@@ -415,9 +424,19 @@ class FairRWLock:
         def __exit__(self, exc_type, exc_val, exc_tb): self.rwlock.release_read()
 
     class _WriteContext:
-        def __init__(self, rwlock): self.rwlock = rwlock
-        def __enter__(self): self.rwlock.acquire_write()
-        def __exit__(self, exc_type, exc_val, exc_tb): self.rwlock.release_write()
+        def __init__(self, rwlock):
+            self.rwlock = rwlock
+
+        def __enter__(self):
+            # acquire_write() returns False on timeout — must not silently
+            # proceed into the critical section without actually holding the lock.
+            if not self.rwlock.acquire_write():
+                raise LockTimeoutException(
+                    "FairRWLock: write lock acquisition timed out or failed."
+                )
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.rwlock.release_write()
 
     def read_lock(self):
         return self._ReadContext(self)

@@ -95,6 +95,14 @@ if [ -f "${PLYMOUTH_SPINNER_DIR}/watermark.png.bak" ]; then
   fi
 fi
 
+# Revert GDM3 Theme
+for gres in /usr/share/gnome-shell/theme/Yaru/gnome-shell-theme.gresource /usr/share/gnome-shell/gnome-shell-theme.gresource; do
+  if [ -f "${gres}.bak" ]; then
+    echo "    - Restoring GDM theme $gres from backup..."
+    mv -f "${gres}.bak" "$gres"
+  fi
+done
+
 # 4. Revert GRUB Configuration
 echo "[*] Step 5: Reverting GRUB settings..."
 if [ -f /etc/default/grub.snowos.bak ]; then

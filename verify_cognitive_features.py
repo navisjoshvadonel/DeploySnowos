@@ -55,7 +55,9 @@ def run_tests():
     # ----------------------------------------------------
     print_header("2. MEMORY LOGGER & PREDICTOR VERIFICATION")
     # ----------------------------------------------------
-    db_path = os.path.expanduser("~/.snowos/nyx/memory/test_memory.db")
+    test_dir = "/tmp/snowos_test"
+    os.makedirs(test_dir, exist_ok=True)
+    db_path = os.path.join(test_dir, "test_memory.db")
     if os.path.exists(db_path):
         os.remove(db_path)
         
@@ -139,7 +141,7 @@ def run_tests():
     # ----------------------------------------------------
     feedback = FeedbackSystem()
     # Use a test log path to avoid cluttering actual feedback
-    feedback.log_path = os.path.expanduser("~/.snowos/personality/test_feedback.json")
+    feedback.log_path = os.path.join(test_dir, "test_feedback.json")
     if os.path.exists(feedback.log_path):
         os.remove(feedback.log_path)
         

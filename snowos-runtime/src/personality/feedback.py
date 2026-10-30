@@ -6,9 +6,15 @@ import logging
 class FeedbackSystem:
     """Captures user feedback to tune OS behavior."""
     
-    def __init__(self):
-        self.log_path = os.path.expanduser("~/.snowos/personality/feedback.json")
-        os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
+    def __init__(self, log_path=None):
+        default_dir = os.environ.get("SNOWOS_DATA_DIR") or os.path.expanduser("~/.snowos")
+        candidate_path = log_path or os.path.join(default_dir, "personality/feedback.json")
+        try:
+            os.makedirs(os.path.dirname(candidate_path), exist_ok=True)
+            self.log_path = candidate_path
+        except (OSError, PermissionError):
+            self.log_path = "/tmp/snowos_feedback.json"
+            os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
         self.logger = logging.getLogger("SnowOS.Feedback")
 
     def submit(self, sentiment, comment=""):

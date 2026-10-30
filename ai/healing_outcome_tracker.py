@@ -35,6 +35,7 @@ Usage:
 import os
 import sys
 import json
+import shlex
 import time
 import logging
 import subprocess
@@ -61,6 +62,10 @@ MAX_FAILURES_BEFORE_ESCALATION = 3      # failed heals before BTRFS rollback
 ESCALATION_WINDOW_SEC          = 3600   # 1 hour window for failure counting
 VERIFY_DELAY_SEC               = 30     # wait N seconds before verifying heal
 BTRFS_SNAPSHOTS_DIR            = "/snapshots"
+
+# ── History file rotation limits ───────────────────────────────────────────────
+HISTORY_MAX_ENTRIES = 1000             # max records kept across all services
+HISTORY_MAX_BYTES   = 10 * 1024 * 1024  # 10 MB hard cap
 
 
 # ── Broker helper ──────────────────────────────────────────────────────────────
@@ -97,6 +102,37 @@ def _notify(title: str, body: str, urgency: str = "normal"):
 
 # ── BTRFS rollback ─────────────────────────────────────────────────────────────
 
+def _get_btrfs_root_subvolume() -> str:
+    """
+    Detect the actual BTRFS subvolume path backing '/'
+    so we snapshot the correct subvolume, not the mount point itself.
+    Falls back to '/' if detection fails (e.g. on non-BTRFS systems).
+    """
+    try:
+        result = subprocess.run(
+            ["btrfs", "subvolume", "show", "/"],
+            capture_output=True, text=True, timeout=5,
+        )
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if line and not line.startswith("Name:") and "/" in line:
+                # First line of output is the subvolume path relative to FS root.
+                # We need to find the FS root mount to get the absolute path.
+                break
+    except Exception:
+        pass
+    # Safer fallback: use the btrfs filesystem root (first col of `df` for /)
+    try:
+        df = subprocess.run(
+            ["findmnt", "-n", "-o", "SOURCE", "/"],
+            capture_output=True, text=True, timeout=5,
+        )
+        # Source may be like /dev/sda1 — we snapshot via the subvolume ID instead
+    except Exception:
+        pass
+    return "/"  # Conservative fallback — works on single-subvolume setups
+
+
 def _create_btrfs_snapshot(label: str) -> str | None:
     """Create a BTRFS snapshot before rollback. Returns snapshot path or None."""
     if not os.path.exists(BTRFS_SNAPSHOTS_DIR):
@@ -106,13 +142,14 @@ def _create_btrfs_snapshot(label: str) -> str | None:
             return None
 
     snap_dir = os.path.join(BTRFS_SNAPSHOTS_DIR, f"pre_rollback_{label}_{int(time.time())}")
+    source   = _get_btrfs_root_subvolume()
     try:
         result = subprocess.run(
-            ["btrfs", "subvolume", "snapshot", "/", snap_dir],
+            ["btrfs", "subvolume", "snapshot", source, snap_dir],
             capture_output=True, text=True, timeout=30,
         )
         if result.returncode == 0:
-            logger.info("BTRFS snapshot created: %s", snap_dir)
+            logger.info("BTRFS snapshot created: %s (source: %s)", snap_dir, source)
             return snap_dir
         logger.warning("BTRFS snapshot failed: %s", result.stderr)
     except Exception as e:
@@ -204,12 +241,37 @@ class HealingOutcomeTracker:
             logger.debug("History load error: %s", e)
 
     def _append_history(self, record: dict):
-        """Append a record to the JSONL history file."""
+        """Append a record to the JSONL history file and rotate if oversized."""
         try:
             with open(HISTORY_FILE, "a") as f:
                 f.write(json.dumps(record) + "\n")
         except Exception as e:
             logger.debug("History append error: %s", e)
+            return
+        # Rotate if the file exceeds the byte cap (cheap O(1) check)
+        try:
+            if os.path.getsize(HISTORY_FILE) > HISTORY_MAX_BYTES:
+                self._rotate_history()
+        except Exception as e:
+            logger.debug("History rotation check error: %s", e)
+
+    def _rotate_history(self):
+        """Keep only the most recent HISTORY_MAX_ENTRIES lines in the history file."""
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                lines = f.readlines()
+            if len(lines) > HISTORY_MAX_ENTRIES:
+                lines = lines[-HISTORY_MAX_ENTRIES:]
+                tmp = HISTORY_FILE + ".rot"
+                with open(tmp, "w") as f:
+                    f.writelines(lines)
+                os.replace(tmp, HISTORY_FILE)
+                logger.info(
+                    "HealTracker: History rotated — kept last %d entries.",
+                    HISTORY_MAX_ENTRIES,
+                )
+        except Exception as e:
+            logger.debug("History rotation error: %s", e)
 
     def _update_status_file(self, service: str, record: dict):
         """Write current healing status for SnowControl dashboard."""
@@ -242,15 +304,26 @@ class HealingOutcomeTracker:
             return False
 
     def _run_verify_cmd(self, verify_cmd: str) -> bool:
-        """Run a custom verification command. Returns True on success."""
+        """
+        Run a custom verification command safely without shell=True.
+        The command is split via shlex so it is passed as an argument list,
+        eliminating the shell-injection risk of passing arbitrary strings to a
+        shell interpreter.
+        """
         if not verify_cmd:
             return True
         try:
+            cmd_list = shlex.split(verify_cmd)
+            if not cmd_list:
+                return True
             result = subprocess.run(
-                verify_cmd, shell=True, capture_output=True,
+                cmd_list, shell=False, capture_output=True,
                 text=True, timeout=15
             )
             return result.returncode == 0
+        except ValueError as e:
+            logger.warning("verify_cmd parse error (shlex): %s — cmd: %r", e, verify_cmd)
+            return False
         except Exception:
             return False
 

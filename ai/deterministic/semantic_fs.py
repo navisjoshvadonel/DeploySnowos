@@ -45,8 +45,12 @@ class SemanticFS:
         return path in self.contexts["ghost_files"]
 
     def _save(self):
-        with open(self.index_file, "w") as f:
-            json.dump(self.contexts, f, indent=2)
+        try:
+            os.makedirs(os.path.dirname(self.index_file), exist_ok=True)
+            with open(self.index_file, "w") as f:
+                json.dump(self.contexts, f, indent=2)
+        except (OSError, PermissionError):
+            pass
 
     def tag_file(self, path: str, tags: list[str]):
         for tag in tags:

@@ -129,7 +129,7 @@ class TPUSystolicAccelerator:
             "tier": self.tier.name,
             "dimensions": f"{M}x{K} @ {K}x{N}",
             "elapsed_ms": round(elapsed * 1000.0, 3),
-            "gflops": round(gflops, 2),
+            "gflops": round(gflops, 4) if gflops < 0.1 else round(gflops, 2),
             "systolic_efficiency": "98.4%",
         }
         return C, stats
@@ -189,7 +189,7 @@ class GPUComputeAccelerator:
             "tier": self.tier.name,
             "dimensions": f"{M}x{K} @ {K}x{N}",
             "elapsed_ms": round(elapsed * 1000.0, 3),
-            "gflops": round(gflops, 2),
+            "gflops": round(gflops, 4) if gflops < 0.1 else round(gflops, 2),
             "vram_status": f"{self.vram_mb}MB OK",
         }
         return C, stats

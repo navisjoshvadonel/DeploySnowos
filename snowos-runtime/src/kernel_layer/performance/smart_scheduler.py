@@ -97,6 +97,7 @@ class MLFQScheduler:
         self._lock = threading.Lock()
         self._work_available = threading.Condition(self._lock)
         self._running = False
+        self._stop_event = threading.Event()
         self._workers: List[threading.Thread] = []
         self._boost_thread: Optional[threading.Thread] = None
 
@@ -115,6 +116,7 @@ class MLFQScheduler:
             if self._running:
                 return
             self._running = True
+            self._stop_event.clear()
 
             # Spawn worker threads
             for i in range(self.num_workers):
@@ -138,11 +140,14 @@ class MLFQScheduler:
 
     def stop(self):
         """Clean shutdown of the scheduler."""
+        self._stop_event.set()
         with self._lock:
             self._running = False
             self._work_available.notify_all()
         for w in self._workers:
             w.join(timeout=1.0)
+        if self._boost_thread:
+            self._boost_thread.join(timeout=1.0)
 
     def submit(
         self,
@@ -248,8 +253,9 @@ class MLFQScheduler:
         Promotes waiting tasks across all queues every BOOST_INTERVAL_SEC
         so long-running AI compute tasks never starve other workloads.
         """
-        while self._running:
-            time.sleep(BOOST_INTERVAL_SEC)
+        while not self._stop_event.wait(timeout=BOOST_INTERVAL_SEC):
+            if not self._running:
+                break
             with self._lock:
                 boosted_count = 0
                 for level in (QueueLevel.Q3_AI_BATCH, QueueLevel.Q2_STANDARD, QueueLevel.Q1_INTERACTIVE):
