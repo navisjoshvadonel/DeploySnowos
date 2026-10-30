@@ -49,7 +49,7 @@ class BehavioralSecurity:
         
         # B) Heuristic Entropy
         entropy_score = 0.0
-        if re.search(r"rm\s+-rf\s+/", command): entropy_score += 0.95
+        if re.search(r"rm\s+(?:-\S+\s+)*(?:--no-preserve-root\s+)?/", command) or re.search(r"rm\s+-[a-zA-Z]*r[a-zA-Z]*f\b.*?/", command): entropy_score += 0.95
         if re.search(r"(?:curl|wget).*?\|\s*(?:ba)?sh", command): entropy_score += 0.95
         if re.search(r">/dev/mem", command): entropy_score += 0.95
         

@@ -39,6 +39,7 @@ Usage (embedded in NyxDaemon):
 
 import os
 import sys
+import re
 import json
 import time
 import logging
@@ -87,6 +88,7 @@ DEEP_WORK_CLASSES = {
 
 def _broker_publish(topic: str, data: dict):
     """Publish an event to the SnowOS broker."""
+    s = None
     try:
         import socket as _socket
         msg = json.dumps({"type": "publish", "topic": topic, "data": data}).encode()
@@ -98,9 +100,14 @@ def _broker_publish(topic: str, data: dict):
         if resp_len_raw:
             resp_len = int.from_bytes(resp_len_raw, "big")
             s.recv(resp_len)
-        s.close()
     except Exception:
         pass  # Broker may not be running in dev mode
+    finally:
+        if s is not None:
+            try:
+                s.close()
+            except Exception:
+                pass
 
 
 # ── Notification suppression ───────────────────────────────────────────────────
@@ -158,7 +165,7 @@ class FlowStateDetector:
             nyx_memory: Reference to NyxAI.memory dict. Updated directly.
             bus:        SnowOS EventBus instance for local pub/sub.
         """
-        self.memory  = nyx_memory or {}
+        self.memory  = nyx_memory if nyx_memory is not None else {}
         self.bus     = bus
         self._stop   = threading.Event()
         self._thread: threading.Thread | None = None
@@ -184,7 +191,16 @@ class FlowStateDetector:
     def _is_deep_work_app(self, wm_class: str) -> bool:
         """Return True if the active window class is a known deep-work app."""
         lower = wm_class.lower()
-        return any(app in lower for app in DEEP_WORK_CLASSES)
+        if lower in DEEP_WORK_CLASSES:
+            return True
+        for app in DEEP_WORK_CLASSES:
+            if len(app) <= 2:
+                if re.search(r'(^|[\s\-_])' + re.escape(app) + r'($|[\s\-_])', lower):
+                    return True
+            else:
+                if app in lower:
+                    return True
+        return False
 
     def _evaluate_flow(self, ctx: dict) -> tuple[bool, str]:
         """

@@ -136,11 +136,11 @@ class DeadlockDetectingMutex:
     _counter = 0
     _cls_lock = threading.Lock()
 
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None, lock_id: Optional[str] = None):
         with self._cls_lock:
             DeadlockDetectingMutex._counter += 1
             idx = DeadlockDetectingMutex._counter
-        self.lock_id = name or f"Mutex-{idx}"
+        self.lock_id = lock_id or name or f"Mutex-{idx}"
         self._owner: Optional[int] = None
         self._count = 0
         self._inner_lock = threading.Lock()

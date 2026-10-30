@@ -15,7 +15,12 @@ class TrustEngine:
             return {"confidence": 0.5, "reason": "Memory engine offline."}
 
         # Analysis based on history
-        history = self.memory.logger.get_recent_history(limit=50)
+        if hasattr(self.memory, "logger") and hasattr(self.memory.logger, "get_recent_history"):
+            history = self.memory.logger.get_recent_history(limit=50)
+        elif hasattr(self.memory, "get_recent_history"):
+            history = self.memory.get_recent_history(limit=50)
+        else:
+            history = []
         occurrences = sum(1 for row in history if row[1] == prediction)
         
         # Heuristic confidence

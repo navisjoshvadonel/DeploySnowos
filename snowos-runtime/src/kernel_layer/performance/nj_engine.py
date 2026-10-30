@@ -614,16 +614,20 @@ class NJFaultDomain:
 
     def __init__(
         self,
-        name: str,
+        name: Optional[str] = None,
         failure_threshold: int = 3,
         window_seconds: float = 10.0,
         quarantine_duration_sec: float = 15.0,
         fallback_fn: Optional[Callable[[Exception, Any], Any]] = None,
+        domain_id: Optional[str] = None,
+        max_crashes: Optional[int] = None,
+        window_sec: Optional[float] = None,
+        quarantine_sec: Optional[float] = None,
     ):
-        self.name = name
-        self.failure_threshold = failure_threshold
-        self.window_seconds = window_seconds
-        self.quarantine_duration_sec = quarantine_duration_sec
+        self.name = domain_id or name or "DefaultDomain"
+        self.failure_threshold = max_crashes if max_crashes is not None else failure_threshold
+        self.window_seconds = window_sec if window_sec is not None else window_seconds
+        self.quarantine_duration_sec = quarantine_sec if quarantine_sec is not None else quarantine_duration_sec
         self.fallback_fn = fallback_fn
 
         self.state: ComponentHealthState = ComponentHealthState.HEALTHY
@@ -631,6 +635,24 @@ class NJFaultDomain:
         self._quarantined_until: float = 0.0
         self._lock = threading.Lock()
         self._crash_log: List[Dict[str, Any]] = []
+
+    @property
+    def is_quarantined(self) -> bool:
+        with self._lock:
+            if self.state == ComponentHealthState.QUARANTINED:
+                if time.monotonic() < self._quarantined_until:
+                    return True
+                else:
+                    self.state = ComponentHealthState.DEGRADED
+                    return False
+            return False
+
+    @property
+    def crash_count(self) -> int:
+        with self._lock:
+            now = time.monotonic()
+            self._crash_timestamps = [t for t in self._crash_timestamps if (now - t) <= self.window_seconds]
+            return len(self._crash_timestamps)
 
     def execute(
         self,
@@ -762,6 +784,26 @@ class NJFaultDomain:
                 "quarantine_remaining_seconds": round(remaining_quarantine, 1),
                 "last_crash": self._crash_log[-1] if self._crash_log else None,
             }
+
+
+class NJSupervisor:
+    """
+    Supervisor managing multiple NJFaultDomain instances across SnowOS.
+    """
+    def __init__(self):
+        self.domains: List[NJFaultDomain] = []
+
+    def register(self, domain: NJFaultDomain) -> NJFaultDomain:
+        if domain not in self.domains:
+            self.domains.append(domain)
+        return domain
+
+    def unregister(self, domain: NJFaultDomain):
+        if domain in self.domains:
+            self.domains.remove(domain)
+
+    def get_status(self) -> Dict[str, Any]:
+        return {d.name: d.get_status() for d in self.domains}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

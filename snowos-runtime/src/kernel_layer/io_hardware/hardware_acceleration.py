@@ -66,8 +66,27 @@ class TensorBuffer:
     def to_list(self) -> List[float]:
         return self._data
 
+    def __len__(self) -> int:
+        return self.shape[0] if self.shape else len(self._data)
+
+    def __getitem__(self, idx: int):
+        if len(self.shape) == 2:
+            cols = self.shape[1]
+            return self._data[idx * cols : (idx + 1) * cols]
+        return self._data[idx]
+
     def __repr__(self) -> str:
         return f"<TensorBuffer shape={self.shape} dtype={self.dtype.value} dev={self.device}>"
+
+
+class TPUMatrixResult(TensorBuffer):
+    """TensorBuffer result that also unpacks as (self, stats) for tuple-unpacking compatibility."""
+    def __init__(self, shape: Tuple[int, ...], data: List[float], stats: Dict[str, Any]):
+        super().__init__(shape=shape, data=data)
+        self.stats = stats
+
+    def __iter__(self):
+        return iter((self, self.stats))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -88,16 +107,17 @@ class TPUSystolicAccelerator:
 
     def gemm(
         self,
-        A: List[List[float]],
-        B: List[List[float]],
+        A: Union[List[List[float]], TensorBuffer],
+        B: Union[List[List[float]], TensorBuffer],
         bias: Optional[List[float]] = None,
         alpha: float = 1.0,
         beta: float = 0.0,
-    ) -> Tuple[List[List[float]], Dict[str, Any]]:
+    ) -> Union[Tuple[List[List[float]], Dict[str, Any]], TPUMatrixResult]:
         """
         Systolic matrix multiply C = alpha * (A @ B) + beta * C + bias.
         """
         start = time.perf_counter()
+        is_tensor_input = isinstance(A, TensorBuffer) or isinstance(B, TensorBuffer)
         M = len(A)
         K = len(A[0]) if M > 0 else 0
         K_B = len(B)
@@ -132,7 +152,26 @@ class TPUSystolicAccelerator:
             "gflops": round(gflops, 4) if gflops < 0.1 else round(gflops, 2),
             "systolic_efficiency": "98.4%",
         }
+
+        if is_tensor_input:
+            flat_c = [val for row in C for val in row]
+            return TPUMatrixResult(shape=(M, N), data=flat_c, stats=stats)
+
         return C, stats
+
+    def benchmark(self, matrix_size: int = 16) -> float:
+        """Benchmark systolic array GEMM throughput in GFLOP/s."""
+        import random
+        A = [[random.random() for _ in range(matrix_size)] for _ in range(matrix_size)]
+        B = [[random.random() for _ in range(matrix_size)] for _ in range(matrix_size)]
+        iters = 50
+        start = time.perf_counter()
+        for _ in range(iters):
+            self.gemm(A, B)
+        elapsed = max(time.perf_counter() - start, 1e-9)
+        ops = 2 * (matrix_size ** 3) * iters
+        gflops = (ops / elapsed) / 1e9
+        return max(gflops, 0.001)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

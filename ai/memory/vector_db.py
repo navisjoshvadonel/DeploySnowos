@@ -35,6 +35,10 @@ class _FallbackCollection:
         except (OSError, PermissionError):
             pass
 
+    def clear(self):
+        self.items = []
+        self._save()
+
     def add(self, documents, metadatas=None, ids=None):
         metadatas = metadatas or [{}] * len(documents)
         ids = ids or [os.urandom(8).hex() for _ in documents]
@@ -124,4 +128,13 @@ class VectorMemory:
                 return
             except Exception:
                 pass
-        self.collection = _FallbackCollection(os.path.join(self.db_path, "fallback_memory.json"))
+        fallback_file = os.path.join(self.db_path, "fallback_memory.json")
+        if os.path.exists(fallback_file):
+            try:
+                os.remove(fallback_file)
+            except OSError:
+                pass
+        if hasattr(self.collection, "clear"):
+            self.collection.clear()
+        else:
+            self.collection = _FallbackCollection(fallback_file)
