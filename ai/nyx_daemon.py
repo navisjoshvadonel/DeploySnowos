@@ -43,20 +43,27 @@ from pathlib import Path
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 _THIS_DIR = Path(__file__).resolve().parent
-_AI_DIR   = Path(__file__).resolve().parents[3] / "ai"
 
-# Add ai/ to path so NyxAI can be imported
-if str(_AI_DIR) not in sys.path:
-    sys.path.insert(0, str(_AI_DIR))
-# Add snowos-runtime/src to path for runtime imports
-_SRC_DIR = Path(__file__).resolve().parents[3] / "snowos-runtime" / "src"
-if str(_SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(_SRC_DIR))
+if (_THIS_DIR.parent / "snowos-runtime" / "src").exists():
+    _REPO_ROOT = _THIS_DIR.parent
+    _AI_DIR = _THIS_DIR
+    _SRC_DIR = _REPO_ROOT / "snowos-runtime" / "src"
+elif (_THIS_DIR.parent / "kernel_layer").exists():
+    _AI_DIR = _THIS_DIR
+    _SRC_DIR = _THIS_DIR.parent
+else:
+    _AI_DIR = _THIS_DIR
+    _SRC_DIR = _THIS_DIR
 
-# Add the ai/ directory itself (for siblings like flow_state_detector)
-_SELF_DIR = Path(__file__).resolve().parent
-if str(_SELF_DIR) not in sys.path:
-    sys.path.insert(0, str(_SELF_DIR))
+for _p in [
+    str(_AI_DIR),
+    str(_SRC_DIR),
+    str(_SRC_DIR / "ai_core" / "nyx_kernel"),
+    str(_SRC_DIR / "kernel_layer"),
+    str(_SRC_DIR / "system_services"),
+]:
+    if _p not in sys.path and os.path.exists(_p):
+        sys.path.insert(0, _p)
 
 logging.basicConfig(
     level=os.environ.get("SNOWOS_LOG_LEVEL", "INFO"),

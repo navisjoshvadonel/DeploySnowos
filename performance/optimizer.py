@@ -1,5 +1,11 @@
 import logging
-from sysctl_tuner import SysctlTuner
+try:
+    from sysctl_tuner import SysctlTuner
+except ImportError:
+    try:
+        from performance.sysctl_tuner import SysctlTuner
+    except ImportError:
+        from kernel_layer.performance.sysctl_tuner import SysctlTuner
 
 
 class PerformanceOptimizer:

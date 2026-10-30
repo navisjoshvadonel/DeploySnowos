@@ -24,15 +24,23 @@ fi
 # 2. Visuals
 rm -f /usr/share/pixmaps/snowos-logo.png
 rm -f /usr/share/pixmaps/system-logo.png
+rm -f /usr/share/backgrounds/snowos-wallpaper.png
+rm -f /boot/grub/snowos-wallpaper.png
 
-if command -v gsettings >/dev/null; then
+if command -v gsettings >/dev/null 2>&1; then
     gsettings set org.gnome.desktop.interface icon-theme "Yaru" || true
     gsettings set org.gnome.desktop.interface gtk-theme "Yaru" || true
 fi
 
 # 3. GRUB
-sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR=`( . \/etc\/os-release; echo ${NAME:-Ubuntu} ) 2>\/dev\/null || echo Ubuntu`/' /etc/default/grub
-update-grub
+rm -f /etc/default/grub.d/50-snowos.cfg
+if [ -f /etc/default/grub ]; then
+    sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR=`( . \/etc\/os-release; echo ${NAME:-Ubuntu} ) 2>\/dev\/null || echo Ubuntu`/' /etc/default/grub
+    sed -i '\|^GRUB_BACKGROUND=.*snowos-wallpaper.png.*|d' /etc/default/grub
+fi
+if command -v update-grub >/dev/null 2>&1; then
+    update-grub || true
+fi
 
 # 4. Banners
 echo -e "Ubuntu 24.04.4 LTS \\n \\l\n" > /etc/issue

@@ -308,7 +308,10 @@ fi
 
 # Cognitive OS components integration
 echo "    - Linking Cognitive AI modules..."
-mkdir -p /opt/snowos/ai_core/nyxvfs /opt/snowos/ai_core/performance /opt/snowos/ui_engine/frostbite
+mkdir -p /opt/snowos/ai /opt/snowos/ai_core/nyxvfs /opt/snowos/ai_core/performance /opt/snowos/ui_engine/frostbite
+if [ -d "$SCRIPT_DIR/ai" ]; then
+  cp -R "$SCRIPT_DIR/ai/." /opt/snowos/ai/
+fi
 if [ -d "$SCRIPT_DIR/ai/nyxvfs" ]; then
   cp -R "$SCRIPT_DIR/ai/nyxvfs/." /opt/snowos/ai_core/nyxvfs/
 fi
@@ -324,8 +327,8 @@ fi
 if [ -f "$SCRIPT_DIR/ui_engine/frost_desktop.py" ]; then
   cp "$SCRIPT_DIR/ui_engine/frost_desktop.py" /opt/snowos/ui_engine/frost_desktop.py
 fi
-chown -R root:root /opt/snowos/ai_core /opt/snowos/ui_engine
-chmod -R 0755 /opt/snowos/ai_core /opt/snowos/ui_engine
+chown -R root:root /opt/snowos/ai /opt/snowos/ai_core /opt/snowos/ui_engine
+chmod -R 0755 /opt/snowos/ai /opt/snowos/ai_core /opt/snowos/ui_engine
 
 # Architecture Blueprints
 if [ -d "$SCRIPT_DIR/implementation" ]; then
@@ -343,11 +346,13 @@ echo "    - Installing SnowOS CLI and desktop entries..."
 cp "$SCRIPT_DIR/distribution/cli/snowos" /usr/local/bin/snowos
 chmod +x /usr/local/bin/snowos
 
-if [ -f "$SCRIPT_DIR/distribution/identity/frostshell.desktop" ]; then
-  cp "$SCRIPT_DIR/distribution/identity/frostshell.desktop" /usr/share/applications/
-  chmod 0644 /usr/share/applications/frostshell.desktop
-  update-desktop-database /usr/share/applications/ >/dev/null 2>&1 || true
-fi
+for dt in "$SCRIPT_DIR/distribution/identity/"*.desktop; do
+  if [ -f "$dt" ]; then
+    cp "$dt" /usr/share/applications/
+    chmod 0644 "/usr/share/applications/$(basename "$dt")"
+  fi
+done
+update-desktop-database /usr/share/applications/ >/dev/null 2>&1 || true
 
 # ==============================================================================
 # 5. CONFIGURATION & INTEGRITY MANIFEST
@@ -427,24 +432,24 @@ if [ "$PROFILE" = "core" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" 
 
   # Setup tmpfiles.d for volatile memory management
   cp "$SCRIPT_DIR/snowos-runtime/config/snowos-tmpfiles.conf" /etc/tmpfiles.d/snowos.conf
-  systemd-tmpfiles --create /etc/tmpfiles.d/snowos.conf
+  systemd-tmpfiles --create /etc/tmpfiles.d/snowos.conf >/dev/null 2>&1 || true
 
   # Register service units (snowos-runtime provides base units, distribution provides overrides)
   cp "$SCRIPT_DIR/snowos-runtime/services/"*.service /etc/systemd/system/
   if [ -d "$SCRIPT_DIR/distribution/services" ]; then
     cp "$SCRIPT_DIR/distribution/services/"*.service /etc/systemd/system/
   fi
-  systemctl daemon-reload
+  systemctl daemon-reload >/dev/null 2>&1 || true
 
   # Enable core daemons
   echo "    - Enabling core system services..."
-  systemctl enable snowos-boot.service
-  systemctl enable snowos-broker.service
-  systemctl enable snowos-sentinel.service
-  systemctl enable snowos-aicore.service
-  systemctl enable snowos-optimizer.service
-  systemctl enable snowos-control.service
-  systemctl enable snowos-updater.service
+  systemctl enable snowos-boot.service >/dev/null 2>&1 || true
+  systemctl enable snowos-broker.service >/dev/null 2>&1 || true
+  systemctl enable snowos-sentinel.service >/dev/null 2>&1 || true
+  systemctl enable snowos-aicore.service >/dev/null 2>&1 || true
+  systemctl enable snowos-optimizer.service >/dev/null 2>&1 || true
+  systemctl enable snowos-control.service >/dev/null 2>&1 || true
+  systemctl enable snowos-updater.service >/dev/null 2>&1 || true
 
   # Optional Cognitive OS services (enable conditionally if modules present)
   if [ -f /opt/snowos/ai_core/nyxvfs/vfs_daemon.py ]; then

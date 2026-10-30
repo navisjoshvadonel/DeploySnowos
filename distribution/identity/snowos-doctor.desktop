@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=SnowOS Doctor
+GenericName=System Diagnostics
+Comment=Real-Time Subsystem & Security Diagnostics
+Exec=x-terminal-emulator -e "/usr/local/bin/snowos doctor"
+Icon=system-run
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+Keywords=snowos;doctor;diagnostics;health;check;
+StartupNotify=true

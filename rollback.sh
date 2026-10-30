@@ -105,6 +105,9 @@ done
 
 # 4. Revert GRUB Configuration
 echo "[*] Step 5: Reverting GRUB settings..."
+rm -f /etc/default/grub.d/50-snowos.cfg
+rm -f /boot/grub/snowos-wallpaper.png
+
 if [ -f /etc/default/grub.snowos.bak ]; then
   echo "    - Restoring GRUB from backup /etc/default/grub.snowos.bak..."
   cp -p /etc/default/grub.snowos.bak /etc/default/grub
@@ -123,6 +126,7 @@ echo "[*] Step 6: Restoring desktop styling and pixmaps..."
 rm -f /usr/share/pixmaps/snowos-logo.png
 rm -f /usr/share/pixmaps/system-logo.png
 rm -f /usr/share/backgrounds/snowos-wallpaper.png
+rm -f /boot/grub/snowos-wallpaper.png
 
 TARGET_USER="${SUDO_USER:-$USER}"
 if [ "$TARGET_USER" != "root" ] && id "$TARGET_USER" >/dev/null 2>&1; then
@@ -139,6 +143,8 @@ echo "[*] Step 7: Removing SnowOS binaries and desktop entries..."
 rm -f /usr/local/bin/snowos
 rm -f /usr/local/bin/snowos-pkg
 rm -f /usr/share/applications/frostshell.desktop
+rm -f /usr/share/applications/snowcontrol.desktop
+rm -f /usr/share/applications/snowos-doctor.desktop
 if [ -f /etc/bash.bashrc ]; then
   sed -i '/alias apt=.snowos-pkg./d' /etc/bash.bashrc
 fi

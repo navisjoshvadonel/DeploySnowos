@@ -185,8 +185,25 @@ def run_rollback():
 
 
 def run_shell(action: str):
-    """Manage the Frost Shell (snowos-frostbite.service)."""
-    if action == "restart":
+    """Manage or launch the Frost Shell / Nyx interactive session."""
+    if action == "launch":
+        candidates = [
+            "/opt/snowos/ai_core/nyx_kernel/nyx.py",
+            "/opt/snowos/ai/nyx.py",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../snowos-runtime/src/ai_core/nyx_kernel/nyx.py"),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../ai/nyx.py"),
+        ]
+        target = None
+        for cand in candidates:
+            if os.path.exists(cand):
+                target = cand
+                break
+        if target:
+            os.execv(sys.executable, [sys.executable, target])
+        else:
+            print("[-] Error: Nyx shell script not found in known locations.")
+            sys.exit(1)
+    elif action == "restart":
         print("Restarting Frost Shell...")
         subprocess.run(["sudo", "systemctl", "restart", "snowos-frostbite.service"])
     elif action == "logs":
@@ -196,7 +213,6 @@ def run_shell(action: str):
         config_path = "/etc/snowos/frost_shell.conf"
         editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "nano"
         if not os.path.exists(config_path):
-            # Create a default skeleton so the editor opens something useful
             try:
                 os.makedirs(os.path.dirname(config_path), exist_ok=True)
                 with open(config_path, "w") as f:
@@ -218,6 +234,18 @@ def run_shell(action: str):
             sys.exit(1)
 
 
+def run_control():
+    """Launch or print SnowControl Dashboard web address."""
+    control_url = os.environ.get("SNOWOS_CONTROL_URL", "http://127.0.0.1:8000")
+    print(f"SnowControl Interface: {control_url}")
+    if shutil.which("xdg-open"):
+        subprocess.run(["xdg-open", control_url])
+    elif shutil.which("firefox"):
+        subprocess.run(["firefox", control_url])
+    else:
+        print(f"To access SnowControl, open {control_url} in your browser.")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="SnowOS Management CLI",
@@ -225,6 +253,8 @@ def main():
         epilog=(
             "Examples:\n"
             "  snowos doctor               — full system health check\n"
+            "  snowos control              — open SnowControl dashboard\n"
+            "  snowos shell launch         — open interactive Nyx terminal\n"
             "  snowos ai status            — AI core and healing summary\n"
             "  snowos ai logs              — live AI core journal\n"
             "  snowos shell config         — edit Frost Shell config\n"
@@ -235,13 +265,14 @@ def main():
 
     subparsers.add_parser("update",   help="Perform system update and integrity check")
     subparsers.add_parser("doctor",   help="Run full system diagnostics (all services + sockets)")
+    subparsers.add_parser("control",  help="Open SnowControl System Dashboard")
     subparsers.add_parser("rollback", help="Safely revert SnowOS platform modifications")
 
     ai_parser = subparsers.add_parser("ai", help="Manage AI subsystem")
     ai_parser.add_argument("action", choices=["status", "restart", "logs"])
 
     shell_parser = subparsers.add_parser("shell", help="Manage Frost Shell")
-    shell_parser.add_argument("action", choices=["restart", "logs", "config"])
+    shell_parser.add_argument("action", choices=["launch", "restart", "logs", "config"])
 
     mode_parser = subparsers.add_parser("mode", help="Switch SnowOS operational mode")
     mode_parser.add_argument("type", choices=["developer", "student"])
@@ -252,6 +283,8 @@ def main():
         run_update()
     elif args.command == "doctor":
         run_doctor()
+    elif args.command == "control":
+        run_control()
     elif args.command == "ai":
         if args.action == "status":
             run_ai_status()

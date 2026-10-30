@@ -96,9 +96,10 @@ cp "$LOGO_SRC" /usr/share/pixmaps/snowos-logo.png
 ln -sf /usr/share/pixmaps/snowos-logo.png /usr/share/pixmaps/system-logo.png
 
 echo "[*] Deploying SnowOS Wallpaper..."
-mkdir -p /usr/share/backgrounds
+mkdir -p /usr/share/backgrounds /boot/grub
 if [ -f "$WALLPAPER_SRC" ]; then
     cp "$WALLPAPER_SRC" /usr/share/backgrounds/snowos-wallpaper.png
+    cp "$WALLPAPER_SRC" /boot/grub/snowos-wallpaper.png
 fi
 
 # ==============================================================================
@@ -322,9 +323,40 @@ chown -R "$TARGET_USER":"$TARGET_USER" "$SNOW_CONFIG_DIR" || true
 chown -R "$TARGET_USER":"$TARGET_USER" "$USER_GTK_DIR" || true
 
 # ==============================================================================
-# [PART 4: GRUB CONFIGURATION]
+# [PART 4: GRUB CONFIGURATION & VIRTUAL MACHINE COMPATIBILITY]
 # ==============================================================================
-echo "[*] Updating GRUB distributor branding, background, and boot reliability..."
+echo "[*] Updating GRUB distributor branding, background, and VM display reliability..."
+
+# Deploy SnowOS drop-in GRUB configuration
+mkdir -p /etc/default/grub.d
+mkdir -p /boot/grub
+
+if [ -f "$WALLPAPER_SRC" ]; then
+    cp -f "$WALLPAPER_SRC" /boot/grub/snowos-wallpaper.png
+fi
+
+# Detect Virtualization Environment
+VIRT_ENV="metal"
+if command -v systemd-detect-virt >/dev/null 2>&1; then
+    VIRT_ENV=$(systemd-detect-virt 2>/dev/null || echo "metal")
+elif [ -e /sys/class/dmi/id/sys_vendor ]; then
+    VIRT_ENV=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "metal")
+fi
+echo "[*] Hardware virtualization detected: ${VIRT_ENV}"
+
+# Write hardened drop-in configuration (standard across modern Ubuntu/Debian)
+cat > /etc/default/grub.d/50-snowos.cfg << 'EOF'
+# SnowOS Aurora Visual & Boot Reliability Configuration
+GRUB_DISTRIBUTOR="SnowOS Aurora"
+GRUB_TIMEOUT=5
+GRUB_TIMEOUT_STYLE=menu
+GRUB_GFXMODE="auto,1024x768,800x600,640x480"
+GRUB_GFXPAYLOAD_LINUX="auto"
+GRUB_TERMINAL_OUTPUT="gfxterm console"
+GRUB_DISABLE_OS_PROBER=false
+GRUB_BACKGROUND="/boot/grub/snowos-wallpaper.png"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+EOF
 
 if [ -f /etc/default/grub ]; then
     # Backup original GRUB config if not already backed up
@@ -342,13 +374,12 @@ if [ -f /etc/default/grub ]; then
 
     # Set SnowOS distributor identity
     if grep -q "^GRUB_DISTRIBUTOR=" /etc/default/grub; then
-        sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS"/' /etc/default/grub
+        sed -i 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="SnowOS Aurora"/' /etc/default/grub
     else
-        echo 'GRUB_DISTRIBUTOR="SnowOS"' >> /etc/default/grub
+        echo 'GRUB_DISTRIBUTOR="SnowOS Aurora"' >> /etc/default/grub
     fi
 
     # CRITICAL FOR VIRTUAL MACHINES: Ensure menu is visible with a 5s countdown
-    # (prevents invisible hang / black screen on boot in VirtualBox, VMware, and QEMU)
     if grep -q "^GRUB_TIMEOUT_STYLE=" /etc/default/grub; then
         sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
     else
@@ -361,25 +392,34 @@ if [ -f /etc/default/grub ]; then
         echo 'GRUB_TIMEOUT=5' >> /etc/default/grub
     fi
 
-    # Safe display mode compatible with virtual machine display adapters
+    # Safe display mode: auto resolution discovery followed by standard VESA fallbacks
     if grep -q "^GRUB_GFXMODE=" /etc/default/grub; then
-        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="1024x768,auto"/' /etc/default/grub
+        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="auto,1024x768,800x600,640x480"/' /etc/default/grub
     else
-        echo 'GRUB_GFXMODE="1024x768,auto"' >> /etc/default/grub
+        echo 'GRUB_GFXMODE="auto,1024x768,800x600,640x480"' >> /etc/default/grub
     fi
 
+    # CRITICAL FOR VIRTUAL MACHINES: GFXPAYLOAD MUST BE 'auto' (NOT 'keep')
+    # 'keep' prevents DRM display modesetting in VirtualBox, VMware, and QEMU
     if grep -q "^GRUB_GFXPAYLOAD_LINUX=" /etc/default/grub; then
-        sed -i 's/^GRUB_GFXPAYLOAD_LINUX=.*/GRUB_GFXPAYLOAD_LINUX=keep/' /etc/default/grub
+        sed -i 's/^GRUB_GFXPAYLOAD_LINUX=.*/GRUB_GFXPAYLOAD_LINUX=auto/' /etc/default/grub
     else
-        echo 'GRUB_GFXPAYLOAD_LINUX=keep' >> /etc/default/grub
+        echo 'GRUB_GFXPAYLOAD_LINUX=auto' >> /etc/default/grub
     fi
 
-    # Only apply wallpaper if the file exists on disk
-    if [ -f "/usr/share/backgrounds/snowos-wallpaper.png" ]; then
+    # Terminal output dual-mode fallback (gfxterm + console)
+    if grep -q "^GRUB_TERMINAL_OUTPUT=" /etc/default/grub; then
+        sed -i 's/^GRUB_TERMINAL_OUTPUT=.*/GRUB_TERMINAL_OUTPUT="gfxterm console"/' /etc/default/grub
+    else
+        echo 'GRUB_TERMINAL_OUTPUT="gfxterm console"' >> /etc/default/grub
+    fi
+
+    # Background points to /boot/grub for pre-mount access
+    if [ -f "/boot/grub/snowos-wallpaper.png" ]; then
         if grep -q "^GRUB_BACKGROUND=" /etc/default/grub; then
-            sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"|' /etc/default/grub
+            sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/boot/grub/snowos-wallpaper.png"|' /etc/default/grub
         else
-            echo 'GRUB_BACKGROUND="/usr/share/backgrounds/snowos-wallpaper.png"' >> /etc/default/grub
+            echo 'GRUB_BACKGROUND="/boot/grub/snowos-wallpaper.png"' >> /etc/default/grub
         fi
     fi
 
@@ -415,7 +455,7 @@ if command -v hostnamectl >/dev/null 2>&1; then
 fi
 
 # ==============================================================================
-# [PART 6: PLYMOUTH BOOT ANIMATION OVERRIDE]
+# [PART 6: PLYMOUTH BOOT ANIMATION OVERRIDE & VM EARLY KMS]
 # ==============================================================================
 echo "[*] Replacing Ubuntu Plymouth Boot Animation..."
 PLYMOUTH_THEME_DIR="/usr/share/plymouth/themes/spinner"
@@ -426,8 +466,21 @@ if [ -d "$PLYMOUTH_THEME_DIR" ] && [ -f "$LOGO_SRC" ]; then
     fi
     # Overwrite the watermark with SnowOS Logo
     cp -f "$LOGO_SRC" "${PLYMOUTH_THEME_DIR}/watermark.png"
-    
-    echo "[*] Updating Initramfs for boot splash..."
+fi
+
+# Append virtual machine early KMS video modules to initramfs
+INITRAMFS_MODULES="/etc/initramfs-tools/modules"
+if [ -f "$INITRAMFS_MODULES" ]; then
+    echo "[*] Ensuring virtual display drivers exist in initramfs for Plymouth & early KMS..."
+    for mod in vboxvideo vmwgfx virtio_gpu qxl bochs_drm; do
+        if ! grep -qx "$mod" "$INITRAMFS_MODULES"; then
+            echo "$mod" >> "$INITRAMFS_MODULES"
+        fi
+    done
+fi
+
+echo "[*] Updating Initramfs for boot splash and VM display support..."
+if command -v update-initramfs >/dev/null 2>&1; then
     update-initramfs -u 2>/dev/null || true
 fi
 

@@ -13,7 +13,12 @@ import shutil
 import threading
 import concurrent.futures
 import math
-from google import genai
+try:
+    from google import genai
+    _GENAI_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    genai = None
+    _GENAI_AVAILABLE = False
 import http.server
 import socketserver
 import importlib.util
@@ -1691,7 +1696,13 @@ class NyxAI:
         os.makedirs(self.log_dir, exist_ok=True)
         os.makedirs(os.path.expanduser("~/snowos/memory"), exist_ok=True)
 
-        self.client = genai.Client(api_key=self.api_key)
+        if _GENAI_AVAILABLE and self.api_key:
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+            except Exception:
+                self.client = None
+        else:
+            self.client = None
         self.model_id = self.config.get("model_id", "gemini-2.0-flash")
         self.available_models = [
             "gemini-2.0-flash",

@@ -1,19 +1,23 @@
 [Unit]
-Description=SnowOS AI Core Layer
+Description=SnowOS AI Core — Nyx Cognitive Engine (Headless Daemon)
 Documentation=https://github.com/snowos/core
-After=network.target snowos-boot.service
+After=network.target snowos-boot.service snowos-broker.service
 Requires=snowos-boot.service
+Wants=snowos-broker.service
 
 [Service]
 Type=simple
 User=snowos-ai
-Group=snowos-ai
+Group=snowos
 EnvironmentFile=-/etc/snowos/snowos.env
-Environment="PYTHONPATH=/opt/snowos:/opt/snowos/ui_engine:/opt/snowos/kernel_layer:/opt/snowos/kernel_layer/performance:/opt/snowos/system_services:/opt/snowos/runtime"
-WorkingDirectory=/var/lib/snowos/ai
-ExecStart=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/nyx.py
+EnvironmentFile=-/etc/snowos/secrets/nyx_api_key.env
+Environment="PYTHONPATH=/opt/snowos:/opt/snowos/ai:/opt/snowos/ui_engine:/opt/snowos/kernel_layer:/opt/snowos/kernel_layer/performance:/opt/snowos/system_services:/opt/snowos/runtime"
+WorkingDirectory=/opt/snowos/ai
+ExecStart=/usr/bin/python3 /opt/snowos/ai/nyx_daemon.py
 Restart=on-failure
 RestartSec=5
+StartLimitIntervalSec=120
+StartLimitBurst=3
 
 # Sandboxing
 ProtectSystem=strict
@@ -29,7 +33,7 @@ RestrictSUIDSGID=yes
 LockPersonality=yes
 SystemCallArchitectures=native
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-ReadWritePaths=/var/lib/snowos /var/log/snowos
+ReadWritePaths=/var/lib/snowos /var/log/snowos /run/snowos /tmp
 
 [Install]
 WantedBy=multi-user.target

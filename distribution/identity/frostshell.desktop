@@ -1,10 +1,11 @@
 [Desktop Entry]
 Name=FrostShell AI
+GenericName=AI Cognitive Terminal
 Comment=SnowOS AI Native Terminal Experience
-Exec=/usr/bin/python3 /opt/snowos/ai_core/nyx_kernel/frost_shell.py
+Exec=/usr/local/bin/snowos shell launch
 Icon=utilities-terminal
 Terminal=true
 Type=Application
 Categories=System;Utility;TerminalEmulator;
-Keywords=ai;shell;snowos;nyx;
+Keywords=ai;shell;snowos;nyx;frost;
 StartupNotify=true

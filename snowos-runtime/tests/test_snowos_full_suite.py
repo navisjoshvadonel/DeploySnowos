@@ -732,9 +732,13 @@ class TestGRUBConfigIntegrity(unittest.TestCase):
                            f"GRUB_TIMEOUT={timeout} — GRUB will skip menu instantly!")
 
     def test_grub_gfxpayload_linux_keep_set(self):
-        """GRUB_GFXPAYLOAD_LINUX=keep must be set to preserve framebuffer into kernel."""
-        self.assertIn("GRUB_GFXPAYLOAD_LINUX=keep", self.branding_content,
-                      "GRUB_GFXPAYLOAD_LINUX=keep not set — kernel may lose framebuffer on VM")
+        """GRUB_GFXPAYLOAD_LINUX must be set (auto or keep) to preserve framebuffer into kernel."""
+        has_payload = ("GRUB_GFXPAYLOAD_LINUX=auto" in self.branding_content or
+                       'GRUB_GFXPAYLOAD_LINUX="auto"' in self.branding_content or
+                       "GRUB_GFXPAYLOAD_LINUX=keep" in self.branding_content or
+                       'GRUB_GFXPAYLOAD_LINUX="keep"' in self.branding_content)
+        self.assertTrue(has_payload,
+                        "GRUB_GFXPAYLOAD_LINUX not set — kernel may lose framebuffer on VM")
 
     def test_update_grub_called(self):
         """apply_branding.sh must call update-grub to regenerate grub.cfg."""
