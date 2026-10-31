@@ -355,10 +355,11 @@ class FlowStateDetector:
         return self._flow_active
 
     def get_status(self) -> dict:
+        time_in_win = int(time.time() - self._window_unchanged_since) if self._window_unchanged_since > 0 else 0
         return {
             "flow_active": self._flow_active,
             "current_app": self._current_window_class,
-            "time_in_window": int(time.time() - self._window_unchanged_since),
+            "time_in_window": time_in_win,
             "flow_state": self.memory.get("_flow_state", "idle"),
             "last_flow_duration": self.memory.get("_last_flow_duration_sec"),
         }

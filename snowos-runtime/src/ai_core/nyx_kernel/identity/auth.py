@@ -19,19 +19,23 @@ def _load_jwt_secret() -> str:
         "SNOWOS_JWT_SECRET_FILE",
         os.path.expanduser("~/.snowos/jwt.secret"),
     )
-    os.makedirs(os.path.dirname(secret_path), exist_ok=True)
+    try:
+        os.makedirs(os.path.dirname(secret_path), exist_ok=True)
 
-    if os.path.exists(secret_path):
-        with open(secret_path, "r", encoding="utf-8") as handle:
-            secret = handle.read().strip()
-            if secret:
-                return secret
+        if os.path.exists(secret_path):
+            with open(secret_path, "r", encoding="utf-8") as handle:
+                secret = handle.read().strip()
+                if secret:
+                    return secret
 
-    secret = secrets.token_urlsafe(48)
-    with open(secret_path, "w", encoding="utf-8") as handle:
-        handle.write(secret)
-    os.chmod(secret_path, 0o600)
-    return secret
+        secret = secrets.token_urlsafe(48)
+        with open(secret_path, "w", encoding="utf-8") as handle:
+            handle.write(secret)
+        os.chmod(secret_path, 0o600)
+        return secret
+    except OSError:
+        # Fallback to ephemeral secret if ~/.snowos cannot be created or written
+        return secrets.token_urlsafe(48)
 
 
 JWT_SECRET = _load_jwt_secret()
