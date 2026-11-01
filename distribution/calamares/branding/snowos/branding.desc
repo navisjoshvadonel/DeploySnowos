@@ -1,0 +1,27 @@
+---
+componentName: snowos
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 800px,520px
+windowPlacement: center
+
+strings:
+    productName:         "SnowOS Aurora"
+    shortProductName:    "SnowOS"
+    version:             "24.04"
+    shortVersion:        "24.04"
+    versionedName:       "SnowOS Aurora 24.04 LTS"
+    shortVersionedName:  "SnowOS 24.04"
+    bootloaderEntryName: "SnowOS"
+    productUrl:          "https://github.com/snowos/core"
+    supportUrl:          "https://github.com/snowos/core"
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+
+style:
+   SidebarBackground:    "#0B101E"
+   SidebarTextColor:     "#FFFFFF"
+   SidebarTextSelect:    "#4DEEEA"

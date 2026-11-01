@@ -82,6 +82,13 @@ Or execute the Python health check directly:
 python3 snowos-runtime/validation/check_health.py
 ```
 
+### Bootloader & GRUB Diagnostics
+To verify that GRUB, kernel images, initramfs, and UEFI/BIOS boot configurations are 100% healthy:
+
+```bash
+sudo ./tools/verify_boot_and_grub.sh
+```
+
 ## System Rollback & Clean Uninstallation
 
 To cleanly and safely revert all system services, diverted identity files, GNOME themes, and configuration trees back to pristine Ubuntu:

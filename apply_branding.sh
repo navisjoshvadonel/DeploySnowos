@@ -350,9 +350,10 @@ cat > /etc/default/grub.d/50-snowos.cfg << 'EOF'
 GRUB_DISTRIBUTOR="SnowOS Aurora"
 GRUB_TIMEOUT=5
 GRUB_TIMEOUT_STYLE=menu
-GRUB_GFXMODE="auto,1024x768,800x600,640x480"
+GRUB_GFXMODE="auto,1920x1080,1366x768,1024x768,800x600,auto"
 GRUB_GFXPAYLOAD_LINUX="auto"
-GRUB_TERMINAL_OUTPUT="gfxterm console"
+GRUB_TERMINAL_OUTPUT="gfxterm"
+GRUB_DISABLE_RECOVERY=false
 GRUB_DISABLE_OS_PROBER=false
 GRUB_BACKGROUND="/boot/grub/snowos-wallpaper.png"
 GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
@@ -379,7 +380,7 @@ if [ -f /etc/default/grub ]; then
         echo 'GRUB_DISTRIBUTOR="SnowOS Aurora"' >> /etc/default/grub
     fi
 
-    # CRITICAL FOR VIRTUAL MACHINES: Ensure menu is visible with a 5s countdown
+    # CRITICAL FOR VIRTUAL MACHINES & HARDWARE: Ensure menu is visible with a 5s countdown
     if grep -q "^GRUB_TIMEOUT_STYLE=" /etc/default/grub; then
         sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
     else
@@ -394,9 +395,9 @@ if [ -f /etc/default/grub ]; then
 
     # Safe display mode: auto resolution discovery followed by standard VESA fallbacks
     if grep -q "^GRUB_GFXMODE=" /etc/default/grub; then
-        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="auto,1024x768,800x600,640x480"/' /etc/default/grub
+        sed -i 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE="auto,1920x1080,1366x768,1024x768,800x600,auto"/' /etc/default/grub
     else
-        echo 'GRUB_GFXMODE="auto,1024x768,800x600,640x480"' >> /etc/default/grub
+        echo 'GRUB_GFXMODE="auto,1920x1080,1366x768,1024x768,800x600,auto"' >> /etc/default/grub
     fi
 
     # CRITICAL FOR VIRTUAL MACHINES: GFXPAYLOAD MUST BE 'auto' (NOT 'keep')
@@ -407,15 +408,23 @@ if [ -f /etc/default/grub ]; then
         echo 'GRUB_GFXPAYLOAD_LINUX=auto' >> /etc/default/grub
     fi
 
-    # Terminal output dual-mode fallback (gfxterm + console)
+    # Terminal output: use gfxterm for UEFI & BIOS graphical menu reliability
     if grep -q "^GRUB_TERMINAL_OUTPUT=" /etc/default/grub; then
-        sed -i 's/^GRUB_TERMINAL_OUTPUT=.*/GRUB_TERMINAL_OUTPUT="gfxterm console"/' /etc/default/grub
+        sed -i 's/^GRUB_TERMINAL_OUTPUT=.*/GRUB_TERMINAL_OUTPUT="gfxterm"/' /etc/default/grub
     else
-        echo 'GRUB_TERMINAL_OUTPUT="gfxterm console"' >> /etc/default/grub
+        echo 'GRUB_TERMINAL_OUTPUT="gfxterm"' >> /etc/default/grub
+    fi
+
+    # Ensure recovery entries are enabled for troubleshooting
+    if grep -q "^GRUB_DISABLE_RECOVERY=" /etc/default/grub; then
+        sed -i 's/^GRUB_DISABLE_RECOVERY=.*/GRUB_DISABLE_RECOVERY=false/' /etc/default/grub
+    else
+        echo 'GRUB_DISABLE_RECOVERY=false' >> /etc/default/grub
     fi
 
     # Background points to /boot/grub for pre-mount access
     if [ -f "/boot/grub/snowos-wallpaper.png" ]; then
+        chmod 0644 /boot/grub/snowos-wallpaper.png 2>/dev/null || true
         if grep -q "^GRUB_BACKGROUND=" /etc/default/grub; then
             sed -i 's|^GRUB_BACKGROUND=.*|GRUB_BACKGROUND="/boot/grub/snowos-wallpaper.png"|' /etc/default/grub
         else
@@ -423,7 +432,7 @@ if [ -f /etc/default/grub ]; then
         fi
     fi
 
-    # Prevent os-prober errors
+    # Prevent os-prober errors and ensure dual-boot systems are detected
     if grep -q "^GRUB_DISABLE_OS_PROBER=" /etc/default/grub; then
         sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
     else

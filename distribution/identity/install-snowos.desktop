@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install SnowOS Aurora
+GenericName=Live System Installer
+Comment=Install SnowOS Aurora to your computer storage drive
+Exec=sudo -E calamares
+Icon=calamares
+Terminal=false
+StartupNotify=true
+Categories=System;Settings;
+Keywords=snowos;install;installer;setup;

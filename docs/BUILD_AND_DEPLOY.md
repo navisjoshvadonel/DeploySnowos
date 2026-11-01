@@ -98,3 +98,36 @@ cat /run/snowos/boot-status.json
 # Check audit log
 cat /var/log/snowos/boot-history.jsonl
 ```
+
+---
+
+## 5. Live Hybrid ISO Building & Boot Testing
+
+SnowOS provides a live-build pipeline for generating production-ready, hybrid ISOs bootable under both modern 64-bit UEFI and Legacy BIOS.
+
+### Building the Live ISO
+```bash
+# 1. Install prerequisites
+sudo apt install -y live-build xorriso isolinux dosfstools mtools
+
+# 2. Configure and build the ISO
+cd distribution/build
+./iso_builder.sh
+cd build-env && sudo lb build
+```
+
+### Testing the Downloaded ISO in QEMU
+```bash
+# Boot in Legacy BIOS mode (default)
+./tools/run_snowos_vm.sh distribution/build/build-env/live-image-amd64.hybrid.iso
+
+# Boot in UEFI mode (using OVMF firmware to test EFI GRUB loader)
+./tools/run_snowos_vm.sh distribution/build/build-env/live-image-amd64.hybrid.iso --uefi
+```
+
+### Validating Bootloader & GRUB Health
+Run the automated diagnostic suite at any time to verify that GRUB configurations, drop-in overrides, kernels, and early KMS display drivers are properly configured without boot hangs:
+```bash
+sudo ./tools/verify_boot_and_grub.sh
+```
+

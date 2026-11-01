@@ -143,6 +143,7 @@ run_preflight_checks() {
     "$SCRIPT_DIR/snowos-runtime/services/snowos-aicore.service"
     "$SCRIPT_DIR/snowos-runtime/services/snowos-control.service"
     "$SCRIPT_DIR/distribution/cli/snowos"
+    "$SCRIPT_DIR/tools/verify_boot_and_grub.sh"
   )
 
   if [ "$PROFILE" = "visual" ] || [ "$PROFILE" = "all" ] || [ "$PROFILE" = "smooth" ]; then
@@ -568,10 +569,17 @@ fi
 # 8. POST-INSTALL INTEGRITY VALIDATION
 # ==============================================================================
 echo ""
-echo "[+] Phase 8: Running Post-Install Integrity Diagnostics..."
+echo "[+] Phase 8: Running Post-Install Integrity & Boot Diagnostics..."
 if [ -f "$SCRIPT_DIR/snowos-runtime/validation/check_health.py" ]; then
   python3 "$SCRIPT_DIR/snowos-runtime/validation/check_health.py" || {
     echo "[!] Health check completed with warnings. Check output above for details."
+  }
+fi
+
+if [ -f "$SCRIPT_DIR/tools/verify_boot_and_grub.sh" ]; then
+  echo ""
+  bash "$SCRIPT_DIR/tools/verify_boot_and_grub.sh" || {
+    echo "[!] Bootloader validation reported alerts. Check output above for details."
   }
 fi
 

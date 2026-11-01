@@ -4,8 +4,11 @@
 
 set -e
 
-BUILD_DIR="build-env"
-IDENTITY_DIR="../identity"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+BUILD_DIR="$SCRIPT_DIR/build-env"
+IDENTITY_DIR="$REPO_ROOT/distribution/identity"
+CALAMARES_SRC="$REPO_ROOT/distribution/calamares"
 DISTRO="${SNOWOS_BASE_DISTRO:-noble}"
 
 echo "=========================================================="
@@ -16,7 +19,7 @@ echo "=========================================================="
 
 # Ensure we have the required tools
 if ! command -v lb &> /dev/null; then
-    echo "Error: live-build is not installed. Please run: sudo apt install -y live-build xorriso isolinux"
+    echo "Error: live-build is not installed. Please run: sudo apt install -y live-build xorriso isolinux dosfstools mtools"
     exit 1
 fi
 
@@ -48,12 +51,19 @@ os-prober
 linux-image-generic
 linux-headers-generic
 linux-modules-extra-generic
-grub-pc
 grub-pc-bin
 grub-efi-amd64
 grub-efi-amd64-bin
 grub-efi-amd64-signed
 shim-signed
+efibootmgr
+dosfstools
+mtools
+xorriso
+btrfs-progs
+e2fsprogs
+parted
+util-linux
 syslinux
 isolinux
 syslinux-common
@@ -90,11 +100,12 @@ libnotify-bin
 plymouth
 plymouth-theme-spinner
 calamares
+calamares-settings-ubuntu
 EOF
 
 echo "Injecting Custom Identity and Hooks..."
 mkdir -p config/hooks/normal
-cp ../chroot_hooks.sh config/hooks/normal/01-snowos-setup.hook.chroot
+cp "$SCRIPT_DIR/chroot_hooks.sh" config/hooks/normal/01-snowos-setup.hook.chroot
 chmod +x config/hooks/normal/01-snowos-setup.hook.chroot
 
 mkdir -p config/includes.chroot/etc
@@ -105,9 +116,31 @@ if [ -f "$IDENTITY_DIR/lsb-release" ]; then
     cp "$IDENTITY_DIR/lsb-release" config/includes.chroot/etc/lsb-release
 fi
 
+# Pre-stage GRUB & Plymouth branding assets
+mkdir -p config/includes.chroot/boot/grub config/includes.chroot/usr/share/backgrounds
+if [ -f "$REPO_ROOT/assets/snowos-wallpaper.png" ]; then
+    cp -f "$REPO_ROOT/assets/snowos-wallpaper.png" config/includes.chroot/boot/grub/snowos-wallpaper.png
+    cp -f "$REPO_ROOT/assets/snowos-wallpaper.png" config/includes.chroot/usr/share/backgrounds/snowos-wallpaper.png
+fi
+
+# Pre-stage Calamares Installer Configuration
+if [ -d "$CALAMARES_SRC" ]; then
+    echo "Injecting SnowOS Calamares Installer configuration..."
+    mkdir -p config/includes.chroot/etc/calamares
+    cp -r "$CALAMARES_SRC"/* config/includes.chroot/etc/calamares/
+    
+    # Desktop installer shortcut for live session
+    mkdir -p config/includes.chroot/etc/skel/Desktop config/includes.chroot/usr/share/applications
+    if [ -f "$IDENTITY_DIR/install-snowos.desktop" ]; then
+        cp "$IDENTITY_DIR/install-snowos.desktop" config/includes.chroot/usr/share/applications/
+        cp "$IDENTITY_DIR/install-snowos.desktop" config/includes.chroot/etc/skel/Desktop/
+        chmod +x config/includes.chroot/etc/skel/Desktop/install-snowos.desktop
+    fi
+fi
+
 echo "Injecting SnowOS Installer into chroot..."
 mkdir -p config/includes.chroot/opt/snowos-installer
-(cd ../../../ && tar cf - --exclude=distribution/build/"$BUILD_DIR" --exclude=.git .) | (cd config/includes.chroot/opt/snowos-installer && tar xf -)
+(cd "$REPO_ROOT" && tar cf - --exclude=distribution/build/build-env --exclude=.git .) | (cd config/includes.chroot/opt/snowos-installer && tar xf -)
 
 echo "=========================================================="
 echo " ✔ SnowOS Live ISO Build configuration complete."

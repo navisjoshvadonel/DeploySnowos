@@ -116,7 +116,14 @@ def run_preflight_checks() -> bool:
     else:
         table.add_row("Desktop Compositor", "[yellow]Headless / Non-GNOME ℹ[/yellow]", f"Current: {desktop or 'Headless'} ({session_type})")
 
-    # 5. Check Source Files Integrity
+    # 5. Check Firmware Architecture & Bootloader Environment
+    is_efi = os.path.isdir("/sys/firmware/efi")
+    if is_efi:
+        table.add_row("Firmware Environment", "[green]UEFI Mode ✔[/green]", "64-bit UEFI Firmware detected")
+    else:
+        table.add_row("Firmware Environment", "[green]Legacy BIOS ✔[/green]", "Legacy BIOS / CSM Mode detected")
+
+    # 6. Check Source Files Integrity
     required_sources = [
         WORKSPACE_ROOT / "snowos-runtime" / "src",
         WORKSPACE_ROOT / "snowos-runtime" / "config" / "snowos.env",
@@ -128,6 +135,7 @@ def run_preflight_checks() -> bool:
         WORKSPACE_ROOT / "snowos-runtime" / "services" / "snowos-broker.service",
         WORKSPACE_ROOT / "snowos-runtime" / "services" / "snowos-sentinel.service",
         WORKSPACE_ROOT / "distribution" / "cli" / "snowos",
+        WORKSPACE_ROOT / "tools" / "verify_boot_and_grub.sh",
         WORKSPACE_ROOT / "apply_branding.sh",
         WORKSPACE_ROOT / "rollback.sh"
     ]
@@ -138,7 +146,7 @@ def run_preflight_checks() -> bool:
         table.add_row("Source Repository Integrity", "[red]Files Missing ✖[/red]", f"Missing {len(missing_sources)} files")
         has_errors = True
 
-    # 6. Check for Conflicting Dock Extensions
+    # 7. Check for Conflicting Dock Extensions
     conflicting_ext = shutil.which("dash-to-dock") is not None or os.path.exists("/usr/share/gnome-shell/extensions/dash-to-dock@vswitch.org")
     if conflicting_ext:
         table.add_row("Conflicting Extensions", "[yellow]Found dash-to-dock ⚠[/yellow]", "Will be replaced with ubuntu-dock")
@@ -351,6 +359,13 @@ def run_diagnostics_sweep():
         health_grid.add_row("Boot Orchestrator State", "[green]Synchronized ✔[/green]", boot_status_file)
     else:
         health_grid.add_row("Boot Orchestrator State", "[yellow]Not Generated ⚠[/yellow]", "Missing boot-status.json")
+
+    # 8. Check GRUB Bootloader Configuration
+    grub_snowos_cfg = "/etc/default/grub.d/50-snowos.cfg"
+    if os.path.exists(grub_snowos_cfg):
+        health_grid.add_row("GRUB Bootloader Drop-in", "[green]Configured ✔[/green]", f"{grub_snowos_cfg} active")
+    else:
+        health_grid.add_row("GRUB Bootloader Drop-in", "[dim yellow]Default (Untouched) ℹ[/dim yellow]", "System using baseline GRUB")
 
     console.print(health_grid)
     console.print("\n" + "="*58 + "\n")

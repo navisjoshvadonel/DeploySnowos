@@ -7,7 +7,8 @@ Requires=snowos-boot.service snowos-broker.service
 [Service]
 Type=simple
 User=snowos-sys
-Group=snowos-sys
+Group=snowos
+SupplementaryGroups=snowos-sys
 RuntimeDirectory=snowos
 RuntimeDirectoryMode=0775
 RuntimeDirectoryPreserve=yes
